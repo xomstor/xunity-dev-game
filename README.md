@@ -8,7 +8,18 @@ cd huyunity-game
 
 Настройка Unity для Git
 В Unity: Edit → Project Settings → Editor:
-
 Version Control Mode → Visible Meta Files
 Asset Serialization Mode → Force Text
 
+Рекомендуемая структура папок в Unity
+Assets/
+├── _Project/
+│   ├── Scripts/
+│   │   ├── Character/
+│   │   ├── Combat/
+│   │   ├── World/
+│   │   └── UI/
+│   ├── Scenes/
+│   ├── Audio/
+│   ├── Prefabs/
+│   └── Art/
