@@ -4,7 +4,7 @@
 Клонировать и инициализировать Unity проект
 bash
 git clone https://github.com/xomstor/xunity-dev-game.git
-cd huyunity-game
+cd xunity-game
 
 Настройка Unity для Git
 В Unity: Edit → Project Settings → Editor:
