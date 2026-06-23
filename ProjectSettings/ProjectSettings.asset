@@ -164,7 +164,7 @@ PlayerSettings:
   androidMaxAspectRatio: 2.4
   androidMinAspectRatio: 1
   applicationIdentifier:
-    Android: com.doesnm2peach.sekai
+    Android: com.doesnmpeach.sekai
     Standalone: com.DefaultCompany.2D-Project
   buildNumber:
     Standalone: 0

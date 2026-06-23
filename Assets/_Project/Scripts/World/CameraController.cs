@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class CameraController : MonoBehaviour
 {
@@ -19,6 +20,8 @@ public class CameraController : MonoBehaviour
     private void Awake()
     {
         cam = GetComponent<Camera>();
+        if (cam == null) cam = Camera.main;
+        Debug.Log($"CameraController cam: {cam}, size: {cam?.orthographicSize}");
     }
 
     private void Update()
@@ -30,52 +33,63 @@ public class CameraController : MonoBehaviour
     private void HandleMouseInput()
     {
         // Zoom with scroll wheel
-        float scroll = Input.GetAxis("Mouse ScrollWheel");
+        float scroll = Mouse.current != null ? Mouse.current.scroll.ReadValue().y : 0f;
         if (scroll != 0f)
         {
-            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - scroll * zoomSpeed * 10f, minZoom, maxZoom);
+            Debug.Log($"Scroll: {scroll}, OrthoSize: {cam.orthographicSize}");
+            cam.orthographicSize = Mathf.Clamp(cam.orthographicSize - Mathf.Sign(scroll) * zoomSpeed * 0.5f, minZoom, maxZoom);
         }
 
-        // Pan with middle mouse or right mouse
-        if (Input.GetMouseButtonDown(1) || Input.GetMouseButtonDown(2))
+        // Pan with right mouse button
+        if (Mouse.current == null) return;
+
+        if (Mouse.current.rightButton.wasPressedThisFrame || Mouse.current.middleButton.wasPressedThisFrame)
         {
-            lastPanPosition = Input.mousePosition;
+            lastPanPosition = Mouse.current.position.ReadValue();
             isPanning = true;
         }
-        if (Input.GetMouseButtonUp(1) || Input.GetMouseButtonUp(2))
+        if (Mouse.current.rightButton.wasReleasedThisFrame || Mouse.current.middleButton.wasReleasedThisFrame)
         {
             isPanning = false;
         }
         if (isPanning)
         {
-            Vector3 delta = cam.ScreenToWorldPoint(lastPanPosition) - cam.ScreenToWorldPoint(Input.mousePosition);
+            Vector2 mousePos = Mouse.current.position.ReadValue();
+            Vector3 delta = cam.ScreenToWorldPoint(lastPanPosition) - cam.ScreenToWorldPoint((Vector3)new Vector3(mousePos.x, mousePos.y, 0));
             transform.position = ClampPosition(transform.position + delta);
-            lastPanPosition = Input.mousePosition;
+            lastPanPosition = mousePos;
         }
     }
 
     private void HandleTouchInput()
     {
-        if (Input.touchCount == 1)
+        if (Touchscreen.current == null) return;
+
+        var touches = Touchscreen.current.touches;
+
+        if (touches.Count == 1)
         {
-            Touch touch = Input.GetTouch(0);
-            if (touch.phase == TouchPhase.Moved)
+            var touch = touches[0];
+            if (touch.phase.ReadValue() == UnityEngine.InputSystem.TouchPhase.Moved)
             {
-                Vector3 delta = cam.ScreenToWorldPoint(new Vector3(touch.deltaPosition.x, touch.deltaPosition.y, 0));
-                Vector3 origin = cam.ScreenToWorldPoint(Vector3.zero);
-                transform.position = ClampPosition(transform.position - (delta - origin));
+                Vector2 delta = touch.delta.ReadValue();
+                Vector3 worldDelta = cam.ScreenToWorldPoint(new Vector3(delta.x, delta.y, 0))
+                                   - cam.ScreenToWorldPoint(Vector3.zero);
+                transform.position = ClampPosition(transform.position - worldDelta);
             }
         }
-        else if (Input.touchCount == 2)
+        else if (touches.Count >= 2)
         {
-            Touch t0 = Input.GetTouch(0);
-            Touch t1 = Input.GetTouch(1);
+            Vector2 pos0 = touches[0].position.ReadValue();
+            Vector2 pos1 = touches[1].position.ReadValue();
+            Vector2 delta0 = touches[0].delta.ReadValue();
+            Vector2 delta1 = touches[1].delta.ReadValue();
 
-            Vector2 prevT0 = t0.position - t0.deltaPosition;
-            Vector2 prevT1 = t1.position - t1.deltaPosition;
+            Vector2 prevPos0 = pos0 - delta0;
+            Vector2 prevPos1 = pos1 - delta1;
 
-            float prevDist = (prevT0 - prevT1).magnitude;
-            float currDist = (t0.position - t1.position).magnitude;
+            float prevDist = (prevPos0 - prevPos1).magnitude;
+            float currDist = (pos0 - pos1).magnitude;
             float diff = prevDist - currDist;
 
             cam.orthographicSize = Mathf.Clamp(cam.orthographicSize + diff * zoomSpeed * 0.01f, minZoom, maxZoom);

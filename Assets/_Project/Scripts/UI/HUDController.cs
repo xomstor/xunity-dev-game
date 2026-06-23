@@ -22,7 +22,7 @@ public class HUDController : MonoBehaviour
 
     private void Start()
     {
-        player = FindFirstObjectByType<PlayerController>();
+        player = FindAnyObjectByType<PlayerController>();
         if (attackButton != null)
         {
             attackButton.onClick.AddListener(OnAttackButtonPressed);
