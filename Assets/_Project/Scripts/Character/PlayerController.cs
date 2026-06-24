@@ -27,6 +27,10 @@ public class PlayerController : MonoBehaviour
     {
         attackTimer -= Time.deltaTime;
     }
+    private void FixedUpdate()
+    {
+      
+    }
 
     public void ManualAttack()
     {
