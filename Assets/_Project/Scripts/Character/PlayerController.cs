@@ -8,6 +8,7 @@ public class PlayerController : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 5f;
     public float jumpForce = 10f;
+    public int maxJumps = 2;
 
     [Header("Ground Check")]
     public LayerMask groundLayer;
@@ -18,6 +19,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private bool isGrounded;
     private float moveInput;
+    private int jumpCount;
 
     void Awake()
     {
@@ -39,14 +41,14 @@ public class PlayerController : MonoBehaviour
             if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyInput += 1f;
             if (keyInput != 0f) moveInput = keyInput;
 
-            if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && isGrounded)
+            if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && jumpCount > 0)
                 Jump();
         }
 
         if (moveInput > 0)
-            transform.localScale = new Vector3(1, 1, 1);
+            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
         else if (moveInput < 0)
-            transform.localScale = new Vector3(-1, 1, 1);
+            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
 
         UpdateAnimator();
     }
@@ -61,7 +63,8 @@ public class PlayerController : MonoBehaviour
     void UpdateAnimator()
     {
         if (anim == null) return;
-        anim.SetFloat("Speed", Mathf.Abs(rb.linearVelocity.x));
+        int animState = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded ? 1 : 0;
+        anim.SetInteger("AnimState", animState);
         anim.SetBool("Grounded", isGrounded);
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);
     }
@@ -72,14 +75,18 @@ public class PlayerController : MonoBehaviour
         Vector2 origin = new Vector2(bounds.center.x, bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance, groundLayer);
         isGrounded = hit.collider != null;
+        if (isGrounded) jumpCount = maxJumps;
     }
 
     public void SetMoveInput(float input) => moveInput = input;
 
     public void Jump()
     {
-        if (isGrounded)
+        if (jumpCount > 0)
+        {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
+            jumpCount--;
+        }
     }
 
     public bool IsGrounded() => isGrounded;
