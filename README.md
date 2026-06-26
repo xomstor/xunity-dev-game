@@ -123,3 +123,34 @@ git push
 | `AutoCombat.cs` | Combat/ | Автоатака врагов в радиусе |
 | `EnemyBase.cs` | Combat/ | Базовый враг, дропает exp и золото |
 | `HUDController.cs` | UI/ | HP-бар, exp-бар, золото, кнопка атаки |
+
+---
+
+## Дедлайны
+
+| Что | Кто | Когда | Куда класть |
+|---|---|---|---|
+| Звуки для базовых действий (атака, урон, шаги, кнопки, фоновый ambient) | Владислав | **Среда** | `Assets/_Project/Audio/` |
+| Спрайты персонажей (Idle, Run, Attack) | Художник | **Среда** | `Assets/_Project/Art/Characters/` |
+| Задники / тайлсеты для уровней и Hub | Художник | **Среда** | `Assets/_Project/Art/World/` |
+| Диалоги для NPC (Hub-торговец, NPC на каждом уровне) | Константин, Валера | **Пятница** | `Assets/_Project/Dialogues/` |
+| Коллизии и движение персонажа | Николай | **Среда** | `Assets/_Project/Scripts/Character/` |
+| Доработка камеры (кламп, зум, тач-пан) | Николай | **Среда** | `Assets/_Project/Scripts/World/CameraController.cs` |
+| Кор-геймплей: автобой, урон, смерть врагов, золото/exp | Николай, Кирилл | **Пятница** | `Assets/_Project/Scripts/Combat/` |
+
+---
+
+## Чейнджлог
+
+### 2026-06-24
+- Настроен каркас мира: Hub + 5 уровней
+- Добавлен `WorldBuilder` с авто-разметкой зон, NPC, врагов и спавн-поинтов
+- Добавлен виртуальный джойстик и движение персонажа (`PlayerMovement`, `VirtualJoystick`)
+- Камера: пан и зум через New Input System
+- Проект обновлён на Unity 6000.5.1f1
+
+### 2026-06-23
+- Созданы кор-скрипты: GameManager, SceneLoader, CameraController, PlayerController, AutoCombat, EnemyBase, HUDController
+- Настроен Git + GitHub
+- Создана структура папок
+- Написан базовый README
