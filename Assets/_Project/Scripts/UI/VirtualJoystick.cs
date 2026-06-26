@@ -6,44 +6,51 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [Header("References")]
     public RectTransform background;
     public RectTransform handle;
+    public PlayerController player;
 
     [Header("Settings")]
-    public float handleRange = 1f;
+    [Tooltip("Max pixels handle can move from center")]
+    public float handleRange = 60f;
+    public float deadZone = 0.1f;
 
-    public Vector2 Direction { get; private set; }
-    public bool IsActive { get; private set; }
+    private Vector2 input = Vector2.zero;
+    private Camera uiCamera;
 
-    private Vector2 _startPos;
-    private Canvas _canvas;
-
-    private void Start()
+    void Awake()
     {
-        _canvas = GetComponentInParent<Canvas>();
-        _startPos = background.anchoredPosition;
+        Canvas canvas = GetComponentInParent<Canvas>();
+        uiCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+
+        if (background == null) background = GetComponent<RectTransform>();
+        if (handle == null) handle = transform.GetChild(0).GetComponent<RectTransform>();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        IsActive = true;
         OnDrag(eventData);
     }
 
     public void OnDrag(PointerEventData eventData)
     {
-        Vector2 screenPos;
+        Vector2 localPoint;
         RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            background, eventData.position, _canvas.worldCamera, out screenPos);
+            background, eventData.position, uiCamera, out localPoint);
 
-        float radius = background.sizeDelta.x * 0.5f * handleRange;
-        Vector2 clamped = Vector2.ClampMagnitude(screenPos, radius);
-        handle.anchoredPosition = clamped;
-        Direction = clamped / radius;
+        Vector2 delta = Vector2.ClampMagnitude(localPoint, handleRange);
+        handle.anchoredPosition = delta;
+
+        input = delta / handleRange;
+
+        float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
+        if (player != null) player.SetMoveInput(horizontal);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
-        IsActive = false;
-        Direction = Vector2.zero;
+        input = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
+        if (player != null) player.SetMoveInput(0f);
     }
+
+    public Vector2 GetInput() => input;
 }
