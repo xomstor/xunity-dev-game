@@ -18,7 +18,7 @@
 ## Что нужно установить
 
 1. **Unity Hub** — [download](https://unity.com/download)
-2. В Unity Hub → вкладка **Installs** → установи **Unity 6.4** (та же версия что у всех!)
+2. В Unity Hub → вкладка **Installs** → установи **Unity 6.5 (6000.5.1f1)** (та же версия что у всех!)
 3. При установке Unity добавь модуль **Android Build Support** (галочка в установщике)
 4. **Git** — [download](https://git-scm.com/downloads) (если не установлен)
 5. **GitHub Desktop** (опционально, если не хочешь терминал) — [download](https://desktop.github.com)
