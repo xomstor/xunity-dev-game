@@ -48,6 +48,8 @@ public class AutoCombat : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         if (anim == null)
             anim = GetComponent<Animator>();
+        if (anim == null)
+            anim = GetComponentInChildren<Animator>();
     }
 
     void Update()
@@ -66,11 +68,17 @@ public class AutoCombat : MonoBehaviour
             if (distance <= attackRange)
             {
                 Attack();
+                if (anim != null) anim.SetInteger("AnimState", 0);
             }
             else if (chaseTarget && rb != null)
             {
                 ChaseTarget();
+                if (anim != null) anim.SetInteger("AnimState", 1);
             }
+        }
+        else
+        {
+            if (anim != null) anim.SetInteger("AnimState", 0);
         }
     }
 
@@ -131,7 +139,10 @@ public class AutoCombat : MonoBehaviour
         attackTimer = attackCooldown;
 
         if (anim != null)
+        {
             anim.SetTrigger(attackTrigger);
+            Debug.Log($"{name}: Attack trigger set");
+        }
 
         AutoCombat targetCombat = target?.GetComponent<AutoCombat>();
         if (targetCombat != null)
