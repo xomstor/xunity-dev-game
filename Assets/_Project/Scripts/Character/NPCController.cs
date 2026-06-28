@@ -33,7 +33,7 @@ public class NPCController : MonoBehaviour
     void UpdateAnimator()
     {
         if (anim == null) return;
-        anim.SetBool("Grounded", isGrounded);
+        // Stationary NPC — no movement parameters needed
     }
 
     void CheckGround()
