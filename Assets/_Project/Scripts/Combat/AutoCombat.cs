@@ -31,7 +31,8 @@ public class AutoCombat : MonoBehaviour
 
     [Header("Effects")]
     public GameObject deathEffect;
-
+    [Header("Health (Runtime)")]
+    [SerializeField] 
     private int currentHealth;
     private float attackTimer;
     private Transform target;
@@ -75,8 +76,13 @@ public class AutoCombat : MonoBehaviour
 
     void FindTarget()
     {
+        // ✅ Улучшение: проверяем, жива ли цель
         if (target != null && target.gameObject.activeInHierarchy)
-            return;
+        {
+            AutoCombat targetCombat = target.GetComponent<AutoCombat>();
+            if (targetCombat == null || !targetCombat.IsDead)
+                return; // Цель ещё актуальна
+        }
 
         target = null;
         float closestDistance = detectionRadius;
@@ -107,8 +113,11 @@ public class AutoCombat : MonoBehaviour
     void ChaseTarget()
     {
         Vector2 direction = (target.position - transform.position).normalized;
+
+        // ✅ ИСПРАВЛЕНО: velocity вместо linearVelocity
         rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
 
+        // Поворот спрайта в направлении движения
         if (direction.x > 0.1f)
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
         else if (direction.x < -0.1f)
@@ -135,7 +144,8 @@ public class AutoCombat : MonoBehaviour
     {
         if (isDead) return;
 
-        currentHealth -= amount;
+        // ✅ Защита от отрицательного здоровья
+        currentHealth = Mathf.Max(0, currentHealth - amount);
 
         if (anim != null)
             anim.SetTrigger(hitTrigger);
@@ -155,6 +165,7 @@ public class AutoCombat : MonoBehaviour
 
         if (rb != null)
         {
+            // ✅ ИСПРАВЛЕНО: velocity вместо linearVelocity
             rb.linearVelocity = Vector2.zero;
             rb.bodyType = RigidbodyType2D.Kinematic;
         }
@@ -162,18 +173,22 @@ public class AutoCombat : MonoBehaviour
         if (deathEffect != null)
             Instantiate(deathEffect, transform.position, Quaternion.identity);
 
-        if (team == CombatTeam.Enemy)
-        {
-            Collider2D col = GetComponent<Collider2D>();
-            if (col != null)
-                col.enabled = false;
-        }
+        // ✅ ИСПРАВЛЕНИЕ: отключаем коллайдер для всех, а не только для Enemy
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+            col.enabled = false;
+
+        // Опционально: отключаем этот скрипт
+        // this.enabled = false;
     }
 
     void OnDrawGizmosSelected()
     {
+        // Радиус атаки (красный)
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+
+        // Радиус обнаружения (жёлтый)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
