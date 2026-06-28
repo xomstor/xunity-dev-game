@@ -1,10 +1,23 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[System.Serializable]
+public class DialogueChoice
+{
+    [TextArea] public string choiceText;
+    [TextArea] public string[] responseLines;
+}
+
 public class DialogueTrigger : MonoBehaviour
 {
     [Header("Dialogue")]
     [TextArea] public string[] dialogueLines;
+    public bool hasChoices;
+    public DialogueChoice[] choices;
+
+    [Header("NPC Info")]
+    public string npcName = "NPC";
+    public Sprite npcFace;
 
     [Header("Settings")]
     public GameObject interactPrompt;
@@ -48,7 +61,27 @@ public class DialogueTrigger : MonoBehaviour
 
     void StartDialogue()
     {
-        if (DialogueSystem.Instance != null)
-            DialogueSystem.Instance.ShowDialogue(dialogueLines);
+        if (DialogueSystem.Instance == null) return;
+
+        if (hasChoices && choices.Length > 0)
+        {
+            string[] choiceTexts = new string[choices.Length];
+            string[][] responses = new string[choices.Length][];
+            for (int i = 0; i < choices.Length; i++)
+            {
+                choiceTexts[i] = choices[i].choiceText;
+                responses[i] = choices[i].responseLines;
+            }
+            DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
+        }
+        else
+        {
+            DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+        }
+    }
+
+    void OnChoiceMade(int choiceIndex)
+    {
+        Debug.Log($"Player chose option {choiceIndex}");
     }
 }
