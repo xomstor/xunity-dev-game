@@ -823,7 +823,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -1037,8 +1037,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 14
-  m_fontSizeBase: 14
+  m_fontSize: 28
+  m_fontSizeBase: 28
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
@@ -1106,8 +1106,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 20}
-  m_SizeDelta: {x: 120, y: 20}
+  m_AnchoredPosition: {x: -1, y: 42}
+  m_SizeDelta: {x: 350, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &93468223
 GameObject:
@@ -1250,7 +1250,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::DialogueSystem
   dialoguePanel: {fileID: 326808164}
   dialogueText: {fileID: 1204593728}
+  npcNameText: {fileID: 0}
+  npcFaceImage: {fileID: 0}
   continueButton: {fileID: 1995185846}
+  choicePanel: {fileID: 0}
+  choiceButtonContainer: {fileID: 0}
+  choiceButtonPrefab: {fileID: 0}
   typingSpeed: 0.05
 --- !u!213 &96459498
 Sprite:
@@ -1369,7 +1374,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -1759,7 +1764,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -3865,7 +3870,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -4131,7 +4136,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -5359,7 +5364,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -5493,13 +5498,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 090cd324442cbeb45b372bc728631eb0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HealthBarUI
-  target: {fileID: 0}
+  target: {fileID: 981941165}
   healthBarFill: {fileID: 861190782}
   showText: 1
   legacyText: {fileID: 0}
   tmpText: {fileID: 73254534}
   worldOffset: {x: 0, y: 1.5, z: 0}
-  followTarget: 1
+  followTarget: 0
   highHealthColor: {r: 0, g: 1, b: 0, a: 1}
   midHealthColor: {r: 1, g: 0.92156863, b: 0.015686275, a: 1}
   lowHealthColor: {r: 1, g: 0, b: 0, a: 1}
@@ -5559,8 +5564,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1066, y: 499}
-  m_SizeDelta: {x: 120, y: 16}
+  m_AnchoredPosition: {x: -896, y: 446}
+  m_SizeDelta: {x: 350, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &482510031
 GameObject:
@@ -6022,7 +6027,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -6675,7 +6680,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -7484,7 +7489,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -8167,7 +8172,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -8525,7 +8530,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -8745,7 +8750,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -8965,7 +8970,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -9152,11 +9157,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
-  m_Type: 0
+  m_Sprite: {fileID: 7482667652216324306, guid: c21deb1a589a74642839cc27340d7d6a, type: 3}
+  m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 4
+  m_FillMethod: 0
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
@@ -9186,8 +9191,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 120, y: 16}
+  m_AnchoredPosition: {x: 0, y: 1}
+  m_SizeDelta: {x: 350, y: 45}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &864955259
 GameObject:
@@ -9707,7 +9712,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -10178,7 +10183,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -10633,6 +10638,10 @@ MonoBehaviour:
     \u043C\u0430\u0433 \u0432\u0437\u0440\u044B\u0432\u043E\u0432."
   - "\u041F\u0440\u0438\u043D\u0435\u0441\u0438 \u043C\u043D\u0435 \u043A\u0440\u0430\u0441\u043D\u044B\u0439
     \u043A\u0430\u043C\u0435\u043D\u044C, \u0438 \u044F \u0434\u0430\u043C \u043D\u0430\u0433\u0440\u0430\u0434\u0443."
+  hasChoices: 0
+  choices: []
+  npcName: NPC
+  npcFace: {fileID: 0}
   interactPrompt: {fileID: 276908994}
 --- !u!114 &1036889371
 MonoBehaviour:
@@ -11185,7 +11194,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -11792,7 +11801,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -12012,7 +12021,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -12775,7 +12784,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -13134,7 +13143,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -14662,7 +14671,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -15287,7 +15296,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -15737,7 +15746,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -16529,7 +16538,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -17537,7 +17546,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -18155,7 +18164,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -18375,7 +18384,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -18595,7 +18604,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -18861,7 +18870,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -19694,7 +19703,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
