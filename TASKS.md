@@ -100,14 +100,14 @@
 
 | ID | Что | Где | Статус |
 |---|---|---|---|
-| CODE-01 | Доработать движение Player | `PlayerMovement.cs` | В процессе |
-| CODE-02 | Добавить коллизии мира | `World/LevelCollision.cs` или тайлмап | В плане |
-| CODE-03 | Доработать камеру (кламп, зум) | `CameraController.cs` | В процессе |
-| CODE-04 | Система автобоя | `AutoCombat.cs` | Готово базово |
+| CODE-01 | Доработать движение Player | `PlayerMovement.cs` | Удовлетворительно |
+| CODE-02 | Добавить коллизии мира | `World/LevelCollision.cs` или тайлмап | В процессе |
+| CODE-03 | Доработать камеру (кламп, зум) | `CameraController.cs` | В процессе, но работает |
+| CODE-04 | Система автобоя | `AutoCombat.cs` | Готово базово, кирилл старается |
 | CODE-05 | Награды за убийство врагов | `EnemyBase.cs` + `GameManager.cs` | В плане |
-| CODE-06 | Диалоговая система | `UI/DialogueSystem.cs` | В плане |
-| CODE-07 | Переходы между уровнями | `World/ZoneTrigger.cs` | В плане |
-| CODE-08 | Система спавна игрока на уровнях | `World/SpawnManager.cs` | В плане |
+| CODE-06 | Диалоговая система | `UI/DialogueSystem.cs` | Присутствует |
+| CODE-07 | Переходы между уровнями | `World/ZoneTrigger.cs` | В процессе, есть |
+| CODE-08 | Система спавна игрока на уровнях | `World/SpawnManager.cs` | Присутствует |
 
 ---
 
