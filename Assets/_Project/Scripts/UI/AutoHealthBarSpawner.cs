@@ -3,26 +3,24 @@ using UnityEngine;
 public class AutoHealthBarSpawner : MonoBehaviour
 {
     [Header("Prefabs")]
-    public GameObject healthBarPrefab; // Перетащи сюда HealthBarPrefab
+    public GameObject healthBarPrefab;
 
     [Header("Settings")]
-    public Canvas canvas; // Перетащи MainCanvas
+    public Canvas canvas;
     public bool spawnForPlayers = true;
     public bool spawnForEnemies = true;
 
     [Header("Player Settings")]
-    public bool playerBarFixedPosition = true; // Фиксированная в углу?
-    public Vector2 playerBarPosition = new Vector2(20, -20); // Позиция в углу
-    public Vector2 playerBarSize = new Vector2(200, 25); // Размер полоски игрока
+    public bool playerBarFixedPosition = true;
+    public Vector2 playerBarPosition = new Vector2(20, -20);
+    public Vector2 playerBarSize = new Vector2(200, 25);
 
     void Start()
     {
-        // Найти все объекты с AutoCombat
-        AutoCombat[] allCombatants = FindObjectsOfType<AutoCombat>();
+        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
 
         foreach (var combatant in allCombatants)
         {
-            // Проверяем команду
             bool shouldSpawn = false;
 
             if (combatant.team == CombatTeam.Player && spawnForPlayers)
@@ -41,46 +39,40 @@ public class AutoHealthBarSpawner : MonoBehaviour
     {
         if (healthBarPrefab == null || canvas == null)
         {
-            Debug.LogError("Не задан HealthBarPrefab или Canvas!");
+            Debug.LogError("HealthBarPrefab or Canvas not assigned!");
             return;
         }
 
-        // Создаем полоску
         GameObject barInstance = Instantiate(healthBarPrefab, canvas.transform);
         barInstance.name = $"HealthBar_{combatant.gameObject.name}";
 
-        // Получаем компонент
         HealthBarUI healthBar = barInstance.GetComponent<HealthBarUI>();
         if (healthBar == null)
         {
-            Debug.LogError("У префаба нет компонента HealthBarUI!");
+            Debug.LogError("HealthBar prefab missing HealthBarUI component!");
             Destroy(barInstance);
             return;
         }
 
-        // Настраиваем
         healthBar.SetTarget(combatant);
 
-        // Особая настройка для игрока
         if (combatant.team == CombatTeam.Player && playerBarFixedPosition)
         {
-            healthBar.followTarget = false; // Фиксированная позиция
+            healthBar.followTarget = false;
 
-            // Настраиваем размер и позицию
             RectTransform rect = barInstance.GetComponent<RectTransform>();
-            rect.anchorMin = new Vector2(0, 1); // Top-Left
+            rect.anchorMin = new Vector2(0, 1);
             rect.anchorMax = new Vector2(0, 1);
             rect.pivot = new Vector2(0, 1);
             rect.anchoredPosition = playerBarPosition;
             rect.sizeDelta = playerBarSize;
 
-            Debug.Log($"✅ Создана полоска игрока (фиксированная)");
+            Debug.Log("Created player health bar (fixed)");
         }
         else
         {
-            // Для врагов - над головой
             healthBar.followTarget = true;
-            Debug.Log($"✅ Создана полоска для {combatant.name} (над головой)");
+            Debug.Log($"Created health bar for {combatant.name}");
         }
     }
 }

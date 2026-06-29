@@ -84,12 +84,12 @@ public class AutoCombat : MonoBehaviour
 
     void FindTarget()
     {
-        // ✅ Улучшение: проверяем, жива ли цель
+        // Check if target is alive
         if (target != null && target.gameObject.activeInHierarchy)
         {
             AutoCombat targetCombat = target.GetComponent<AutoCombat>();
             if (targetCombat == null || !targetCombat.IsDead)
-                return; // Цель ещё актуальна
+                return; // target still valid
         }
 
         target = null;

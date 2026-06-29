@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8107518946228271371}
   - component: {fileID: 7939322267234456635}
   m_Layer: 0
-  m_Name: Enemy_L1_1
+  m_Name: Spyder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

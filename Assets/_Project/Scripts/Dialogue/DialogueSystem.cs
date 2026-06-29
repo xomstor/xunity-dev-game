@@ -22,7 +22,6 @@ public class DialogueSystem : MonoBehaviour
     public float typingSpeed = 0.05f;
 
     private Coroutine currentDialogue;
-    private bool isTyping;
     private bool continuePressed;
     private int choiceIndex = -1;
     private System.Action<int> onChoiceMade;
@@ -164,7 +163,6 @@ public class DialogueSystem : MonoBehaviour
 
     IEnumerator TypeText(string text)
     {
-        isTyping = true;
         dialogueText.text = "";
         
         foreach (char letter in text.ToCharArray())
@@ -178,7 +176,6 @@ public class DialogueSystem : MonoBehaviour
             yield return new WaitForSeconds(typingSpeed);
         }
         
-        isTyping = false;
         continuePressed = false;
     }
 
