@@ -24,6 +24,9 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayer;
     public float groundCheckDistance = 0.1f;
 
+    [Header("Stats")]
+    public PlayerStats playerStats;
+
     private Rigidbody2D rb;
     private BoxCollider2D col;
     private Animator anim;
@@ -45,6 +48,9 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
+
+        if (playerStats == null)
+            playerStats = GetComponent<PlayerStats>();
 
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -84,10 +90,12 @@ public class PlayerController : MonoBehaviour
 
     void UpdateMoveSpeed()
     {
+        float speedMultiplier = playerStats != null ? 1f + playerStats.spd * 0.05f : 1f;
+
         if (moveInput != 0)
         {
             moveHeldTime += Time.deltaTime;
-            currentMoveSpeed = moveHeldTime >= runDelay ? runSpeed : walkSpeed;
+            currentMoveSpeed = (moveHeldTime >= runDelay ? runSpeed : walkSpeed) * speedMultiplier;
         }
         else
         {
@@ -138,7 +146,7 @@ public class PlayerController : MonoBehaviour
         isAttacking = false;
     }
 
-    void Roll()
+    public void Roll()
     {
         if (isRolling || rollCooldownTimer > 0 || !isGrounded) return;
 

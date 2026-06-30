@@ -50,6 +50,14 @@ public class AutoCombat : MonoBehaviour
             anim = GetComponent<Animator>();
         if (anim == null)
             anim = GetComponentInChildren<Animator>();
+
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+        {
+            maxHealth = stats.maxHp;
+            currentHealth = stats.hp;
+            damage = stats.atk;
+        }
     }
 
     void Update()
@@ -184,6 +192,10 @@ public class AutoCombat : MonoBehaviour
 
         // ✅ Защита от отрицательного здоровья
         currentHealth = Mathf.Max(0, currentHealth - amount);
+
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+            stats.hp = currentHealth;
 
         if (anim != null)
         {
