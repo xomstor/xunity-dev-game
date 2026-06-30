@@ -6,9 +6,14 @@ using UnityEngine.InputSystem;
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement")]
-    public float moveSpeed = 5f;
+    public float walkSpeed = 2f;
+    public float runSpeed = 5f;
+    public float runDelay = 0.3f;
     public float jumpForce = 10f;
     public int maxJumps = 2;
+
+    [Header("Attack")]
+    public float attackComboResetTime = 1f;
 
     [Header("Ground Check")]
     public LayerMask groundLayer;
@@ -20,6 +25,11 @@ public class PlayerController : MonoBehaviour
     private bool isGrounded;
     private float moveInput;
     private int jumpCount;
+    private float moveHeldTime;
+    private float currentMoveSpeed;
+    private int attackCombo;
+    private float attackComboTimer;
+    private bool isAttacking;
 
     void Awake()
     {
@@ -43,7 +53,13 @@ public class PlayerController : MonoBehaviour
 
             if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && jumpCount > 0)
                 Jump();
+
+            if (keyboard.jKey.wasPressedThisFrame)
+                Attack();
         }
+
+        UpdateMoveSpeed();
+        UpdateAttackComboTimer();
 
         if (moveInput > 0)
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
@@ -53,10 +69,63 @@ public class PlayerController : MonoBehaviour
         UpdateAnimator();
     }
 
+    void UpdateMoveSpeed()
+    {
+        if (moveInput != 0)
+        {
+            moveHeldTime += Time.deltaTime;
+            currentMoveSpeed = moveHeldTime >= runDelay ? runSpeed : walkSpeed;
+        }
+        else
+        {
+            moveHeldTime = 0f;
+            currentMoveSpeed = 0f;
+        }
+    }
+
+    void UpdateAttackComboTimer()
+    {
+        if (attackComboTimer > 0)
+        {
+            attackComboTimer -= Time.deltaTime;
+            if (attackComboTimer <= 0)
+                attackCombo = 0;
+        }
+    }
+
+    void Attack()
+    {
+        if (anim == null || isAttacking) return;
+
+        isAttacking = true;
+        attackComboTimer = attackComboResetTime;
+        attackCombo++;
+
+        if (attackCombo > 3)
+            attackCombo = 1;
+
+        string triggerName = attackCombo switch
+        {
+            2 => "Attack2",
+            3 => "Attack3",
+            _ => "Attack1",
+        };
+
+        anim.SetTrigger(triggerName);
+        attackComboTimer = attackComboResetTime;
+
+        Invoke(nameof(ResetAttack), 0.5f);
+    }
+
+    void ResetAttack()
+    {
+        isAttacking = false;
+    }
+
     void FixedUpdate()
     {
         CheckGround();
-        rb.linearVelocity = new Vector2(moveInput * moveSpeed, rb.linearVelocity.y);
+        rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
         moveInput = 0f;
     }
 
