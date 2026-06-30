@@ -203,6 +203,10 @@ public class AutoCombat : MonoBehaviour
             anim.SetTrigger(trigger);
         }
 
+        PlayerAudio playerAudio = GetComponent<PlayerAudio>();
+        if (playerAudio != null)
+            playerAudio.PlayHurt();
+
         if (currentHealth <= 0)
         {
             Die();

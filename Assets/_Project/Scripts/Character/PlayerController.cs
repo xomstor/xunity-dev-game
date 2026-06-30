@@ -27,6 +27,9 @@ public class PlayerController : MonoBehaviour
     [Header("Stats")]
     public PlayerStats playerStats;
 
+    [Header("Audio")]
+    public PlayerAudio playerAudio;
+
     private Rigidbody2D rb;
     private BoxCollider2D col;
     private Animator anim;
@@ -51,6 +54,8 @@ public class PlayerController : MonoBehaviour
 
         if (playerStats == null)
             playerStats = GetComponent<PlayerStats>();
+        if (playerAudio == null)
+            playerAudio = GetComponent<PlayerAudio>();
 
         rb.constraints = RigidbodyConstraints2D.FreezeRotation;
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
@@ -133,6 +138,7 @@ public class PlayerController : MonoBehaviour
         };
 
         anim.SetTrigger(triggerName);
+        playerAudio?.PlayAttack(attackCombo);
 
         AutoCombat combat = GetComponent<AutoCombat>();
         if (combat != null)
@@ -157,6 +163,8 @@ public class PlayerController : MonoBehaviour
 
         if (anim != null)
             anim.SetTrigger("Roll");
+
+        playerAudio?.PlayRoll();
     }
 
     void UpdateRoll()
@@ -196,6 +204,8 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("AnimState", animState);
         anim.SetBool("Grounded", isGrounded);
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);
+
+        playerAudio?.SetMovement(isMoving, currentMoveSpeed);
     }
 
     void CheckGround()
@@ -215,6 +225,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount--;
+            playerAudio?.PlayJump();
         }
     }
 
