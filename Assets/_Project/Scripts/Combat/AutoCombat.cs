@@ -61,6 +61,9 @@ public class AutoCombat : MonoBehaviour
 
         FindTarget();
 
+        // Player is controlled manually by PlayerController
+        if (GetComponent<PlayerController>() != null) return;
+
         if (target != null)
         {
             float distance = Vector2.Distance(transform.position, target.position);
@@ -79,6 +82,23 @@ public class AutoCombat : MonoBehaviour
         else
         {
             if (anim != null) anim.SetInteger("AnimState", 0);
+        }
+    }
+
+    public void TryAttack()
+    {
+        if (attackTimer > 0) return;
+        if (target == null) return;
+
+        float distance = Vector2.Distance(transform.position, target.position);
+        if (distance > attackRange) return;
+
+        attackTimer = attackCooldown;
+
+        AutoCombat targetCombat = target.GetComponent<AutoCombat>();
+        if (targetCombat != null)
+        {
+            targetCombat.TakeDamage(damage);
         }
     }
 

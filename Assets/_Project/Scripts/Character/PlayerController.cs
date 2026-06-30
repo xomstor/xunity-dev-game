@@ -112,7 +112,10 @@ public class PlayerController : MonoBehaviour
         };
 
         anim.SetTrigger(triggerName);
-        attackComboTimer = attackComboResetTime;
+
+        AutoCombat combat = GetComponent<AutoCombat>();
+        if (combat != null)
+            combat.TryAttack();
 
         Invoke(nameof(ResetAttack), 0.5f);
     }
@@ -132,7 +135,8 @@ public class PlayerController : MonoBehaviour
     void UpdateAnimator()
     {
         if (anim == null) return;
-        int animState = Mathf.Abs(rb.linearVelocity.x) > 0.1f && isGrounded ? 1 : 0;
+        bool isMoving = Mathf.Abs(moveInput) > 0.1f && isGrounded;
+        int animState = isMoving ? 1 : 0;
         anim.SetInteger("AnimState", animState);
         anim.SetBool("Grounded", isGrounded);
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);

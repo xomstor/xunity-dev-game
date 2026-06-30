@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 4305247695952240161}
   - component: {fileID: 8107518946228271371}
   - component: {fileID: 7939322267234456635}
+  - component: {fileID: -765218467695331665}
   m_Layer: 0
   m_Name: Spyder
   m_TagString: Untagged
@@ -166,3 +167,30 @@ MonoBehaviour:
   hitTrigger: Hit
   deathEffect: {fileID: 0}
   currentHealth: 0
+--- !u!50 &-765218467695331665
+Rigidbody2D:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4736337183442238658}
+  m_BodyType: 0
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDamping: 0
+  m_AngularDamping: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
