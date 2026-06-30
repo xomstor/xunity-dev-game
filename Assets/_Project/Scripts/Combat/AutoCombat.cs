@@ -61,8 +61,7 @@ public class AutoCombat : MonoBehaviour
 
         FindTarget();
 
-        // Player is controlled manually by PlayerController
-        if (GetComponent<PlayerController>() != null) return;
+        PlayerController playerController = GetComponent<PlayerController>();
 
         if (target != null)
         {
@@ -70,16 +69,24 @@ public class AutoCombat : MonoBehaviour
 
             if (distance <= attackRange)
             {
-                Attack();
-                if (anim != null) anim.SetInteger("AnimState", 0);
+                if (playerController != null)
+                {
+                    playerController.Attack();
+                    if (anim != null) anim.SetInteger("AnimState", 0);
+                }
+                else
+                {
+                    Attack();
+                    if (anim != null) anim.SetInteger("AnimState", 0);
+                }
             }
-            else if (chaseTarget && rb != null)
+            else if (playerController == null && chaseTarget && rb != null)
             {
                 ChaseTarget();
                 if (anim != null) anim.SetInteger("AnimState", 1);
             }
         }
-        else
+        else if (playerController == null)
         {
             if (anim != null) anim.SetInteger("AnimState", 0);
         }
@@ -179,7 +186,10 @@ public class AutoCombat : MonoBehaviour
         currentHealth = Mathf.Max(0, currentHealth - amount);
 
         if (anim != null)
-            anim.SetTrigger(hitTrigger);
+        {
+            string trigger = GetComponent<PlayerController>() != null ? "Hurt" : hitTrigger;
+            anim.SetTrigger(trigger);
+        }
 
         if (currentHealth <= 0)
         {

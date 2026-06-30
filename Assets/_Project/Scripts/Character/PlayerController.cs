@@ -15,6 +15,11 @@ public class PlayerController : MonoBehaviour
     [Header("Attack")]
     public float attackComboResetTime = 1f;
 
+    [Header("Roll")]
+    public float rollSpeed = 8f;
+    public float rollDuration = 0.5f;
+    public float rollCooldown = 1f;
+
     [Header("Ground Check")]
     public LayerMask groundLayer;
     public float groundCheckDistance = 0.1f;
@@ -30,6 +35,10 @@ public class PlayerController : MonoBehaviour
     private int attackCombo;
     private float attackComboTimer;
     private bool isAttacking;
+    private bool isRolling;
+    private float rollTimer;
+    private float rollCooldownTimer;
+    private int rollDirection;
 
     void Awake()
     {
@@ -56,8 +65,12 @@ public class PlayerController : MonoBehaviour
 
             if (keyboard.jKey.wasPressedThisFrame)
                 Attack();
+
+            if (keyboard.kKey.wasPressedThisFrame)
+                Roll();
         }
 
+        UpdateRoll();
         UpdateMoveSpeed();
         UpdateAttackComboTimer();
 
@@ -93,9 +106,9 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    void Attack()
+    public void Attack()
     {
-        if (anim == null || isAttacking) return;
+        if (anim == null || isAttacking || isRolling) return;
 
         isAttacking = true;
         attackComboTimer = attackComboResetTime;
@@ -125,10 +138,45 @@ public class PlayerController : MonoBehaviour
         isAttacking = false;
     }
 
+    void Roll()
+    {
+        if (isRolling || rollCooldownTimer > 0 || !isGrounded) return;
+
+        isRolling = true;
+        rollTimer = rollDuration;
+        rollCooldownTimer = rollCooldown;
+        rollDirection = moveInput != 0 ? (int)Mathf.Sign(moveInput) : (int)Mathf.Sign(transform.localScale.x);
+
+        if (anim != null)
+            anim.SetTrigger("Roll");
+    }
+
+    void UpdateRoll()
+    {
+        if (rollCooldownTimer > 0)
+            rollCooldownTimer -= Time.deltaTime;
+
+        if (rollTimer > 0)
+        {
+            rollTimer -= Time.deltaTime;
+            if (rollTimer <= 0)
+                isRolling = false;
+        }
+    }
+
     void FixedUpdate()
     {
         CheckGround();
-        rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
+
+        if (isRolling)
+        {
+            rb.linearVelocity = new Vector2(rollDirection * rollSpeed, rb.linearVelocity.y);
+        }
+        else
+        {
+            rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
+        }
+
         moveInput = 0f;
     }
 
