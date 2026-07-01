@@ -80,6 +80,15 @@ public class AutoCombat : MonoBehaviour
 
         if (team == CombatTeam.Enemy && chaseTarget && rb == null)
             Debug.LogWarning($"{name}: chaseTarget is enabled but no Rigidbody2D found. Enemy will not move!");
+
+        Collider2D[] cols = GetComponentsInChildren<Collider2D>();
+        bool hasNonTrigger = false;
+        foreach (Collider2D c in cols)
+        {
+            if (!c.isTrigger) { hasNonTrigger = true; break; }
+        }
+        if (!hasNonTrigger && team == CombatTeam.Enemy)
+            Debug.LogWarning($"{name}: has no non-trigger collider! Player cannot auto-target this enemy.");
     }
 
     void Update()
