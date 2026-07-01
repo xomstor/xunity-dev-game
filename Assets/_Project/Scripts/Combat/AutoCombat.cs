@@ -261,8 +261,12 @@ public class AutoCombat : MonoBehaviour
 
             float distance = Vector2.Distance(transform.position, collider.transform.position);
 
-            AutoCombat other = root.GetComponentInChildren<AutoCombat>();
-            PlayerController playerController = root.GetComponentInChildren<PlayerController>();
+            AutoCombat other = FindAutoCombat(collider.transform);
+            PlayerController playerController = collider.GetComponent<PlayerController>();
+            if (playerController == null)
+                playerController = collider.GetComponentInParent<PlayerController>();
+            if (playerController == null)
+                playerController = collider.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
             if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))) continue;
