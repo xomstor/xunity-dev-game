@@ -274,14 +274,23 @@ public class AutoCombat : MonoBehaviour
             Transform root = collider.transform.root;
             if (root == transform.root) continue;
 
+            float distance = Vector2.Distance(transform.position, collider.transform.position);
+
             AutoCombat other = root.GetComponentInChildren<AutoCombat>();
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
-            if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))) continue;
+            if (other != null)
+            {
+                if (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))
+                {
+                    if (distance < detectionRadius)
+                        Debug.Log($"{name}: rejected {root.name} - dead={other.isDead}, targetable={other.canBeTargeted}, team={other.team}, valid={IsValidTarget(other.team)}, ignoreTag={HasIgnoreTag(other.transform)}");
+                    continue;
+                }
+            }
             if (playerController != null && HasIgnoreTag(playerController.transform)) continue;
 
-            float distance = Vector2.Distance(transform.position, collider.transform.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
