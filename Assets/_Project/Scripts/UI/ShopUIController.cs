@@ -38,18 +38,20 @@ public class ShopUIController : MonoBehaviour
     public Color closeButtonColor = new Color(0.6f, 0.2f, 0.2f, 1f);
     public Color tooltipColor = new Color(0.1f, 0.1f, 0.1f, 0.95f);
 
-    private GameObject shopPanel;
-    private Transform itemContainer;
-    private TextMeshProUGUI goldText;
-    private TextMeshProUGUI itemNameText;
-    private TextMeshProUGUI itemDescriptionText;
-    private TextMeshProUGUI itemPriceText;
-    private Image itemIcon;
-    private Button buyButton;
-    private Button sellButton;
-    private Button closeButton;
-    private GameObject tooltipPanel;
-    private TextMeshProUGUI tooltipText;
+    [Header("UI Elements (assign manually or auto-create)")]
+    public GameObject shopPanel;
+    public Transform itemContainer;
+    public TextMeshProUGUI goldText;
+    public TextMeshProUGUI itemNameText;
+    public TextMeshProUGUI itemDescriptionText;
+    public TextMeshProUGUI itemPriceText;
+    public Image itemIcon;
+    public Button buyButton;
+    public Button sellButton;
+    public Button closeButton;
+    public GameObject tooltipPanel;
+    public TextMeshProUGUI tooltipText;
+    public GameObject itemButtonPrefab;
 
     private int selectedItemIndex = -1;
     private List<GameObject> itemButtons = new List<GameObject>();
@@ -96,6 +98,12 @@ public class ShopUIController : MonoBehaviour
 
     void CreateShopUI()
     {
+        if (shopPanel != null)
+        {
+            WireUpEvents();
+            return;
+        }
+
         Canvas canvas = GetComponent<Canvas>();
         if (canvas == null)
         {
@@ -107,41 +115,18 @@ public class ShopUIController : MonoBehaviour
             }
         }
 
-        GameObject shopCanvasGO = new GameObject("ShopCanvas");
-        shopCanvasGO.transform.SetParent(transform, false);
-        Canvas shopCanvas = shopCanvasGO.AddComponent<Canvas>();
-        shopCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
-        shopCanvas.sortingOrder = 10;
-        shopCanvasGO.AddComponent<GraphicRaycaster>();
-        CanvasScaler scaler = shopCanvasGO.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-        scaler.matchWidthOrHeight = 0.5f;
+        shopPanel = CreatePanel("ShopPanel", canvas.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(800, 600), panelColor);
 
-        shopPanel = CreatePanel("ShopPanel", shopCanvas.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), panelColor);
+        CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
 
-        GameObject topBar = CreatePanel("TopBar", shopPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -40), new Vector2(0, 80), new Color(0, 0, 0, 0.3f));
-        CreateText("TitleText", topBar.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(300, 50), titleText, 32, TextAnchor.MiddleLeft, Color.white);
-        goldText = CreateText("GoldText", topBar.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-180, 0), new Vector2(150, 40), goldPrefix + "0", 24, TextAnchor.MiddleRight, Color.yellow);
-        closeButton = CreateButton("CloseButton", topBar.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-50, 0), new Vector2(70, 45), closeButtonText, closeButtonColor, 22);
+        closeButton = CreateButton("CloseButton", shopPanel.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-60, -40), new Vector2(80, 40), closeButtonText, closeButtonColor, 24);
         closeButton.onClick.AddListener(CloseShop);
 
-        GameObject contentArea = CreatePanel("ContentArea", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -10), new Vector2(0, -160), new Color(0, 0, 0, 0));
-        HorizontalLayoutGroup hlg = contentArea.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 20;
-        hlg.padding = new RectOffset(20, 20, 20, 20);
-        hlg.childControlWidth = true;
-        hlg.childControlHeight = true;
-        hlg.childForceExpandWidth = true;
-        hlg.childForceExpandHeight = true;
+        goldText = CreateText("GoldText", shopPanel.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-280, -30), new Vector2(180, 50), goldPrefix + "0", 28, TextAnchor.MiddleRight, Color.yellow);
 
-        GameObject leftPanel = CreatePanel("ItemListPanel", contentArea.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Color(0, 0, 0, 0.3f));
-        LayoutElement leftLE = leftPanel.AddComponent<LayoutElement>();
-        leftLE.flexibleWidth = 0.4f;
-        leftLE.flexibleHeight = 1;
+        GameObject leftPanel = CreatePanel("ItemListPanel", shopPanel.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(170, 0), new Vector2(320, 480), new Color(0, 0, 0, 0.3f));
 
-        GameObject itemList = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 0), new Vector2(-20, -20), new Color(0, 0, 0, 0));
+        GameObject itemList = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, 0), new Vector2(300, 460), new Color(0, 0, 0, 0));
         VerticalLayoutGroup vlg = itemList.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 10;
         vlg.padding = new RectOffset(10, 10, 10, 10);
@@ -153,38 +138,46 @@ public class ShopUIController : MonoBehaviour
         itemList.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         itemContainer = itemList.transform;
 
-        GameObject rightPanel = CreatePanel("ItemDetailPanel", contentArea.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Color(0, 0, 0, 0.3f));
-        LayoutElement rightLE = rightPanel.AddComponent<LayoutElement>();
-        rightLE.flexibleWidth = 0.6f;
-        rightLE.flexibleHeight = 1;
+        GameObject rightPanel = CreatePanel("ItemDetailPanel", shopPanel.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-300, 20), new Vector2(360, 440), new Color(0, 0, 0, 0.3f));
 
-        itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -60), new Vector2(100, 100));
-        itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -150), new Vector2(400, 40), "", 28, TextAnchor.MiddleCenter, Color.white);
-        itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 20), new Vector2(440, 250), noItemSelectedMessage, 20, TextAnchor.UpperLeft, new Color(0.8f, 0.8f, 0.8f, 1f));
+        itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -70), new Vector2(100, 100));
+        itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(340, 40), "", 30, TextAnchor.MiddleCenter, Color.white);
+        itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -260), new Vector2(340, 120), noItemSelectedMessage, 22, TextAnchor.UpperCenter, new Color(0.8f, 0.8f, 0.8f, 1f));
         itemDescriptionText.overflowMode = TextOverflowModes.Overflow;
         itemDescriptionText.textWrappingMode = TextWrappingModes.Normal;
 
-        itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(400, 40), "", 24, TextAnchor.MiddleCenter, Color.yellow);
+        itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(340, 40), "", 26, TextAnchor.MiddleCenter, Color.yellow);
 
-        buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 55), new Vector2(220, 50), buyButtonText, buyButtonColor, 24);
+        buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(200, 50), buyButtonText, buyButtonColor, 28);
         buyButton.onClick.AddListener(BuySelectedItem);
 
-        sellButton = CreateButton("SellButton", shopPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 30), new Vector2(260, 50), sellButtonText, sellButtonColor, 20);
+        sellButton = CreateButton("SellButton", shopPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(250, 50), sellButtonText, sellButtonColor, 24);
         sellButton.onClick.AddListener(SellAllSouls);
 
-        tooltipPanel = CreatePanel("TooltipPanel", shopCanvas.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(300, 100), new Color(0.05f, 0.05f, 0.05f, 0.95f));
+        tooltipPanel = CreatePanel("TooltipPanel", shopPanel.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(250, 80), tooltipColor);
         tooltipPanel.SetActive(false);
-        tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), "", 22, TextAnchor.MiddleCenter, Color.white);
+        tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), "", 20, TextAnchor.MiddleCenter, Color.white);
         tooltipText.overflowMode = TextOverflowModes.Overflow;
         tooltipText.textWrappingMode = TextWrappingModes.Normal;
         RectTransform tooltipTextRt = tooltipText.GetComponent<RectTransform>();
-        tooltipTextRt.offsetMin = new Vector2(12, 12);
-        tooltipTextRt.offsetMax = new Vector2(-12, -12);
+        tooltipTextRt.offsetMin = new Vector2(10, 10);
+        tooltipTextRt.offsetMax = new Vector2(-10, -10);
         ContentSizeFitter tooltipFitter = tooltipPanel.AddComponent<ContentSizeFitter>();
         tooltipFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         tooltipFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
 
+        WireUpEvents();
         shopPanel.SetActive(false);
+    }
+
+    void WireUpEvents()
+    {
+        if (closeButton != null)
+            closeButton.onClick.AddListener(CloseShop);
+        if (buyButton != null)
+            buyButton.onClick.AddListener(BuySelectedItem);
+        if (sellButton != null)
+            sellButton.onClick.AddListener(SellAllSouls);
     }
 
     GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Color color)
