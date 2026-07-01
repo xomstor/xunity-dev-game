@@ -40,8 +40,23 @@ public class LevelNameDisplay : MonoBehaviour
 
     public void Show(string levelName)
     {
-        if (string.IsNullOrEmpty(levelName)) return;
-        if (levelNameText == null) return;
+        Debug.Log($"LevelNameDisplay.Show called with: {levelName}");
+
+        if (string.IsNullOrEmpty(levelName))
+        {
+            Debug.LogWarning("LevelNameDisplay: levelName is empty");
+            return;
+        }
+        if (levelNameText == null)
+        {
+            Debug.LogError("LevelNameDisplay: levelNameText is not assigned!");
+            return;
+        }
+        if (canvasGroup == null)
+        {
+            Debug.LogError("LevelNameDisplay: canvasGroup is missing!");
+            return;
+        }
 
         if (currentAnimation != null)
             StopCoroutine(currentAnimation);
@@ -55,6 +70,8 @@ public class LevelNameDisplay : MonoBehaviour
 
         if (displayPanel != null)
             displayPanel.SetActive(true);
+        else
+            gameObject.SetActive(true);
 
         canvasGroup.alpha = 0f;
 

@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: 
   itemName: 
   description: 
-  itemType: 0
+  itemType: 2
   icon: {fileID: 0}
   price: 0
   maxStack: 1
