@@ -199,7 +199,7 @@ public class AutoCombat : MonoBehaviour
         // Check if target is alive and not destroyed
         if (target != null && target.gameObject.activeInHierarchy)
         {
-            AutoCombat targetCombat = target.GetComponentInParent<AutoCombat>();
+            AutoCombat targetCombat = target.GetComponentInChildren<AutoCombat>();
             if (targetCombat == null || !targetCombat.IsDead)
             {
                 float distance = Vector2.Distance(transform.position, target.position);
@@ -217,26 +217,26 @@ public class AutoCombat : MonoBehaviour
         {
             Transform root = collider.transform.root;
             if (root == transform.root) continue;
-            if (HasIgnoreTag(root)) continue;
 
             AutoCombat other = root.GetComponentInChildren<AutoCombat>();
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
-            if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team))) continue;
+            if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))) continue;
+            if (playerController != null && HasIgnoreTag(playerController.transform)) continue;
 
             float distance = Vector2.Distance(transform.position, collider.transform.position);
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                target = root;
+                target = collider.transform;
             }
         }
 
         if (target != previousTarget && Application.isEditor)
         {
             if (target != null)
-                Debug.Log($"{name}: found target {target.name}");
+                Debug.Log($"{name}: found target {target.name} ({closestDistance:F2})");
             else
                 Debug.Log($"{name}: no target found within {detectionRadius}");
         }
@@ -289,6 +289,7 @@ public class AutoCombat : MonoBehaviour
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(damage);
+            ShowDamagePopup(target.position, damage, false, team == CombatTeam.Player);
         }
     }
 
