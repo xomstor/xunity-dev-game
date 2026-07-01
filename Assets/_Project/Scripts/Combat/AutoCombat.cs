@@ -75,6 +75,9 @@ public class AutoCombat : MonoBehaviour
             currentHealth = stats.hp;
             damage = stats.atk;
         }
+
+        if (team == CombatTeam.Enemy && chaseTarget && rb == null)
+            Debug.LogWarning($"{name}: chaseTarget is enabled but no Rigidbody2D found. Enemy will not move!");
     }
 
     void Update()
