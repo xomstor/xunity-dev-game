@@ -80,7 +80,7 @@ public class ShopSetupEditor : EditorWindow
 
     static Canvas FindCanvas()
     {
-        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+        Canvas[] canvases = FindObjectsByType<Canvas>();
         foreach (Canvas c in canvases)
         {
             if (c.renderMode == RenderMode.ScreenSpaceOverlay || c.renderMode == RenderMode.ScreenSpaceCamera)
