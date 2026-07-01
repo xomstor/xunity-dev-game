@@ -77,7 +77,7 @@ public class ShopSetupEditor : EditorWindow
 
     static Canvas FindCanvas()
     {
-        Canvas[] canvases = FindObjectsOfType<Canvas>();
+        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
         foreach (Canvas c in canvases)
         {
             if (c.renderMode == RenderMode.ScreenSpaceOverlay || c.renderMode == RenderMode.ScreenSpaceCamera)
@@ -145,8 +145,8 @@ public class ShopSetupEditor : EditorWindow
         }
 
         controller.shopManager = shopManager;
-        controller.playerStats = FindObjectOfType<PlayerStats>();
-        controller.playerInventory = FindObjectOfType<Inventory>();
+        controller.playerStats = FindAnyObjectByType<PlayerStats>();
+        controller.playerInventory = FindAnyObjectByType<Inventory>();
 
         string[] spiderTailGuids = AssetDatabase.FindAssets("SpiderTail t:ItemData", new[] { "Assets/_Project/Custom/Items" });
         if (spiderTailGuids.Length > 0)
