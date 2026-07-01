@@ -355,6 +355,15 @@ public class AutoCombat : MonoBehaviour
         }
     }
 
+    public void Heal(int amount)
+    {
+        if (isDead || amount <= 0) return;
+        currentHealth = Mathf.Min(maxHealth, currentHealth + amount);
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+            stats.hp = currentHealth;
+    }
+
     public void TakeDamage(int amount)
     {
         if (isDead) return;
