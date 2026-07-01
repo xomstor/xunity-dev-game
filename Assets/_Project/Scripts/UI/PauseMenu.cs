@@ -52,12 +52,14 @@ public class PauseMenu : MonoBehaviour
 
         statsText.text =
             $"Level: {playerStats.level}\n" +
-            $"XP: {playerStats.experience}\n\n" +
+            $"XP: {playerStats.experience} / {playerStats.experienceToNextLevel}\n" +
+            $"Gold: {playerStats.gold}\n\n" +
             $"HP: {playerStats.hp} / {playerStats.maxHp}\n" +
             $"ATK: {playerStats.atk}\n" +
             $"DEF: {playerStats.def}\n" +
             $"SPD: {playerStats.spd}\n" +
-            $"LCK: {playerStats.lck}";
+            $"LCK: {playerStats.lck}\n\n" +
+            $"Crit: {playerStats.GetCritChance() * 100f:F0}%";
     }
 
     void OnValidate()

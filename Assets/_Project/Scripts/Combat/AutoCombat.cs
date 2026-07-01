@@ -42,6 +42,15 @@ public class AutoCombat : MonoBehaviour
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
 
+    public void ResetHealth()
+    {
+        isDead = false;
+        currentHealth = maxHealth;
+        Collider2D col = GetComponent<Collider2D>();
+        if (col != null)
+            col.enabled = true;
+    }
+
     void Awake()
     {
         currentHealth = maxHealth;
@@ -113,8 +122,22 @@ public class AutoCombat : MonoBehaviour
         AutoCombat targetCombat = target.GetComponent<AutoCombat>();
         if (targetCombat != null)
         {
-            targetCombat.TakeDamage(damage);
+            int finalDamage = GetFinalDamage();
+            targetCombat.TakeDamage(finalDamage);
         }
+    }
+
+    int GetFinalDamage()
+    {
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+        {
+            bool isCrit = Random.value < stats.GetCritChance();
+            int dmg = isCrit ? Mathf.RoundToInt(stats.atk * stats.critDamageMultiplier) : stats.atk;
+            Debug.Log($"{name} attacks for {dmg} damage{(isCrit ? " (CRIT!)" : "")}");
+            return dmg;
+        }
+        return damage;
     }
 
     void FindTarget()
@@ -217,12 +240,14 @@ public class AutoCombat : MonoBehaviour
     {
         isDead = true;
 
+        GiveRewards();
+        GiveDrops();
+
         if (anim != null)
             anim.SetTrigger(deathTrigger);
 
         if (rb != null)
         {
-            // ✅ ИСПРАВЛЕНО: velocity вместо linearVelocity
             rb.linearVelocity = Vector2.zero;
             rb.bodyType = RigidbodyType2D.Kinematic;
         }
@@ -230,13 +255,46 @@ public class AutoCombat : MonoBehaviour
         if (deathEffect != null)
             Instantiate(deathEffect, transform.position, Quaternion.identity);
 
-        // ✅ ИСПРАВЛЕНИЕ: отключаем коллайдер для всех, а не только для Enemy
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
             col.enabled = false;
 
-        // Опционально: отключаем этот скрипт
-        // this.enabled = false;
+        EnemyRespawnManager.Instance?.RegisterDeath(this);
+    }
+
+    void GiveRewards()
+    {
+        if (team != CombatTeam.Enemy) return;
+
+        EnemyReward reward = GetComponent<EnemyReward>();
+        if (reward == null) return;
+
+        PlayerStats playerStats = FindAnyObjectByType<PlayerStats>();
+        if (playerStats != null)
+            playerStats.AddReward(reward.Experience, reward.Gold);
+    }
+
+    void GiveDrops()
+    {
+        if (team != CombatTeam.Enemy) return;
+
+        EnemyReward reward = GetComponent<EnemyReward>();
+        if (reward == null || reward.Drops == null || reward.Drops.Length == 0) return;
+
+        PlayerStats playerStats = FindAnyObjectByType<PlayerStats>();
+        float luckMultiplier = playerStats != null ? playerStats.GetDropChanceMultiplier() : 1f;
+
+        Inventory playerInventory = FindAnyObjectByType<Inventory>();
+
+        foreach (DropItem drop in reward.Drops)
+        {
+            float chance = Mathf.Min(drop.baseDropChance * luckMultiplier, 1f);
+            if (Random.value <= chance && drop.itemData != null)
+            {
+                playerInventory?.AddItem(drop.itemData, drop.quantity);
+                Debug.Log($"Dropped: {drop.itemData.itemName} x{drop.quantity}");
+            }
+        }
     }
 
     void OnDrawGizmosSelected()
