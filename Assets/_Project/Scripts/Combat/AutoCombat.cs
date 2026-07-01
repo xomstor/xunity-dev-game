@@ -19,7 +19,7 @@ public class AutoCombat : MonoBehaviour
     public int damage = 10;
     public float attackRange = 1.5f;
     public float attackCooldown = 1f;
-    public float detectionRadius = 8f;
+    public float detectionRadius = 15f;
 
     [Header("Movement")]
     public float moveSpeed = 2f;
@@ -166,7 +166,7 @@ public class AutoCombat : MonoBehaviour
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(finalDamage);
-            ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
+            ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, isPlayer);
             Debug.Log($"{target.name} took {finalDamage} damage");
             return;
         }
@@ -175,12 +175,20 @@ public class AutoCombat : MonoBehaviour
         if (targetStats != null)
         {
             targetStats.TakeDamage(finalDamage);
-            ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
+            ShowDamagePopup(GetPopupPosition(targetStats.transform), finalDamage, isCrit, isPlayer);
             Debug.Log($"{target.name} took {finalDamage} damage");
             return;
         }
 
         Debug.LogWarning($"{name}: target {target.name} has no AutoCombat or PlayerStats!");
+    }
+
+    Vector3 GetPopupPosition(Transform t)
+    {
+        Collider2D col = t.GetComponent<Collider2D>();
+        if (col != null)
+            return col.bounds.center + Vector3.up * col.bounds.extents.y;
+        return t.position + Vector3.up * 0.5f;
     }
 
     void ShowDamagePopup(Vector3 position, int damage, bool isCrit, bool isPlayer)
@@ -328,7 +336,7 @@ public class AutoCombat : MonoBehaviour
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(damage);
-            ShowDamagePopup(target.position, damage, false, team == CombatTeam.Player);
+            ShowDamagePopup(GetPopupPosition(targetCombat.transform), damage, false, team == CombatTeam.Player);
         }
     }
 
