@@ -52,8 +52,19 @@ public class ShopNPC : MonoBehaviour
                 }
             }
         }
-        if (target != null)
-            target.OpenShop();
+
+        if (target == null)
+        {
+            Debug.LogError($"[{name}] ShopNPC has no usable ShopUIController. Assign one in the inspector or run Tools/Build Shop UI.");
+            return;
+        }
+        if (target.shopPanel == null)
+        {
+            Debug.LogError($"[{name}] ShopUIController '{target.name}' has no shopPanel assigned.");
+            return;
+        }
+
+        target.OpenShop();
     }
 
     int CountRefs(ShopUIController c)

@@ -84,7 +84,12 @@ public class DialogueTrigger : MonoBehaviour
     void OnChoiceMade(int choiceIndex)
     {
         Debug.Log($"Player chose option {choiceIndex}");
-        if (choiceIndex == 0 && shopNPC != null)
-            shopNPC.OpenShop();
+        if (choiceIndex == 0)
+        {
+            if (shopNPC != null)
+                shopNPC.OpenShop();
+            else
+                Debug.LogError($"[{name}] DialogueTrigger.shopNPC is not assigned. Cannot open shop.");
+        }
     }
 }

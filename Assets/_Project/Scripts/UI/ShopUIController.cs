@@ -140,7 +140,11 @@ public class ShopUIController : MonoBehaviour
 
     public void OpenShop()
     {
-        if (shopPanel == null) return;
+        if (shopPanel == null)
+        {
+            Debug.LogError($"[{name}] ShopUIController.shopPanel is null. Run Tools/Build Shop UI or assign it manually.");
+            return;
+        }
         shopPanel.SetActive(true);
         selectedItemIndex = -1;
         ClearItemDetails();
