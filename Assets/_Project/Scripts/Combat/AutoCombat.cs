@@ -269,7 +269,7 @@ public class AutoCombat : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
         foreach (Collider2D collider in colliders)
         {
-            if (collider.isTrigger) continue;
+            if (collider.isTrigger && collider.name == "NameTagDetector") continue;
 
             Transform root = collider.transform.root;
             if (root == transform.root) continue;
