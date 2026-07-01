@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Light as a feather. SPD +10
   itemType: 1
   rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: -7873645456030200577, guid: 0444db4e9ebc8fe4eabea35db31a47b2, type: 3}
   price: 120
   maxStack: 1
   atkBonus: 0

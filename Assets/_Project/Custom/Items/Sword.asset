@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Sharp blade. ATK +5
   itemType: 0
   rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: -2050258765641266510, guid: 105821fb237a99a4088b634a315db8cf, type: 3}
   price: 80
   maxStack: 1
   atkBonus: 5

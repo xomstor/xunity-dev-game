@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Grants 50 XP
   itemType: 2
   rarity: 0
-  icon: {fileID: 0}
+  icon: {fileID: 971659621204286374, guid: b8bea6be3694e784a865e1592d0f549b, type: 3}
   price: 25
   maxStack: 10
   atkBonus: 0

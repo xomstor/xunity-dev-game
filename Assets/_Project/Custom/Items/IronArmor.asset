@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Solid iron protection. DEF +10, HP +20
   itemType: 1
   rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: -4240972501594548724, guid: 0be3115c30ea776458276079b7e92e02, type: 3}
   price: 160
   maxStack: 1
   atkBonus: 0

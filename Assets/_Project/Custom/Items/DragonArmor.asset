@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Scales of a dragon. DEF +28, HP +70, LCK +2
   itemType: 1
   rarity: 3
-  icon: {fileID: 0}
+  icon: {fileID: -4213921969155426332, guid: 1a2f1d32e48b86647a9ce239a4be9944, type: 3}
   price: 1000
   maxStack: 1
   atkBonus: 0

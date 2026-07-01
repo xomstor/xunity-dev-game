@@ -17,7 +17,7 @@ MonoBehaviour:
   description: The favor of gods themselves. LCK +15, SPD +10, HP +50
   itemType: 4
   rarity: 4
-  icon: {fileID: 0}
+  icon: {fileID: -2691843870403160430, guid: 9658f4e7a5837a34382e50db9cd093f2, type: 3}
   price: 2500
   maxStack: 1
   atkBonus: 0
