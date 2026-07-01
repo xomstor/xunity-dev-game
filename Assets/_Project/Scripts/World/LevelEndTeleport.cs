@@ -105,6 +105,10 @@ public class LevelEndTeleport : MonoBehaviour
         if (respawnEnemiesOnTeleport)
             EnemyRespawnManager.Instance?.RespawnAllEnemies();
 
+        SpawnPoint spawnPointComponent = spawnPoint.GetComponent<SpawnPoint>();
+        if (spawnPointComponent != null && spawnPointComponent.showLevelName)
+            LevelNameDisplay.Instance?.Show(spawnPointComponent.displayName);
+
         Debug.Log($"Teleported player to {spawnPointName}");
     }
 }
