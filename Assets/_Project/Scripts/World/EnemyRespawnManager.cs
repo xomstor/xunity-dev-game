@@ -38,7 +38,7 @@ public class EnemyRespawnManager : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        RespawnEnemies(scene.name);
+        RespawnAllEnemies();
     }
 
     public void RegisterDeath(AutoCombat enemy)
@@ -56,7 +56,7 @@ public class EnemyRespawnManager : MonoBehaviour
         });
     }
 
-    void RespawnEnemies(string sceneName)
+    public void RespawnAllEnemies()
     {
         AutoCombat[] enemies = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
         foreach (AutoCombat enemy in enemies)
@@ -68,9 +68,13 @@ public class EnemyRespawnManager : MonoBehaviour
 
     void RespawnEnemy(AutoCombat enemy)
     {
+        if (!enemy.IsDead) return;
+
         enemy.enabled = false;
 
-        enemy.GetComponent<Collider2D>()?.gameObject.SetActive(true);
+        Collider2D col = enemy.GetComponent<Collider2D>();
+        if (col != null)
+            col.enabled = true;
 
         Rigidbody2D rb = enemy.GetComponent<Rigidbody2D>();
         if (rb != null)

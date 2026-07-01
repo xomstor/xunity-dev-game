@@ -1,13 +1,15 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public class LevelEndTeleport : MonoBehaviour
 {
-    [Header("Teleport")]
-    public string hubSceneName = "Hub";
-    public string nextLevelSceneName = "";
+    [Header("Spawn Points")]
+    [Tooltip("Имя объекта SpawnPoint в сцене для хаба")]
+    public string hubSpawnPointName = "SpawnPoint_Hub";
+    [Tooltip("Имя объекта SpawnPoint в сцене для следующего уровня")]
+    public string nextLevelSpawnPointName = "SpawnPoint_Level2";
     public string targetTag = "Player";
     public float enterGracePeriod = 1f;
+    public bool respawnEnemiesOnTeleport = true;
 
     [Header("Dialogue")]
     public string[] dialogueLines = new string[]
@@ -22,21 +24,21 @@ public class LevelEndTeleport : MonoBehaviour
 
     private bool isPlayerInTrigger;
     private bool dialogShown;
-    private float sceneTime;
+    private float triggerTime;
 
     void Start()
     {
-        sceneTime = 0f;
+        triggerTime = 0f;
     }
 
     void Update()
     {
-        sceneTime += Time.deltaTime;
+        triggerTime += Time.deltaTime;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(targetTag) && !dialogShown && sceneTime >= enterGracePeriod)
+        if (other.CompareTag(targetTag) && !dialogShown && triggerTime >= enterGracePeriod)
         {
             isPlayerInTrigger = true;
             ShowChoiceDialogue();
@@ -58,7 +60,7 @@ public class LevelEndTeleport : MonoBehaviour
 
         if (DialogueSystem.Instance == null) return;
 
-        string continueText = string.IsNullOrEmpty(nextLevelSceneName) ? choiceContinueText : $"{choiceContinueText} ({nextLevelSceneName})";
+        string continueText = string.IsNullOrEmpty(nextLevelSpawnPointName) ? choiceContinueText : choiceContinueText;
 
         string[] choiceTexts = new string[] { choiceReturnText, continueText };
         string[][] responses = new string[][]
@@ -74,53 +76,35 @@ public class LevelEndTeleport : MonoBehaviour
     {
         if (choiceIndex == 0)
         {
-            LoadHub();
+            TeleportToSpawnPoint(hubSpawnPointName);
         }
         else if (choiceIndex == 1)
         {
-            ContinueLevel();
+            TeleportToSpawnPoint(nextLevelSpawnPointName);
         }
     }
 
-    void LoadHub()
+    void TeleportToSpawnPoint(string spawnPointName)
     {
-        if (string.IsNullOrEmpty(hubSceneName))
+        GameObject spawnPoint = GameObject.Find(spawnPointName);
+        if (spawnPoint == null)
         {
-            Debug.LogWarning("LevelEndTeleport: hubSceneName is not set");
+            Debug.LogError($"LevelEndTeleport: SpawnPoint '{spawnPointName}' not found in scene!");
             return;
         }
-        if (!IsSceneInBuildSettings(hubSceneName))
-        {
-            Debug.LogError($"LevelEndTeleport: scene '{hubSceneName}' is not in Build Settings!");
-            return;
-        }
-        SceneManager.LoadScene(hubSceneName, LoadSceneMode.Single);
-    }
 
-    void ContinueLevel()
-    {
-        if (string.IsNullOrEmpty(nextLevelSceneName))
+        GameObject player = GameObject.FindGameObjectWithTag(targetTag);
+        if (player == null)
         {
-            Debug.LogWarning("LevelEndTeleport: nextLevelSceneName is not set");
+            Debug.LogError("LevelEndTeleport: Player not found!");
             return;
         }
-        if (!IsSceneInBuildSettings(nextLevelSceneName))
-        {
-            Debug.LogError($"LevelEndTeleport: scene '{nextLevelSceneName}' is not in Build Settings!");
-            return;
-        }
-        SceneManager.LoadScene(nextLevelSceneName, LoadSceneMode.Single);
-    }
 
-    bool IsSceneInBuildSettings(string sceneName)
-    {
-        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
-        {
-            string path = SceneUtility.GetScenePathByBuildIndex(i);
-            string name = System.IO.Path.GetFileNameWithoutExtension(path);
-            if (name == sceneName)
-                return true;
-        }
-        return false;
+        player.transform.position = spawnPoint.transform.position;
+
+        if (respawnEnemiesOnTeleport)
+            EnemyRespawnManager.Instance?.RespawnAllEnemies();
+
+        Debug.Log($"Teleported player to {spawnPointName}");
     }
 }
