@@ -31,6 +31,11 @@ public class DamagePopup : MonoBehaviour
             Debug.LogError("DamagePopup: TextMeshProUGUI is missing!");
             return;
         }
+        if (textMesh.font == null)
+            Debug.LogError("DamagePopup: TextMeshProUGUI has no font assigned!");
+
+        textMesh.gameObject.SetActive(true);
+        textMesh.enabled = true;
 
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)

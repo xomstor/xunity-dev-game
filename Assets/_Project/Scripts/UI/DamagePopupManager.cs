@@ -46,6 +46,13 @@ public class DamagePopupManager : MonoBehaviour
             Debug.LogError("DamagePopupManager: canvas is not assigned!");
             return;
         }
+        if (canvas.renderMode == RenderMode.WorldSpace)
+            Debug.LogWarning("DamagePopupManager: canvas is in WorldSpace. Popups may not render correctly.");
+        if (canvas.renderMode == RenderMode.ScreenSpaceCamera && canvas.worldCamera == null)
+        {
+            Debug.LogWarning("DamagePopupManager: ScreenSpaceCamera canvas has no worldCamera. Using Camera.main.");
+            canvas.worldCamera = Camera.main;
+        }
 
         Vector2 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
         Transform parent = popupContainer != null ? popupContainer : canvas.transform;
