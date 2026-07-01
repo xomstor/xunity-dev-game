@@ -72,7 +72,7 @@ public class PauseMenu : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 0);
         rt.pivot = new Vector2(0.5f, 0);
         rt.anchoredPosition = new Vector2(0, 100);
-        rt.sizeDelta = new Vector2(580, 70);
+        rt.sizeDelta = new Vector2(900, 90);
 
         HorizontalLayoutGroup hlg = container.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 10;
@@ -107,7 +107,7 @@ public class PauseMenu : MonoBehaviour
         Color shadowColor = new Color(0f, 0.3f, 0.4f, 0.75f);
 
         Image img = btnGO.AddComponent<Image>();
-        img.sprite = CreateGradientPillSprite(110, 50, 100, 40, leftColor, rightColor, shadowColor, new Vector2(3, -3));
+        img.sprite = CreateGradientPillSprite(165, 75, 150, 60, leftColor, rightColor, shadowColor, new Vector2(5, -5));
         img.color = Color.white;
 
         Button btn = btnGO.AddComponent<Button>();
@@ -119,7 +119,7 @@ public class PauseMenu : MonoBehaviour
         text.text = statName;
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.black;
-        text.fontSize = 22;
+        text.fontSize = 33;
         text.fontStyle = FontStyles.Bold;
 
         RectTransform textRt = text.GetComponent<RectTransform>();
@@ -129,7 +129,7 @@ public class PauseMenu : MonoBehaviour
         textRt.offsetMax = Vector2.zero;
 
         RectTransform btnRt = btnGO.GetComponent<RectTransform>();
-        btnRt.sizeDelta = new Vector2(100, 40);
+        btnRt.sizeDelta = new Vector2(150, 60);
 
         int capturedIndex = index;
         btn.onClick.AddListener(() => IncreaseStat(capturedIndex));
