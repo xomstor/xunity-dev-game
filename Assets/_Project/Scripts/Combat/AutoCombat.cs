@@ -148,21 +148,25 @@ public class AutoCombat : MonoBehaviour
         int finalDamage = GetFinalDamage(out bool isCrit);
         bool isPlayer = team == CombatTeam.Player;
 
-        AutoCombat targetCombat = target.GetComponentInChildren<AutoCombat>();
+        AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(finalDamage);
             ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
+            Debug.Log($"{target.name} took {finalDamage} damage");
             return;
         }
 
-        PlayerStats targetStats = target.GetComponentInChildren<PlayerStats>();
+        PlayerStats targetStats = FindPlayerStats(target);
         if (targetStats != null)
         {
             targetStats.TakeDamage(finalDamage);
             ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
             Debug.Log($"{target.name} took {finalDamage} damage");
+            return;
         }
+
+        Debug.LogWarning($"{name}: target {target.name} has no AutoCombat or PlayerStats!");
     }
 
     void ShowDamagePopup(Vector3 position, int damage, bool isCrit, bool isPlayer)
@@ -194,12 +198,32 @@ public class AutoCombat : MonoBehaviour
         return GetFinalDamage(out _);
     }
 
+    AutoCombat FindAutoCombat(Transform t)
+    {
+        if (t == null) return null;
+        AutoCombat combat = t.GetComponent<AutoCombat>();
+        if (combat != null) return combat;
+        combat = t.GetComponentInChildren<AutoCombat>();
+        if (combat != null) return combat;
+        return t.GetComponentInParent<AutoCombat>();
+    }
+
+    PlayerStats FindPlayerStats(Transform t)
+    {
+        if (t == null) return null;
+        PlayerStats stats = t.GetComponent<PlayerStats>();
+        if (stats != null) return stats;
+        stats = t.GetComponentInChildren<PlayerStats>();
+        if (stats != null) return stats;
+        return t.GetComponentInParent<PlayerStats>();
+    }
+
     void FindTarget()
     {
         // Check if target is alive and not destroyed
         if (target != null && target.gameObject.activeInHierarchy)
         {
-            AutoCombat targetCombat = target.GetComponentInChildren<AutoCombat>();
+            AutoCombat targetCombat = FindAutoCombat(target);
             if (targetCombat == null || !targetCombat.IsDead)
             {
                 float distance = Vector2.Distance(transform.position, target.position);
@@ -285,7 +309,7 @@ public class AutoCombat : MonoBehaviour
             anim.SetTrigger(attackTrigger);
         }
 
-        AutoCombat targetCombat = target?.GetComponentInChildren<AutoCombat>();
+        AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(damage);
