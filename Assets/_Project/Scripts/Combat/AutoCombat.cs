@@ -176,7 +176,6 @@ public class AutoCombat : MonoBehaviour
         {
             targetCombat.TakeDamage(finalDamage);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, isPlayer);
-            Debug.Log($"{target.name} took {finalDamage} damage");
             return;
         }
 
@@ -185,7 +184,6 @@ public class AutoCombat : MonoBehaviour
         {
             targetStats.TakeDamage(finalDamage);
             ShowDamagePopup(GetPopupPosition(targetStats.transform), finalDamage, isCrit, isPlayer);
-            Debug.Log($"{target.name} took {finalDamage} damage");
             return;
         }
 
@@ -217,9 +215,7 @@ public class AutoCombat : MonoBehaviour
         if (stats != null)
         {
             isCrit = Random.value < stats.GetCritChance();
-            int dmg = isCrit ? Mathf.RoundToInt(stats.atk * stats.critDamageMultiplier) : stats.atk;
-            Debug.Log($"{name} attacks for {dmg} damage{(isCrit ? " (CRIT!)" : "")}");
-            return dmg;
+            return isCrit ? Mathf.RoundToInt(stats.atk * stats.critDamageMultiplier) : stats.atk;
         }
         return damage;
     }
@@ -251,17 +247,6 @@ public class AutoCombat : MonoBehaviour
 
     void FindTarget()
     {
-        // Check if target is alive and not destroyed
-        if (target != null && target.gameObject.activeInHierarchy)
-        {
-            AutoCombat targetCombat = FindAutoCombat(target);
-            if (targetCombat == null || !targetCombat.IsDead)
-            {
-                if (GetDistanceToTarget() <= detectionRadius)
-                    return; // target still valid and within range
-            }
-        }
-
         Transform previousTarget = target;
         target = null;
         float closestDistance = detectionRadius;
@@ -290,13 +275,6 @@ public class AutoCombat : MonoBehaviour
             }
         }
 
-        if (target != previousTarget && Application.isEditor)
-        {
-            if (target != null)
-                Debug.Log($"{name}: found target {target.name} ({closestDistance:F2})");
-            else
-                Debug.Log($"{name}: no target found within {detectionRadius}");
-        }
     }
 
     bool IsValidTarget(CombatTeam otherTeam)
