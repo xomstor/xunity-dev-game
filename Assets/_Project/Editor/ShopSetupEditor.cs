@@ -119,18 +119,28 @@ public class ShopSetupEditor : EditorWindow
     {
         SpriteRenderer sr = merchant.GetComponent<SpriteRenderer>();
         if (sr == null) return;
-        if (sr.sprite != null) return;
 
-        string spritePath = "Assets/_Project/Art/NPC/Neutral/MerchantNpc.png";
+        string spritePath = "Assets/_Project/Custom/Merchant_NPC/Idle_spritesheet.png";
         if (!AssetDatabase.LoadAssetAtPath<Texture2D>(spritePath))
             return;
 
         Sprite[] sprites = AssetDatabase.LoadAllAssetsAtPath(spritePath).OfType<Sprite>().ToArray();
-        if (sprites.Length > 0)
+        if (sprites.Length == 0) return;
+
+        Sprite bodySprite = System.Array.Find(sprites, s => s.name == "Idle_spritesheet_0") ?? sprites[0];
+        if (sr.sprite != bodySprite)
         {
             Undo.RecordObject(sr, "Fix Merchant Sprite");
-            sr.sprite = sprites[0];
+            sr.sprite = bodySprite;
             EditorUtility.SetDirty(sr);
+        }
+
+        Transform tr = merchant.transform;
+        if (tr.localScale.x < 0.5f || tr.localScale.y < 0.5f)
+        {
+            Undo.RecordObject(tr, "Fix Merchant Scale");
+            tr.localScale = new Vector3(1.75f, 2f, 1f);
+            EditorUtility.SetDirty(tr);
         }
     }
 
