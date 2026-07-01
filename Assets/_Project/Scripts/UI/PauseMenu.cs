@@ -68,11 +68,11 @@ public class PauseMenu : MonoBehaviour
         GameObject container = new GameObject("StatButtonsContainer");
         RectTransform rt = container.AddComponent<RectTransform>();
         container.transform.SetParent(pausePanel.transform, false);
-        rt.anchorMin = new Vector2(0.5f, 0);
-        rt.anchorMax = new Vector2(0.5f, 0);
-        rt.pivot = new Vector2(0.5f, 0);
-        rt.anchoredPosition = new Vector2(0, 180);
-        rt.sizeDelta = new Vector2(350, 280);
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = new Vector2(0, -120);
+        rt.sizeDelta = new Vector2(300, 250);
 
         VerticalLayoutGroup vlg = container.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 10;
@@ -90,6 +90,14 @@ public class PauseMenu : MonoBehaviour
 
         for (int i = 0; i < statNames.Length; i++)
             CreateStatButton(statNames[i], i);
+
+        UpdateButtonsVisibility();
+    }
+
+    void UpdateButtonsVisibility()
+    {
+        if (buttonsParent == null) return;
+        buttonsParent.gameObject.SetActive(playerStats != null && playerStats.skillPoints > 0);
     }
 
     void CreateStatButton(string statName, int index)
@@ -178,6 +186,8 @@ public class PauseMenu : MonoBehaviour
 
         if (skillPointsText != null)
             skillPointsText.text = $"Skill Points: {playerStats.skillPoints}";
+
+        UpdateButtonsVisibility();
     }
 
     void OnValidate()
