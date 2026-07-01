@@ -40,6 +40,7 @@ public class ShopUIController : MonoBehaviour
     public Color tooltipColor = new Color(0.1f, 0.1f, 0.1f, 0.95f);
 
     [Header("UI Elements (assign manually or auto-create)")]
+    public bool fitPanelToScreenOnOpen = true;
     public GameObject shopPanel;
     public Transform itemContainer;
     public TextMeshProUGUI goldText;
@@ -167,6 +168,8 @@ public class ShopUIController : MonoBehaviour
         }
 
         shopPanel.SetActive(true);
+        if (fitPanelToScreenOnOpen)
+            FitPanelToScreen();
         selectedItemIndex = -1;
         ClearItemDetails();
         RefreshShopItems();
@@ -181,6 +184,20 @@ public class ShopUIController : MonoBehaviour
         if (shopPanel == null) return;
         shopPanel.SetActive(false);
         HideTooltip();
+    }
+
+    void FitPanelToScreen()
+    {
+        RectTransform rt = shopPanel.GetComponent<RectTransform>();
+        if (rt == null) return;
+
+        rt.anchorMin = Vector2.zero;
+        rt.anchorMax = Vector2.one;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = Vector2.zero;
+        rt.offsetMin = Vector2.zero;
+        rt.offsetMax = Vector2.zero;
     }
 
     void CreateShopUI()
