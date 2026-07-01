@@ -12,6 +12,7 @@ public class AutoCombat : MonoBehaviour
     [Header("Team")]
     public CombatTeam team = CombatTeam.Enemy;
     public bool canBeTargeted = true;
+    public string[] ignoreTags = new string[] { "World" };
 
     [Header("Stats")]
     public int maxHealth = 100;
@@ -211,6 +212,7 @@ public class AutoCombat : MonoBehaviour
         {
             Transform root = collider.transform.root;
             if (root == transform.root) continue;
+            if (HasIgnoreTag(root)) continue;
 
             AutoCombat other = root.GetComponentInChildren<AutoCombat>();
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
@@ -240,6 +242,17 @@ public class AutoCombat : MonoBehaviour
         if (team == CombatTeam.Neutral || otherTeam == CombatTeam.Neutral)
             return false;
         return team != otherTeam;
+    }
+
+    bool HasIgnoreTag(Transform t)
+    {
+        if (ignoreTags == null || ignoreTags.Length == 0) return false;
+        foreach (string tag in ignoreTags)
+        {
+            if (string.IsNullOrEmpty(tag)) continue;
+            if (t.CompareTag(tag)) return true;
+        }
+        return false;
     }
 
     void ChaseTarget()

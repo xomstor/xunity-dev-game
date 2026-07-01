@@ -66,13 +66,10 @@ public class AutoHealthBarSpawner : MonoBehaviour
             rect.pivot = new Vector2(0, 1);
             rect.anchoredPosition = playerBarPosition;
             rect.sizeDelta = playerBarSize;
-
-            Debug.Log("Created player health bar (fixed)");
         }
         else
         {
             healthBar.followTarget = true;
-            Debug.Log($"Created health bar for {combatant.name}");
         }
     }
 }

@@ -31,7 +31,6 @@ public class StartLevelDisplay : MonoBehaviour
         }
 
         SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsInactive.Exclude);
-        Debug.Log($"StartLevelDisplay: found {spawnPoints.Length} spawn points");
 
         SpawnPoint closest = null;
         float closestDistance = searchRadius;
@@ -39,7 +38,6 @@ public class StartLevelDisplay : MonoBehaviour
         foreach (SpawnPoint spawnPoint in spawnPoints)
         {
             float distance = Vector2.Distance(player.transform.position, spawnPoint.transform.position);
-            Debug.Log($"StartLevelDisplay: spawn point {spawnPoint.name} distance {distance:F2}");
             if (distance < closestDistance)
             {
                 closestDistance = distance;
@@ -51,10 +49,6 @@ public class StartLevelDisplay : MonoBehaviour
         {
             Debug.Log($"StartLevelDisplay: showing {closest.displayName}");
             LevelNameDisplay.Instance.Show(closest.displayName);
-        }
-        else
-        {
-            Debug.LogWarning("StartLevelDisplay: no spawn point found within radius");
         }
     }
 }
