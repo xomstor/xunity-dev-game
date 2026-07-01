@@ -35,4 +35,21 @@ public class ShopManager : MonoBehaviour
 
         return true;
     }
+
+    public int SellItem(ItemData item, int quantity, Inventory playerInventory, PlayerStats playerStats)
+    {
+        if (item == null || playerInventory == null || playerStats == null) return 0;
+
+        int available = playerInventory.GetItemCount(item);
+        int sellQuantity = Mathf.Min(quantity, available);
+        if (sellQuantity <= 0) return 0;
+
+        int pricePerUnit = item.price > 0 ? item.price : 1;
+        int total = sellQuantity * pricePerUnit;
+
+        playerInventory.RemoveItem(item, sellQuantity);
+        playerStats.gold += total;
+
+        return total;
+    }
 }

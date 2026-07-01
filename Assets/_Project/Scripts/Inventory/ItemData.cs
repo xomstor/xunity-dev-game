@@ -27,4 +27,5 @@ public class ItemData : ScriptableObject
     public int spdBonus;
     public int lckBonus;
     public int restoreHp;
+    public int experienceReward;
 }
