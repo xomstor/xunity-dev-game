@@ -95,24 +95,42 @@ public class AutoCombat : MonoBehaviour
                 if (playerController != null)
                 {
                     playerController.Attack();
-                    if (anim != null) anim.SetInteger("AnimState", 0);
+                    SetAnimState(0);
                 }
                 else
                 {
                     Attack();
-                    if (anim != null) anim.SetInteger("AnimState", 0);
+                    SetAnimState(0);
                 }
             }
             else if (playerController == null && chaseTarget && rb != null)
             {
                 ChaseTarget();
-                if (anim != null) anim.SetInteger("AnimState", 1);
+                SetAnimState(1);
             }
         }
         else if (playerController == null)
         {
-            if (anim != null) anim.SetInteger("AnimState", 0);
+            SetAnimState(0);
         }
+    }
+
+    void SetAnimState(int state)
+    {
+        if (anim == null) return;
+        if (!HasAnimatorParameter("AnimState")) return;
+        anim.SetInteger("AnimState", state);
+    }
+
+    bool HasAnimatorParameter(string paramName)
+    {
+        if (anim == null) return false;
+        foreach (AnimatorControllerParameter param in anim.parameters)
+        {
+            if (param.name == paramName)
+                return true;
+        }
+        return false;
     }
 
     public void TryAttack()
@@ -127,14 +145,14 @@ public class AutoCombat : MonoBehaviour
 
         int finalDamage = GetFinalDamage();
 
-        AutoCombat targetCombat = target.GetComponent<AutoCombat>();
+        AutoCombat targetCombat = target.GetComponentInChildren<AutoCombat>();
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(finalDamage);
             return;
         }
 
-        PlayerStats targetStats = target.GetComponent<PlayerStats>();
+        PlayerStats targetStats = target.GetComponentInChildren<PlayerStats>();
         if (targetStats != null)
         {
             targetStats.TakeDamage(finalDamage);
@@ -160,7 +178,7 @@ public class AutoCombat : MonoBehaviour
         // Check if target is alive and not destroyed
         if (target != null && target.gameObject.activeInHierarchy)
         {
-            AutoCombat targetCombat = target.GetComponent<AutoCombat>();
+            AutoCombat targetCombat = target.GetComponentInParent<AutoCombat>();
             if (targetCombat == null || !targetCombat.IsDead)
             {
                 float distance = Vector2.Distance(transform.position, target.position);
@@ -169,16 +187,18 @@ public class AutoCombat : MonoBehaviour
             }
         }
 
+        Transform previousTarget = target;
         target = null;
         float closestDistance = detectionRadius;
 
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
         foreach (Collider2D collider in colliders)
         {
-            if (collider.transform == transform) continue;
+            Transform root = collider.transform.root;
+            if (root == transform.root) continue;
 
-            AutoCombat other = collider.GetComponent<AutoCombat>();
-            PlayerController playerController = collider.GetComponent<PlayerController>();
+            AutoCombat other = root.GetComponentInChildren<AutoCombat>();
+            PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
             if (other != null && (other == this || other.isDead || IsAlly(other.team))) continue;
@@ -187,14 +207,17 @@ public class AutoCombat : MonoBehaviour
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                target = collider.transform;
+                target = root;
             }
         }
 
-        if (target != null)
-            Debug.Log($"{name}: found target {target.name}");
-        else
-            Debug.Log($"{name}: no target found within {detectionRadius}");
+        if (target != previousTarget && Application.isEditor)
+        {
+            if (target != null)
+                Debug.Log($"{name}: found target {target.name}");
+            else
+                Debug.Log($"{name}: no target found within {detectionRadius}");
+        }
     }
 
     bool IsAlly(CombatTeam otherTeam)
