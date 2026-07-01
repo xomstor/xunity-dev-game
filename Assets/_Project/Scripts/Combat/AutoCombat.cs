@@ -271,7 +271,7 @@ public class AutoCombat : MonoBehaviour
             Debug.Log($"{name}: Attack trigger set");
         }
 
-        AutoCombat targetCombat = target?.GetComponent<AutoCombat>();
+        AutoCombat targetCombat = target?.GetComponentInChildren<AutoCombat>();
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(damage);
@@ -291,7 +291,7 @@ public class AutoCombat : MonoBehaviour
 
         if (anim != null)
         {
-            string trigger = GetComponent<PlayerController>() != null ? "Hurt" : hitTrigger;
+            string trigger = GetComponentInChildren<PlayerController>() != null ? "Hurt" : hitTrigger;
             anim.SetTrigger(trigger);
         }
 
