@@ -31,7 +31,16 @@ public class DamagePopupManager : MonoBehaviour
 
     public void ShowDamage(Vector3 worldPosition, int damage, bool isCrit, bool isPlayer)
     {
-        if (damagePopupPrefab == null) return;
+        if (damagePopupPrefab == null)
+        {
+            Debug.LogError("DamagePopupManager: damagePopupPrefab is not assigned!");
+            return;
+        }
+        if (Camera.main == null)
+        {
+            Debug.LogError("DamagePopupManager: no main camera found!");
+            return;
+        }
 
         Vector2 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
         GameObject popup = Instantiate(damagePopupPrefab, popupContainer != null ? popupContainer : transform);

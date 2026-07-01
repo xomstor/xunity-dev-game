@@ -167,7 +167,12 @@ public class AutoCombat : MonoBehaviour
 
     void ShowDamagePopup(Vector3 position, int damage, bool isCrit, bool isPlayer)
     {
-        DamagePopupManager.Instance?.ShowDamage(position, damage, isCrit, isPlayer);
+        if (DamagePopupManager.Instance == null)
+        {
+            Debug.LogError($"{name}: DamagePopupManager not found in scene!");
+            return;
+        }
+        DamagePopupManager.Instance.ShowDamage(position, damage, isCrit, isPlayer);
     }
 
     int GetFinalDamage(out bool isCrit)
