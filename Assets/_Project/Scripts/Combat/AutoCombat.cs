@@ -59,6 +59,7 @@ public class AutoCombat : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log($"AutoCombat.Awake on {name}: team={team}");
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
         if (anim == null)
@@ -92,8 +93,10 @@ public class AutoCombat : MonoBehaviour
 
             if (distance <= attackRange)
             {
+                Debug.Log($"{name}: target {target.name} in range ({distance:F2}), attacking");
                 if (playerController != null)
                 {
+                    Debug.Log($"{name}: calling PlayerController.Attack()");
                     playerController.Attack();
                     SetAnimState(0);
                 }
@@ -135,6 +138,7 @@ public class AutoCombat : MonoBehaviour
 
     public void TryAttack()
     {
+        Debug.Log($"AutoCombat.TryAttack called on {name}. attackTimer={attackTimer:F2}, target={target?.name}");
         if (attackTimer > 0) return;
         if (target == null) return;
 
