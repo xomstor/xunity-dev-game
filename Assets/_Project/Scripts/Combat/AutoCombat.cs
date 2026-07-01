@@ -280,15 +280,7 @@ public class AutoCombat : MonoBehaviour
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
-            if (other != null)
-            {
-                if (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))
-                {
-                    if (distance < detectionRadius)
-                        Debug.Log($"{name}: rejected {root.name} - dead={other.isDead}, targetable={other.canBeTargeted}, team={other.team}, valid={IsValidTarget(other.team)}, ignoreTag={HasIgnoreTag(other.transform)}");
-                    continue;
-                }
-            }
+            if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))) continue;
             if (playerController != null && HasIgnoreTag(playerController.transform)) continue;
 
             if (distance < closestDistance)
