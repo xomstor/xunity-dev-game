@@ -58,6 +58,11 @@ public class LevelNameDisplay : MonoBehaviour
             return;
         }
 
+        if (displayPanel != null)
+            displayPanel.SetActive(true);
+        else
+            gameObject.SetActive(true);
+
         if (currentAnimation != null)
             StopCoroutine(currentAnimation);
 
@@ -67,11 +72,6 @@ public class LevelNameDisplay : MonoBehaviour
     IEnumerator AnimateLevelName(string levelName)
     {
         levelNameText.text = levelName;
-
-        if (displayPanel != null)
-            displayPanel.SetActive(true);
-        else
-            gameObject.SetActive(true);
 
         canvasGroup.alpha = 0f;
 

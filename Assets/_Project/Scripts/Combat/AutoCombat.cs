@@ -143,12 +143,14 @@ public class AutoCombat : MonoBehaviour
 
         attackTimer = attackCooldown;
 
-        int finalDamage = GetFinalDamage();
+        int finalDamage = GetFinalDamage(out bool isCrit);
+        bool isPlayer = team == CombatTeam.Player;
 
         AutoCombat targetCombat = target.GetComponentInChildren<AutoCombat>();
         if (targetCombat != null)
         {
             targetCombat.TakeDamage(finalDamage);
+            ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
             return;
         }
 
@@ -156,21 +158,33 @@ public class AutoCombat : MonoBehaviour
         if (targetStats != null)
         {
             targetStats.TakeDamage(finalDamage);
+            ShowDamagePopup(target.position, finalDamage, isCrit, isPlayer);
             Debug.Log($"{target.name} took {finalDamage} damage");
         }
     }
 
-    int GetFinalDamage()
+    void ShowDamagePopup(Vector3 position, int damage, bool isCrit, bool isPlayer)
     {
+        DamagePopupManager.Instance?.ShowDamage(position, damage, isCrit, isPlayer);
+    }
+
+    int GetFinalDamage(out bool isCrit)
+    {
+        isCrit = false;
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)
         {
-            bool isCrit = Random.value < stats.GetCritChance();
+            isCrit = Random.value < stats.GetCritChance();
             int dmg = isCrit ? Mathf.RoundToInt(stats.atk * stats.critDamageMultiplier) : stats.atk;
             Debug.Log($"{name} attacks for {dmg} damage{(isCrit ? " (CRIT!)" : "")}");
             return dmg;
         }
         return damage;
+    }
+
+    int GetFinalDamage()
+    {
+        return GetFinalDamage(out _);
     }
 
     void FindTarget()
