@@ -63,6 +63,8 @@ public class AutoCombat : MonoBehaviour
     {
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
+        if (rb == null)
+            rb = GetComponentInParent<Rigidbody2D>();
         if (anim == null)
             anim = GetComponent<Animator>();
         if (anim == null)
@@ -367,18 +369,26 @@ public class AutoCombat : MonoBehaviour
         if (anim != null)
             anim.SetTrigger(deathTrigger);
 
-        if (rb != null)
+        // Отключаем управление игроком
+        PlayerController pc = GetComponentInChildren<PlayerController>();
+        if (pc != null)
+            pc.enabled = false;
+
+        // Останавливаем все Rigidbody2D в иерархии
+        Rigidbody2D[] bodies = GetComponentsInChildren<Rigidbody2D>();
+        foreach (Rigidbody2D body in bodies)
         {
-            rb.linearVelocity = Vector2.zero;
-            rb.bodyType = RigidbodyType2D.Kinematic;
+            body.linearVelocity = Vector2.zero;
+            body.bodyType = RigidbodyType2D.Kinematic;
         }
+
+        // Отключаем все коллайдеры в иерархии
+        Collider2D[] cols = GetComponentsInChildren<Collider2D>();
+        foreach (Collider2D c in cols)
+            c.enabled = false;
 
         if (deathEffect != null)
             Instantiate(deathEffect, transform.position, Quaternion.identity);
-
-        Collider2D col = GetComponent<Collider2D>();
-        if (col != null)
-            col.enabled = false;
 
         EnemyRespawnManager.Instance?.RegisterDeath(this);
     }

@@ -5,7 +5,7 @@ using System.Collections;
 public class DamagePopup : MonoBehaviour
 {
     public TextMeshProUGUI textMesh;
-    public float fadeDuration = 1f;
+    public float fadeDuration = 1.5f;
     public float moveDistance = 30f;
     public Vector2 randomOffset = new Vector2(10f, 10f);
 
@@ -43,7 +43,9 @@ public class DamagePopup : MonoBehaviour
 
         textMesh.text = damage.ToString();
         textMesh.color = color;
-        textMesh.fontSize = isCrit ? 48 : 36;
+        textMesh.fontSize = isCrit ? 56 : 42;
+        textMesh.outlineColor = Color.black;
+        textMesh.outlineWidth = 0.25f;
         if (isCrit)
             textMesh.text += "!";
 
