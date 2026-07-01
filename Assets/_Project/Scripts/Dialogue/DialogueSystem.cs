@@ -144,9 +144,9 @@ public class DialogueSystem : MonoBehaviour
             }
         }
 
-        onChoiceMade?.Invoke(choiceIndex);
-
         HideDialogue();
+
+        onChoiceMade?.Invoke(choiceIndex);
     }
 
     void ClearChoiceButtons()
