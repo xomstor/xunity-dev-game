@@ -26,26 +26,33 @@ public class ShopUIBuilder : EditorWindow
 
     static void BuildShopUI()
     {
-        ShopUIController controller = FindAnyObjectByType<ShopUIController>();
+        ShopUIController controller = FindBestController();
         if (controller == null)
         {
             EditorUtility.DisplayDialog("Error", "No ShopUIController found in scene. Run Tools/Setup Working Shop first.", "OK");
             return;
         }
 
-        // Remove old shop UI objects
-        Transform parent = controller.transform;
-        for (int i = parent.childCount - 1; i >= 0; i--)
+        // Remove old shop UI objects anywhere in the scene
+        foreach (GameObject root in controller.gameObject.scene.GetRootGameObjects())
         {
-            Transform child = parent.GetChild(i);
-            if (child.name == "ShopCanvas" || child.name == "ShopPanel")
-            {
-                Undo.DestroyObjectImmediate(child.gameObject);
-            }
+            DestroyOldShopObjects(root.transform);
         }
-        if (controller.shopPanel != null && controller.shopPanel.name == "ShopPanel")
+        // Also clear old panel reference on this controller if it is still alive
+        if (controller.shopPanel != null && (controller.shopPanel.name == "ShopPanel" || controller.shopPanel.name == "ShopCanvas"))
         {
             Undo.DestroyObjectImmediate(controller.shopPanel);
+        }
+
+        // Ensure controller is on a Canvas object so the hierarchy is clean
+        Canvas canvas = controller.GetComponent<Canvas>();
+        if (canvas == null)
+        {
+            canvas = FindAnyObjectByType<Canvas>();
+            if (canvas != null)
+            {
+                controller.transform.SetParent(canvas.transform, false);
+            }
         }
 
         // Create separate shop canvas on Foreground layer
@@ -150,8 +157,83 @@ public class ShopUIBuilder : EditorWindow
         shopPanel.SetActive(false);
 
         EditorUtility.SetDirty(controller);
+
+        // Link Merchant_NPC to this controller
+        GameObject merchant = GameObject.Find("Merchant_NPC");
+        if (merchant != null)
+        {
+            ShopNPC shopNPC = merchant.GetComponent<ShopNPC>();
+            if (shopNPC == null)
+                shopNPC = Undo.AddComponent<ShopNPC>(merchant);
+            shopNPC.shopUI = controller;
+            EditorUtility.SetDirty(shopNPC);
+
+            DialogueTrigger dt = merchant.GetComponent<DialogueTrigger>();
+            if (dt != null)
+            {
+                dt.shopNPC = shopNPC;
+                if (shopNPC.interactPrompt == null)
+                    shopNPC.interactPrompt = dt.interactPrompt;
+                EditorUtility.SetDirty(dt);
+            }
+        }
+
         Selection.activeGameObject = shopPanel;
-        EditorUtility.DisplayDialog("Done", "Shop UI created under ShopCanvas (Foreground). Disabled by default. You can drag panels around.", "OK");
+        EditorUtility.DisplayDialog("Done", "Shop UI created under ShopCanvas (Foreground). Disabled by default. Merchant_NPC now uses this controller.", "OK");
+    }
+
+    static ShopUIController FindBestController()
+    {
+        ShopUIController[] controllers = FindObjectsByType<ShopUIController>();
+        if (controllers.Length == 0) return null;
+        if (controllers.Length == 1) return controllers[0];
+
+        ShopUIController best = controllers[0];
+        int bestScore = CountRefs(best);
+        foreach (ShopUIController c in controllers)
+        {
+            int score = CountRefs(c);
+            if (score > bestScore)
+            {
+                bestScore = score;
+                best = c;
+            }
+        }
+        return best;
+    }
+
+    static int CountRefs(ShopUIController c)
+    {
+        int count = 0;
+        if (c.shopPanel != null) count++;
+        if (c.itemContainer != null) count++;
+        if (c.goldText != null) count++;
+        if (c.itemNameText != null) count++;
+        if (c.itemDescriptionText != null) count++;
+        if (c.itemPriceText != null) count++;
+        if (c.itemIcon != null) count++;
+        if (c.buyButton != null) count++;
+        if (c.sellButton != null) count++;
+        if (c.closeButton != null) count++;
+        if (c.tooltipPanel != null) count++;
+        if (c.tooltipText != null) count++;
+        return count;
+    }
+
+    static void DestroyOldShopObjects(Transform parent)
+    {
+        for (int i = parent.childCount - 1; i >= 0; i--)
+        {
+            Transform child = parent.GetChild(i);
+            if (child.name == "ShopCanvas" || child.name == "ShopPanel")
+            {
+                Undo.DestroyObjectImmediate(child.gameObject);
+            }
+            else
+            {
+                DestroyOldShopObjects(child);
+            }
+        }
     }
 
     static GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Color color)

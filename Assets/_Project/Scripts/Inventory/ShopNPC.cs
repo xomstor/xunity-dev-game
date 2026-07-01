@@ -36,8 +36,41 @@ public class ShopNPC : MonoBehaviour
 
     public void OpenShop()
     {
-        ShopUIController target = shopUI != null ? shopUI : ShopUIController.Instance;
+        ShopUIController target = shopUI;
+        if (target == null || target.shopPanel == null)
+        {
+            ShopUIController[] controllers = FindObjectsByType<ShopUIController>();
+            int best = -1;
+            foreach (ShopUIController c in controllers)
+            {
+                if (c.shopPanel == null) continue;
+                int score = CountRefs(c);
+                if (score > best)
+                {
+                    best = score;
+                    target = c;
+                }
+            }
+        }
         if (target != null)
             target.OpenShop();
+    }
+
+    int CountRefs(ShopUIController c)
+    {
+        int count = 0;
+        if (c.shopPanel != null) count++;
+        if (c.itemContainer != null) count++;
+        if (c.goldText != null) count++;
+        if (c.itemNameText != null) count++;
+        if (c.itemDescriptionText != null) count++;
+        if (c.itemPriceText != null) count++;
+        if (c.itemIcon != null) count++;
+        if (c.buyButton != null) count++;
+        if (c.sellButton != null) count++;
+        if (c.closeButton != null) count++;
+        if (c.tooltipPanel != null) count++;
+        if (c.tooltipText != null) count++;
+        return count;
     }
 }

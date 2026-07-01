@@ -59,14 +59,74 @@ public class ShopUIController : MonoBehaviour
 
     void Awake()
     {
-        if (Instance != null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-        Instance = this;
+        if (Instance == null || CountValidReferences(Instance) < CountValidReferences(this))
+            Instance = this;
 
+        FindExistingUI();
         CreateShopUI();
+    }
+
+    void FindExistingUI()
+    {
+        if (shopPanel == null)
+        {
+            shopPanel = FindChildByName(transform, "ShopPanel");
+            if (shopPanel == null)
+            {
+                Transform canvas = FindChildByName(transform, "ShopCanvas")?.transform;
+                if (canvas != null)
+                    shopPanel = FindChildByName(canvas, "ShopPanel");
+            }
+        }
+        if (shopPanel == null) return;
+
+        itemContainer ??= FindChildByName(shopPanel.transform, "ItemContainer")?.transform;
+        goldText ??= FindChildByName(shopPanel.transform, "GoldText")?.GetComponent<TextMeshProUGUI>();
+        itemNameText ??= FindChildByName(shopPanel.transform, "ItemNameText")?.GetComponent<TextMeshProUGUI>();
+        itemDescriptionText ??= FindChildByName(shopPanel.transform, "ItemDescriptionText")?.GetComponent<TextMeshProUGUI>();
+        itemPriceText ??= FindChildByName(shopPanel.transform, "ItemPriceText")?.GetComponent<TextMeshProUGUI>();
+        itemIcon ??= FindChildByName(shopPanel.transform, "ItemIcon")?.GetComponent<Image>();
+        buyButton ??= FindChildByName(shopPanel.transform, "BuyButton")?.GetComponent<Button>();
+        sellButton ??= FindChildByName(shopPanel.transform, "SellButton")?.GetComponent<Button>();
+        closeButton ??= FindChildByName(shopPanel.transform, "CloseButton")?.GetComponent<Button>();
+        if (tooltipPanel == null)
+        {
+            tooltipPanel = FindChildByName(shopPanel.transform, "TooltipPanel");
+            if (tooltipPanel == null && shopPanel.transform.parent != null)
+                tooltipPanel = FindChildByName(shopPanel.transform.parent, "TooltipPanel");
+        }
+        tooltipText ??= tooltipPanel?.GetComponentInChildren<TextMeshProUGUI>();
+    }
+
+    GameObject FindChildByName(Transform parent, string name)
+    {
+        if (parent == null) return null;
+        Transform result = parent.Find(name);
+        if (result != null) return result.gameObject;
+        foreach (Transform child in parent.GetComponentsInChildren<Transform>(true))
+        {
+            if (child.name == name)
+                return child.gameObject;
+        }
+        return null;
+    }
+
+    int CountValidReferences(ShopUIController c)
+    {
+        int count = 0;
+        if (c.shopPanel != null) count++;
+        if (c.itemContainer != null) count++;
+        if (c.goldText != null) count++;
+        if (c.itemNameText != null) count++;
+        if (c.itemDescriptionText != null) count++;
+        if (c.itemPriceText != null) count++;
+        if (c.itemIcon != null) count++;
+        if (c.buyButton != null) count++;
+        if (c.sellButton != null) count++;
+        if (c.closeButton != null) count++;
+        if (c.tooltipPanel != null) count++;
+        if (c.tooltipText != null) count++;
+        return count;
     }
 
     void Update()
