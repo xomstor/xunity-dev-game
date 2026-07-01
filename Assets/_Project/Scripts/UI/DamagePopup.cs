@@ -43,7 +43,7 @@ public class DamagePopup : MonoBehaviour
 
         textMesh.text = damage.ToString();
         textMesh.color = color;
-        textMesh.fontSize = isCrit ? 56 : 42;
+        textMesh.fontSize = isCrit ? 72 : 54;
         textMesh.outlineColor = Color.black;
         textMesh.outlineWidth = 0.25f;
         if (isCrit)
