@@ -146,12 +146,34 @@ public class ShopUIController : MonoBehaviour
             Debug.LogError($"[{name}] ShopUIController.shopPanel is null. Run Tools/Build Shop UI or assign it manually.");
             return;
         }
+
+        Transform current = shopPanel.transform;
+        while (current != null)
+        {
+            current.gameObject.SetActive(true);
+            if (current == transform)
+                break;
+            current = current.parent;
+        }
+
+        Canvas canvas = shopPanel.GetComponentInParent<Canvas>(true);
+        if (canvas != null)
+        {
+            canvas.enabled = true;
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.overrideSorting = true;
+            canvas.sortingOrder = 100;
+            canvas.sortingLayerID = SortingLayer.NameToID("Foreground");
+        }
+
         shopPanel.SetActive(true);
         selectedItemIndex = -1;
         ClearItemDetails();
         RefreshShopItems();
         UpdateGoldText();
         UpdateSellText();
+
+        Debug.Log($"[{name}] Shop opened. Panel activeSelf={shopPanel.activeSelf}, activeInHierarchy={shopPanel.activeInHierarchy}, canvas={(canvas != null ? canvas.name : "none")}");
     }
 
     public void CloseShop()
