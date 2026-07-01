@@ -41,6 +41,8 @@ public class ShopUIController : MonoBehaviour
 
     [Header("UI Elements (assign manually or auto-create)")]
     public bool fitPanelToScreenOnOpen = true;
+    public Vector2 screenInset = new Vector2(70, 70);
+    public float openFontSize = 46f;
     public GameObject shopPanel;
     public Transform itemContainer;
     public TextMeshProUGUI goldText;
@@ -170,6 +172,7 @@ public class ShopUIController : MonoBehaviour
         shopPanel.SetActive(true);
         if (fitPanelToScreenOnOpen)
             FitPanelToScreen();
+        ApplyOpenTextSize();
         selectedItemIndex = -1;
         ClearItemDetails();
         RefreshShopItems();
@@ -196,8 +199,23 @@ public class ShopUIController : MonoBehaviour
         rt.pivot = new Vector2(0.5f, 0.5f);
         rt.anchoredPosition = Vector2.zero;
         rt.sizeDelta = Vector2.zero;
-        rt.offsetMin = Vector2.zero;
-        rt.offsetMax = Vector2.zero;
+        rt.offsetMin = screenInset;
+        rt.offsetMax = -screenInset;
+    }
+
+    void ApplyOpenTextSize()
+    {
+        if (shopPanel == null) return;
+
+        foreach (TextMeshProUGUI text in shopPanel.GetComponentsInChildren<TextMeshProUGUI>(true))
+        {
+            text.enableAutoSizing = false;
+            text.fontSize = openFontSize;
+
+            RectTransform rt = text.GetComponent<RectTransform>();
+            if (rt != null && rt.sizeDelta.y < openFontSize + 12f)
+                rt.sizeDelta = new Vector2(rt.sizeDelta.x, openFontSize + 12f);
+        }
     }
 
     void CreateShopUI()
