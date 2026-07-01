@@ -71,6 +71,8 @@ public class DamagePopupManager : MonoBehaviour
             {
                 rectTransform.anchoredPosition = screenPosition;
             }
+
+            Debug.Log($"DamagePopupManager: spawned popup at screen={screenPosition}, local={rectTransform.anchoredPosition}");
         }
 
         DamagePopup damagePopup = popup.GetComponent<DamagePopup>();

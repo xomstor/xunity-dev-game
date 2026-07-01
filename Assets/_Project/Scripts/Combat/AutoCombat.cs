@@ -93,7 +93,7 @@ public class AutoCombat : MonoBehaviour
 
         if (target != null)
         {
-            float distance = Vector2.Distance(transform.position, target.position);
+            float distance = GetDistanceToTarget();
 
             if (distance <= attackRange)
             {
@@ -120,6 +120,15 @@ public class AutoCombat : MonoBehaviour
         }
     }
 
+    float GetDistanceToTarget()
+    {
+        if (target == null) return float.MaxValue;
+        Collider2D targetCollider = target.GetComponent<Collider2D>();
+        if (targetCollider != null)
+            return Vector2.Distance(transform.position, targetCollider.ClosestPoint(transform.position));
+        return Vector2.Distance(transform.position, target.position);
+    }
+
     void SetAnimState(int state)
     {
         if (anim == null) return;
@@ -143,7 +152,7 @@ public class AutoCombat : MonoBehaviour
         if (attackTimer > 0) return;
         if (target == null) return;
 
-        float distance = Vector2.Distance(transform.position, target.position);
+        float distance = GetDistanceToTarget();
         if (distance > attackRange) return;
 
         attackTimer = attackCooldown;
@@ -229,8 +238,7 @@ public class AutoCombat : MonoBehaviour
             AutoCombat targetCombat = FindAutoCombat(target);
             if (targetCombat == null || !targetCombat.IsDead)
             {
-                float distance = Vector2.Distance(transform.position, target.position);
-                if (distance <= detectionRadius)
+                if (GetDistanceToTarget() <= detectionRadius)
                     return; // target still valid and within range
             }
         }
