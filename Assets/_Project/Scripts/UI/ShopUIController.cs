@@ -104,18 +104,32 @@ public class ShopUIController : MonoBehaviour
             return;
         }
 
-        Canvas canvas = GetComponent<Canvas>();
-        if (canvas == null)
+        Canvas mainCanvas = GetComponent<Canvas>();
+        if (mainCanvas == null)
         {
-            canvas = FindAnyObjectByType<Canvas>();
-            if (canvas == null)
+            mainCanvas = FindAnyObjectByType<Canvas>();
+            if (mainCanvas == null)
             {
                 Debug.LogError("ShopUIController: No Canvas found!");
                 return;
             }
         }
 
-        shopPanel = CreatePanel("ShopPanel", canvas.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(800, 600), panelColor);
+        GameObject shopCanvasGO = new GameObject("ShopCanvas");
+        shopCanvasGO.transform.SetParent(transform, false);
+        Canvas shopCanvas = shopCanvasGO.AddComponent<Canvas>();
+        shopCanvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        shopCanvas.sortingOrder = 100;
+        shopCanvas.overrideSorting = true;
+        shopCanvas.sortingLayerID = SortingLayer.NameToID("Foreground");
+        shopCanvasGO.AddComponent<GraphicRaycaster>();
+        CanvasScaler scaler = shopCanvasGO.AddComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920, 1080);
+        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+        scaler.matchWidthOrHeight = 0.5f;
+
+        shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(900, 650), panelColor);
 
         CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
 
@@ -154,7 +168,7 @@ public class ShopUIController : MonoBehaviour
         sellButton = CreateButton("SellButton", shopPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(250, 50), sellButtonText, sellButtonColor, 24);
         sellButton.onClick.AddListener(SellAllSouls);
 
-        tooltipPanel = CreatePanel("TooltipPanel", shopPanel.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(250, 80), tooltipColor);
+        tooltipPanel = CreatePanel("TooltipPanel", shopCanvasGO.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(250, 80), tooltipColor);
         tooltipPanel.SetActive(false);
         tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), "", 20, TextAnchor.MiddleCenter, Color.white);
         tooltipText.overflowMode = TextOverflowModes.Overflow;
