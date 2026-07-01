@@ -151,7 +151,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::DamagePopup
   textMesh: {fileID: 0}
-  moveSpeed: 2
   fadeDuration: 1
   moveDistance: 2
-  randomOffset: {x: 0.5, y: 0.5, z: 0}
+  randomOffset: {x: 0.5, y: 0.5}

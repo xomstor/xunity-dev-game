@@ -27,6 +27,18 @@ public class DamagePopupManager : MonoBehaviour
             canvas = GetComponent<Canvas>();
         if (canvas == null)
             canvas = FindAnyObjectByType<Canvas>();
+
+        // Damage popups need a Screen Space Overlay canvas to render correctly
+        if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            GameObject canvasGO = new GameObject("DamagePopupCanvas");
+            canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 1000;
+            canvasGO.AddComponent<CanvasScaler>();
+            canvasGO.AddComponent<GraphicRaycaster>();
+            Debug.Log("DamagePopupManager: created dedicated ScreenSpaceOverlay canvas.");
+        }
     }
 
     public void ShowDamage(Vector3 worldPosition, int damage, bool isCrit, bool isPlayer)
