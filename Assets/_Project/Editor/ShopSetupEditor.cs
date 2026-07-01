@@ -23,10 +23,11 @@ public class ShopSetupEditor : EditorWindow
 
         GUILayout.Space(10);
         GUILayout.Label("This will:", EditorStyles.wordWrappedLabel);
+        GUILayout.Label("- Fix Merchant_NPC sprite if missing", EditorStyles.wordWrappedLabel);
         GUILayout.Label("- Add ShopManager to ShopCounter", EditorStyles.wordWrappedLabel);
         GUILayout.Label("- Add ShopNPC to Merchant_NPC", EditorStyles.wordWrappedLabel);
         GUILayout.Label("- Create ShopUIController in Canvas", EditorStyles.wordWrappedLabel);
-        GUILayout.Label("- Assign items and references", EditorStyles.wordWrappedLabel);
+        GUILayout.Label("- Assign items, references and prompt", EditorStyles.wordWrappedLabel);
     }
 
     static void SetupShop()
@@ -55,6 +56,8 @@ public class ShopSetupEditor : EditorWindow
             return;
         }
 
+        FixMerchantSprite(merchant);
+
         ShopManager shopManager = SetupShopManager(shopCounter);
         if (shopManager == null)
         {
@@ -62,8 +65,8 @@ public class ShopSetupEditor : EditorWindow
             return;
         }
 
-        SetupShopNPC(merchant);
         ShopUIController controller = SetupShopUIController(canvas, shopManager);
+        SetupShopNPC(merchant, controller);
 
         if (controller != null)
         {
@@ -112,14 +115,38 @@ public class ShopSetupEditor : EditorWindow
         return shopManager;
     }
 
-    static void SetupShopNPC(GameObject merchant)
+    static void FixMerchantSprite(GameObject merchant)
+    {
+        SpriteRenderer sr = merchant.GetComponent<SpriteRenderer>();
+        if (sr == null) return;
+        if (sr.sprite != null) return;
+
+        string spritePath = "Assets/_Project/Art/NPC/Neutral/MerchantNpc.png";
+        if (!AssetDatabase.LoadAssetAtPath<Texture2D>(spritePath))
+            return;
+
+        Sprite[] sprites = AssetDatabase.LoadAllAssetsAtPath(spritePath).OfType<Sprite>().ToArray();
+        if (sprites.Length > 0)
+        {
+            Undo.RecordObject(sr, "Fix Merchant Sprite");
+            sr.sprite = sprites[0];
+            EditorUtility.SetDirty(sr);
+        }
+    }
+
+    static void SetupShopNPC(GameObject merchant, ShopUIController controller)
     {
         ShopNPC shopNPC = merchant.GetComponent<ShopNPC>();
         if (shopNPC == null)
         {
             shopNPC = Undo.AddComponent<ShopNPC>(merchant);
         }
-        shopNPC.shopUI = null;
+        shopNPC.shopUI = controller;
+
+        DialogueTrigger dt = merchant.GetComponent<DialogueTrigger>();
+        if (dt != null)
+            shopNPC.interactPrompt = dt.interactPrompt;
+
         EditorUtility.SetDirty(shopNPC);
     }
 
