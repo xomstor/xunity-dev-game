@@ -49,7 +49,6 @@ public class DamagePopup : MonoBehaviour
         targetPosition = startPosition + Vector2.up * moveDistance + randomPos;
 
         elapsed = 0f;
-        Debug.Log($"DamagePopup: showing {textMesh.text} at {rectTransform.anchoredPosition}");
         StartCoroutine(Animate());
     }
 
