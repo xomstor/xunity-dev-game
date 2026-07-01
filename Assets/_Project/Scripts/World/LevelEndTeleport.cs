@@ -7,6 +7,7 @@ public class LevelEndTeleport : MonoBehaviour
     public string hubSceneName = "Hub";
     public string nextLevelSceneName = "";
     public string targetTag = "Player";
+    public float enterGracePeriod = 1f;
 
     [Header("Dialogue")]
     public string[] dialogueLines = new string[]
@@ -21,10 +22,21 @@ public class LevelEndTeleport : MonoBehaviour
 
     private bool isPlayerInTrigger;
     private bool dialogShown;
+    private float sceneTime;
+
+    void Start()
+    {
+        sceneTime = 0f;
+    }
+
+    void Update()
+    {
+        sceneTime += Time.deltaTime;
+    }
 
     void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag(targetTag) && !dialogShown)
+        if (other.CompareTag(targetTag) && !dialogShown && sceneTime >= enterGracePeriod)
         {
             isPlayerInTrigger = true;
             ShowChoiceDialogue();
@@ -72,15 +84,43 @@ public class LevelEndTeleport : MonoBehaviour
 
     void LoadHub()
     {
-        if (!string.IsNullOrEmpty(hubSceneName))
-            SceneManager.LoadScene(hubSceneName, LoadSceneMode.Single);
+        if (string.IsNullOrEmpty(hubSceneName))
+        {
+            Debug.LogWarning("LevelEndTeleport: hubSceneName is not set");
+            return;
+        }
+        if (!IsSceneInBuildSettings(hubSceneName))
+        {
+            Debug.LogError($"LevelEndTeleport: scene '{hubSceneName}' is not in Build Settings!");
+            return;
+        }
+        SceneManager.LoadScene(hubSceneName, LoadSceneMode.Single);
     }
 
     void ContinueLevel()
     {
-        if (!string.IsNullOrEmpty(nextLevelSceneName))
-            SceneManager.LoadScene(nextLevelSceneName, LoadSceneMode.Single);
-        else
+        if (string.IsNullOrEmpty(nextLevelSceneName))
+        {
             Debug.LogWarning("LevelEndTeleport: nextLevelSceneName is not set");
+            return;
+        }
+        if (!IsSceneInBuildSettings(nextLevelSceneName))
+        {
+            Debug.LogError($"LevelEndTeleport: scene '{nextLevelSceneName}' is not in Build Settings!");
+            return;
+        }
+        SceneManager.LoadScene(nextLevelSceneName, LoadSceneMode.Single);
+    }
+
+    bool IsSceneInBuildSettings(string sceneName)
+    {
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        {
+            string path = SceneUtility.GetScenePathByBuildIndex(i);
+            string name = System.IO.Path.GetFileNameWithoutExtension(path);
+            if (name == sceneName)
+                return true;
+        }
+        return false;
     }
 }

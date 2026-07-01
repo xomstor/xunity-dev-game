@@ -49,6 +49,12 @@ public class AutoCombat : MonoBehaviour
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
             col.enabled = true;
+
+        if (anim != null)
+        {
+            anim.Rebind();
+            anim.Update(0f);
+        }
     }
 
     void Awake()
@@ -119,11 +125,20 @@ public class AutoCombat : MonoBehaviour
 
         attackTimer = attackCooldown;
 
+        int finalDamage = GetFinalDamage();
+
         AutoCombat targetCombat = target.GetComponent<AutoCombat>();
         if (targetCombat != null)
         {
-            int finalDamage = GetFinalDamage();
             targetCombat.TakeDamage(finalDamage);
+            return;
+        }
+
+        PlayerStats targetStats = target.GetComponent<PlayerStats>();
+        if (targetStats != null)
+        {
+            targetStats.TakeDamage(finalDamage);
+            Debug.Log($"{target.name} took {finalDamage} damage");
         }
     }
 
@@ -142,12 +157,16 @@ public class AutoCombat : MonoBehaviour
 
     void FindTarget()
     {
-        // Check if target is alive
+        // Check if target is alive and not destroyed
         if (target != null && target.gameObject.activeInHierarchy)
         {
             AutoCombat targetCombat = target.GetComponent<AutoCombat>();
             if (targetCombat == null || !targetCombat.IsDead)
-                return; // target still valid
+            {
+                float distance = Vector2.Distance(transform.position, target.position);
+                if (distance <= detectionRadius)
+                    return; // target still valid and within range
+            }
         }
 
         target = null;
@@ -156,9 +175,13 @@ public class AutoCombat : MonoBehaviour
         Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, detectionRadius);
         foreach (Collider2D collider in colliders)
         {
+            if (collider.transform == transform) continue;
+
             AutoCombat other = collider.GetComponent<AutoCombat>();
-            if (other == null || other == this || other.isDead) continue;
-            if (IsAlly(other.team)) continue;
+            PlayerController playerController = collider.GetComponent<PlayerController>();
+
+            if (other == null && playerController == null) continue;
+            if (other != null && (other == this || other.isDead || IsAlly(other.team))) continue;
 
             float distance = Vector2.Distance(transform.position, collider.transform.position);
             if (distance < closestDistance)
@@ -167,6 +190,11 @@ public class AutoCombat : MonoBehaviour
                 target = collider.transform;
             }
         }
+
+        if (target != null)
+            Debug.Log($"{name}: found target {target.name}");
+        else
+            Debug.Log($"{name}: no target found within {detectionRadius}");
     }
 
     bool IsAlly(CombatTeam otherTeam)

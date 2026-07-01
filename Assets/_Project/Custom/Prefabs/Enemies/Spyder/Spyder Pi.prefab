@@ -110,6 +110,9 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 4736337183442238658, guid: 0b23a4263e5e84c4c98c671868a220b1, type: 3}
       insertIndex: -1
       addedObject: {fileID: 8979558010523344724}
+    - targetCorrespondingSourceObject: {fileID: 4736337183442238658, guid: 0b23a4263e5e84c4c98c671868a220b1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: -5298535963188171927}
   m_SourcePrefab: {fileID: 100100000, guid: 0b23a4263e5e84c4c98c671868a220b1, type: 3}
 --- !u!1 &4186992394362829146 stripped
 GameObject:
@@ -165,3 +168,21 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-5298535963188171927
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4186992394362829146}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ca2c1dadde971b84e999b5ba35d1b7c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyReward
+  experienceReward: 10
+  goldReward: 5
+  drops:
+  - itemData: {fileID: 0}
+    quantity: 1
+    baseDropChance: 0.2
