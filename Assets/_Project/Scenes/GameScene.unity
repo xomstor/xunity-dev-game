@@ -10691,7 +10691,7 @@ MonoBehaviour:
   experience: 0
   gold: 0
   experienceToNextLevel: 100
-  skillPoints: 0
+  skillPoints: 1
   baseLck: 0
   baseCritChance: 0.05
   critDamageMultiplier: 3
