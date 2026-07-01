@@ -15,15 +15,29 @@ public class PlayerStats : MonoBehaviour
     public int experience = 0;
     public int gold = 0;
     public int experienceToNextLevel = 100;
+    public int skillPoints = 0;
+
+    [Header("Base Stats")]
+    public int baseLck;
 
     [Header("Crit")]
     public float baseCritChance = 0.05f;
     public float critDamageMultiplier = 3f;
 
+    void Awake()
+    {
+        baseLck = lck;
+    }
+
     public void TakeDamage(int amount)
     {
         int finalDamage = Mathf.Max(1, amount - def);
         hp = Mathf.Max(0, hp - finalDamage);
+    }
+
+    public float GetHpRegenPerSecond()
+    {
+        return Mathf.Max(0f, (lck - baseLck) * 0.1f);
     }
 
     public int GetDamage(out bool isCrit)
@@ -58,6 +72,7 @@ public class PlayerStats : MonoBehaviour
         {
             experience -= experienceToNextLevel;
             level++;
+            skillPoints += 3;
             experienceToNextLevel = Mathf.RoundToInt(experienceToNextLevel * 1.2f);
         }
     }

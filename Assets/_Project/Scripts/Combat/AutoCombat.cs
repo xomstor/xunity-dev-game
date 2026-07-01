@@ -40,6 +40,7 @@ public class AutoCombat : MonoBehaviour
     private Transform target;
     private bool isDead;
     private Rigidbody2D rb;
+    private float regenAccum;
 
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
@@ -98,6 +99,7 @@ public class AutoCombat : MonoBehaviour
         if (attackTimer > 0)
             attackTimer -= Time.deltaTime;
 
+        ApplyHpRegen();
         FindTarget();
 
         PlayerController playerController = GetComponent<PlayerController>();
@@ -128,6 +130,27 @@ public class AutoCombat : MonoBehaviour
         else if (playerController == null)
         {
             SetAnimState(0);
+        }
+    }
+
+    void ApplyHpRegen()
+    {
+        if (team != CombatTeam.Player) return;
+        if (currentHealth >= maxHealth) return;
+
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats == null) return;
+
+        float regen = stats.GetHpRegenPerSecond() * Time.deltaTime;
+        if (regen <= 0f) return;
+
+        regenAccum += regen;
+        if (regenAccum >= 1f)
+        {
+            int heal = Mathf.FloorToInt(regenAccum);
+            currentHealth = Mathf.Min(maxHealth, currentHealth + heal);
+            stats.hp = currentHealth;
+            regenAccum -= heal;
         }
     }
 
