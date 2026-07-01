@@ -58,7 +58,7 @@ public class EnemyRespawnManager : MonoBehaviour
 
     public void RespawnAllEnemies()
     {
-        AutoCombat[] enemies = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
+        AutoCombat[] enemies = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
         foreach (AutoCombat enemy in enemies)
         {
             if (enemy.team != CombatTeam.Enemy) continue;

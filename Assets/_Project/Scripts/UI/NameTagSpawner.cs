@@ -20,7 +20,7 @@ public class NameTagSpawner : MonoBehaviour
             return;
         }
 
-        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
+        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
 
         foreach (var combatant in allCombatants)
         {
@@ -71,7 +71,7 @@ public class NameTagSpawner : MonoBehaviour
         trigger.radius = showDistance;
 
         Rigidbody2D rb = detectorObject.AddComponent<Rigidbody2D>();
-        rb.isKinematic = true;
+        rb.bodyType = RigidbodyType2D.Kinematic;
 
         NameTagDetector detector = detectorObject.AddComponent<NameTagDetector>();
         detector.nameTag = nameTag;

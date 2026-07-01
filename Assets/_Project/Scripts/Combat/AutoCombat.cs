@@ -11,6 +11,7 @@ public class AutoCombat : MonoBehaviour
 {
     [Header("Team")]
     public CombatTeam team = CombatTeam.Enemy;
+    public bool canBeTargeted = true;
 
     [Header("Stats")]
     public int maxHealth = 100;
@@ -59,7 +60,6 @@ public class AutoCombat : MonoBehaviour
 
     void Awake()
     {
-        Debug.Log($"AutoCombat.Awake on {name}: team={team}");
         currentHealth = maxHealth;
         rb = GetComponent<Rigidbody2D>();
         if (anim == null)
@@ -93,10 +93,8 @@ public class AutoCombat : MonoBehaviour
 
             if (distance <= attackRange)
             {
-                Debug.Log($"{name}: target {target.name} in range ({distance:F2}), attacking");
                 if (playerController != null)
                 {
-                    Debug.Log($"{name}: calling PlayerController.Attack()");
                     playerController.Attack();
                     SetAnimState(0);
                 }
@@ -138,7 +136,6 @@ public class AutoCombat : MonoBehaviour
 
     public void TryAttack()
     {
-        Debug.Log($"AutoCombat.TryAttack called on {name}. attackTimer={attackTimer:F2}, target={target?.name}");
         if (attackTimer > 0) return;
         if (target == null) return;
 
@@ -219,7 +216,7 @@ public class AutoCombat : MonoBehaviour
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
-            if (other != null && (other == this || other.isDead || !IsValidTarget(other.team))) continue;
+            if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team))) continue;
 
             float distance = Vector2.Distance(transform.position, collider.transform.position);
             if (distance < closestDistance)
@@ -268,7 +265,6 @@ public class AutoCombat : MonoBehaviour
         if (anim != null)
         {
             anim.SetTrigger(attackTrigger);
-            Debug.Log($"{name}: Attack trigger set");
         }
 
         AutoCombat targetCombat = target?.GetComponentInChildren<AutoCombat>();

@@ -26,7 +26,7 @@ public class NameTagUI : MonoBehaviour
         rectTransform = GetComponent<RectTransform>();
         parentCanvas = GetComponentInParent<Canvas>();
 
-        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
+        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
         foreach (var combatant in allCombatants)
         {
             if (combatant.team == CombatTeam.Player)

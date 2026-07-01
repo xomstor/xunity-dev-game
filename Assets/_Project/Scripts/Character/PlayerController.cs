@@ -121,7 +121,6 @@ public class PlayerController : MonoBehaviour
 
     public void Attack()
     {
-        Debug.Log($"PlayerController.Attack called. isAttacking={isAttacking}, isRolling={isRolling}");
         if (anim == null || isAttacking || isRolling) return;
 
         isAttacking = true;

@@ -30,7 +30,7 @@ public class StartLevelDisplay : MonoBehaviour
             yield break;
         }
 
-        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsSortMode.None);
+        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsInactive.Exclude);
         Debug.Log($"StartLevelDisplay: found {spawnPoints.Length} spawn points");
 
         SpawnPoint closest = null;

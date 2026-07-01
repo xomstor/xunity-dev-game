@@ -22,7 +22,6 @@ public class LevelEndTeleport : MonoBehaviour
     public string npcName = "Портал";
     public Sprite npcFace;
 
-    private bool isPlayerInTrigger;
     private bool dialogShown;
     private float triggerTime;
 
@@ -40,7 +39,6 @@ public class LevelEndTeleport : MonoBehaviour
     {
         if (other.CompareTag(targetTag) && !dialogShown && triggerTime >= enterGracePeriod)
         {
-            isPlayerInTrigger = true;
             ShowChoiceDialogue();
         }
     }
@@ -49,7 +47,6 @@ public class LevelEndTeleport : MonoBehaviour
     {
         if (other.CompareTag(targetTag))
         {
-            isPlayerInTrigger = false;
             dialogShown = false;
         }
     }

@@ -17,7 +17,7 @@ public class AutoHealthBarSpawner : MonoBehaviour
 
     void Start()
     {
-        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsSortMode.None);
+        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
 
         foreach (var combatant in allCombatants)
         {
