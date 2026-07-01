@@ -3,7 +3,7 @@ using UnityEngine.InputSystem;
 
 public class ShopNPC : MonoBehaviour
 {
-    public ShopUI shopUI;
+    public ShopUIController shopUI;
     public GameObject interactPrompt;
 
     private bool isPlayerNearby;
@@ -45,7 +45,8 @@ public class ShopNPC : MonoBehaviour
 
     void OpenShop()
     {
-        if (shopUI != null)
-            shopUI.OpenShop();
+        ShopUIController target = shopUI != null ? shopUI : ShopUIController.Instance;
+        if (target != null)
+            target.OpenShop();
     }
 }
