@@ -219,7 +219,7 @@ public class AutoCombat : MonoBehaviour
             PlayerController playerController = root.GetComponentInChildren<PlayerController>();
 
             if (other == null && playerController == null) continue;
-            if (other != null && (other == this || other.isDead || IsAlly(other.team))) continue;
+            if (other != null && (other == this || other.isDead || !IsValidTarget(other.team))) continue;
 
             float distance = Vector2.Distance(transform.position, collider.transform.position);
             if (distance < closestDistance)
@@ -238,11 +238,11 @@ public class AutoCombat : MonoBehaviour
         }
     }
 
-    bool IsAlly(CombatTeam otherTeam)
+    bool IsValidTarget(CombatTeam otherTeam)
     {
         if (team == CombatTeam.Neutral || otherTeam == CombatTeam.Neutral)
             return false;
-        return team == otherTeam;
+        return team != otherTeam;
     }
 
     void ChaseTarget()
