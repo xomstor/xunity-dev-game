@@ -1,0 +1,1216 @@
+fileFormatVersion: 2
+guid: 69c0778a92acab64d84567748179c3b1
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 3989663277828862706
+    second: kati-eloranta-tiger-removebg-preview_0
+  - first:
+      213: -363740045436599357
+    second: kati-eloranta-tiger-removebg-preview_1
+  - first:
+      213: -2124900269281592513
+    second: kati-eloranta-tiger-removebg-preview_2
+  - first:
+      213: 124354860031970954
+    second: kati-eloranta-tiger-removebg-preview_3
+  - first:
+      213: 8898414398267841028
+    second: kati-eloranta-tiger-removebg-preview_4
+  - first:
+      213: -70481364215088444
+    second: kati-eloranta-tiger-removebg-preview_5
+  - first:
+      213: 206773225021534369
+    second: kati-eloranta-tiger-removebg-preview_6
+  - first:
+      213: -232036660969340881
+    second: kati-eloranta-tiger-removebg-preview_7
+  - first:
+      213: 7986010166574293055
+    second: kati-eloranta-tiger-removebg-preview_8
+  - first:
+      213: -147888464414665650
+    second: kati-eloranta-tiger-removebg-preview_9
+  - first:
+      213: -4718727279297277401
+    second: kati-eloranta-tiger-removebg-preview_10
+  - first:
+      213: 9075142465517734172
+    second: kati-eloranta-tiger-removebg-preview_11
+  - first:
+      213: 1372662877941766670
+    second: kati-eloranta-tiger-removebg-preview_12
+  - first:
+      213: 3408795361633385729
+    second: kati-eloranta-tiger-removebg-preview_13
+  - first:
+      213: 2363213179755468087
+    second: kati-eloranta-tiger-removebg-preview_14
+  - first:
+      213: -6664426827989186276
+    second: kati-eloranta-tiger-removebg-preview_15
+  - first:
+      213: -4790166903181396681
+    second: kati-eloranta-tiger-removebg-preview_16
+  - first:
+      213: -4085765095878821726
+    second: kati-eloranta-tiger-removebg-preview_17
+  - first:
+      213: -6137682583934380539
+    second: kati-eloranta-tiger-removebg-preview_18
+  - first:
+      213: 420360254233412097
+    second: kati-eloranta-tiger-removebg-preview_19
+  - first:
+      213: -4342220780574880207
+    second: kati-eloranta-tiger-removebg-preview_20
+  - first:
+      213: -4730273022273104948
+    second: kati-eloranta-tiger-removebg-preview_21
+  - first:
+      213: -4099967617779608349
+    second: kati-eloranta-tiger-removebg-preview_22
+  - first:
+      213: -5505486530243259706
+    second: kati-eloranta-tiger-removebg-preview_23
+  - first:
+      213: 5103117223134771352
+    second: kati-eloranta-tiger-removebg-preview_24
+  - first:
+      213: 422134260697360996
+    second: kati-eloranta-tiger-removebg-preview_25
+  - first:
+      213: 2375904680033914414
+    second: kati-eloranta-tiger-removebg-preview_26
+  - first:
+      213: -9104649011779638297
+    second: kati-eloranta-tiger-removebg-preview_27
+  - first:
+      213: -5331289977901872845
+    second: kati-eloranta-tiger-removebg-preview_28
+  - first:
+      213: -3300427121057329300
+    second: kati-eloranta-tiger-removebg-preview_29
+  - first:
+      213: -6125041801298800242
+    second: kati-eloranta-tiger-removebg-preview_30
+  - first:
+      213: 1902605264911406581
+    second: kati-eloranta-tiger-removebg-preview_31
+  - first:
+      213: 7300772631019091152
+    second: kati-eloranta-tiger-removebg-preview_32
+  - first:
+      213: -6576886819869879657
+    second: kati-eloranta-tiger-removebg-preview_33
+  - first:
+      213: 7787054309627658421
+    second: kati-eloranta-tiger-removebg-preview_34
+  - first:
+      213: 3454071375952686998
+    second: kati-eloranta-tiger-removebg-preview_35
+  - first:
+      213: 8537906624526350852
+    second: kati-eloranta-tiger-removebg-preview_36
+  - first:
+      213: -1499150700190495355
+    second: kati-eloranta-tiger-removebg-preview_37
+  - first:
+      213: -2205033127067319135
+    second: kati-eloranta-tiger-removebg-preview_38
+  - first:
+      213: -3667704625528163063
+    second: kati-eloranta-tiger-removebg-preview_39
+  - first:
+      213: -1448320049710340576
+    second: kati-eloranta-tiger-removebg-preview_40
+  - first:
+      213: -5065210909169464625
+    second: kati-eloranta-tiger-removebg-preview_41
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f0104e0d2263a8b4a81afbeede595348
+      internalID: 3989663277828862706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_1
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: daff0dedbdc08e544bd787a82e9051fb
+      internalID: -363740045436599357
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_2
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 79d3e2edd3fba86428c13c92ce54a85c
+      internalID: -2124900269281592513
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_3
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce0a3f927475da34aa1512944a1fad38
+      internalID: 124354860031970954
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_4
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 6de0815a7af8ecd42847a4e84805af55
+      internalID: 8898414398267841028
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_5
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 944ef13fda66f774194943eb81df1423
+      internalID: -70481364215088444
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_6
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 426
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 18985d51453802e4b9799822774750ea
+      internalID: 206773225021534369
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_7
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 39ad6edf364f15f4a859bae015f33bf9
+      internalID: -232036660969340881
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_8
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 55b06101d18f49b43823a35c7cb02c35
+      internalID: 7986010166574293055
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_9
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 174c98776995a214e861b90e2acec575
+      internalID: -147888464414665650
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_10
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7e3c2e3a29420bb42b01344ae8a45338
+      internalID: -4718727279297277401
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_11
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 057904dcee86dca468d10562895d2732
+      internalID: 9075142465517734172
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_12
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2a83fa3fb57839d4abe674877ef3de44
+      internalID: 1372662877941766670
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_13
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 362
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a145af2e58eb7a0419230637232405be
+      internalID: 3408795361633385729
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_14
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9aab8c46204bfc94b99bae63359d0899
+      internalID: 2363213179755468087
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_15
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0b47e6f2a737b514c843357f44c56796
+      internalID: -6664426827989186276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_16
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 65c922202e64a2d48bcdeefec99e38c5
+      internalID: -4790166903181396681
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_17
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1894e04bb6992754c92ad7e3fdc19cc7
+      internalID: -4085765095878821726
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_18
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3b9cde1ec9112fa43bba5f3eae9600fa
+      internalID: -6137682583934380539
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_19
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 59d8f52906acc4e43a290dc79ffeb93b
+      internalID: 420360254233412097
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_20
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 298
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 54066c602cf36624bbd73afba582a068
+      internalID: -4342220780574880207
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_21
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 22128b39f5e9c3c44b5f619b43b033e4
+      internalID: -4730273022273104948
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_22
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ce5a4891bf9b0444494827f68b3c22ff
+      internalID: -4099967617779608349
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_23
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2057c285ad1f7994d9f34ade0ce260c1
+      internalID: -5505486530243259706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_24
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 243dfd5780333e740a9fa57188b21dc2
+      internalID: 5103117223134771352
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_25
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 58789a0f1ca11ef4cb103a4d557b513c
+      internalID: 422134260697360996
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_26
+      rect:
+        serializedVersion: 2
+        x: 320
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2f4bb4ff8d9ffe74f99a52243248817b
+      internalID: 2375904680033914414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_27
+      rect:
+        serializedVersion: 2
+        x: 384
+        y: 234
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c4d7383d15a4f6941b892b7b608d640e
+      internalID: -9104649011779638297
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 170
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: cf1370eee7666d54aa5e394197ee1217
+      internalID: -5331289977901872845
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_29
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 170
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c271c1a73dda1645b9eca50ddfbc530
+      internalID: -3300427121057329300
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_30
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 170
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 99907f2dfc5d35846843868e1d2ce7a0
+      internalID: -6125041801298800242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_31
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 170
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 07e3f09dd18d3954abfdf4261835814b
+      internalID: 1902605264911406581
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_32
+      rect:
+        serializedVersion: 2
+        x: 256
+        y: 170
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: dde81145463932d4794d9c43fc9131cf
+      internalID: 7300772631019091152
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_33
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 106
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1019108a474d03b49b59dce690a7a397
+      internalID: -6576886819869879657
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_34
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 106
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 9c7dbe102a12e9d47ad9d3f3b5902ba8
+      internalID: 7787054309627658421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_35
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 106
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ad70f853302d92b40a96a932db4df6b8
+      internalID: 3454071375952686998
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_36
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 106
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 3ee0e27c50d1eac489a67fb7384fa410
+      internalID: 8537906624526350852
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_37
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 42
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: f96692d9131ac9d419b3f632d33d21d9
+      internalID: -1499150700190495355
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_38
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 42
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 7920d06371a3467449599260b2ff208d
+      internalID: -2205033127067319135
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_39
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 42
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 773d81d91bcb35d45a660c563912d0ec
+      internalID: -3667704625528163063
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: kati-eloranta-tiger-removebg-preview_40
+      rect:
+        serializedVersion: 2
+        x: 192
+        y: 42
+        width: 64
+        height: 64
+      alignment: 0
+      pivot: {x: 0.5, y: 0.5}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 4c16b1bd00d2bc7418dbac37b5cc4d00
+      internalID: -1448320049710340576
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: b997c676fe0b2cb479d1fb492d50b86e
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries:
+      - key: SpriteEditor.SliceSettings
+        value: '{"sliceOnImport":true,"gridCellCount":{"x":1.0,"y":1.0},"gridSpriteSize":{"x":64.0,"y":64.0},"gridSpriteOffset":{"x":0.0,"y":0.0},"gridSpritePadding":{"x":0.0,"y":0.0},"pivot":{"x":0.5,"y":0.5},"pivotPixels":{"x":0.0,"y":0.0},"autoSlicingMethod":0,"spriteAlignment":0,"pivotUnitMode":0,"slicingType":1,"keepEmptyRects":false,"isAlternate":false}'
+      - key: SpriteEditor.SliceOnImport
+        value: True
+    nameFileIdTable:
+      kati-eloranta-tiger-removebg-preview_0: 3989663277828862706
+      kati-eloranta-tiger-removebg-preview_1: -363740045436599357
+      kati-eloranta-tiger-removebg-preview_10: -4718727279297277401
+      kati-eloranta-tiger-removebg-preview_11: 9075142465517734172
+      kati-eloranta-tiger-removebg-preview_12: 1372662877941766670
+      kati-eloranta-tiger-removebg-preview_13: 3408795361633385729
+      kati-eloranta-tiger-removebg-preview_14: 2363213179755468087
+      kati-eloranta-tiger-removebg-preview_15: -6664426827989186276
+      kati-eloranta-tiger-removebg-preview_16: -4790166903181396681
+      kati-eloranta-tiger-removebg-preview_17: -4085765095878821726
+      kati-eloranta-tiger-removebg-preview_18: -6137682583934380539
+      kati-eloranta-tiger-removebg-preview_19: 420360254233412097
+      kati-eloranta-tiger-removebg-preview_2: -2124900269281592513
+      kati-eloranta-tiger-removebg-preview_20: -4342220780574880207
+      kati-eloranta-tiger-removebg-preview_21: -4730273022273104948
+      kati-eloranta-tiger-removebg-preview_22: -4099967617779608349
+      kati-eloranta-tiger-removebg-preview_23: -5505486530243259706
+      kati-eloranta-tiger-removebg-preview_24: 5103117223134771352
+      kati-eloranta-tiger-removebg-preview_25: 422134260697360996
+      kati-eloranta-tiger-removebg-preview_26: 2375904680033914414
+      kati-eloranta-tiger-removebg-preview_27: -9104649011779638297
+      kati-eloranta-tiger-removebg-preview_28: -5331289977901872845
+      kati-eloranta-tiger-removebg-preview_29: -3300427121057329300
+      kati-eloranta-tiger-removebg-preview_3: 124354860031970954
+      kati-eloranta-tiger-removebg-preview_30: -6125041801298800242
+      kati-eloranta-tiger-removebg-preview_31: 1902605264911406581
+      kati-eloranta-tiger-removebg-preview_32: 7300772631019091152
+      kati-eloranta-tiger-removebg-preview_33: -6576886819869879657
+      kati-eloranta-tiger-removebg-preview_34: 7787054309627658421
+      kati-eloranta-tiger-removebg-preview_35: 3454071375952686998
+      kati-eloranta-tiger-removebg-preview_36: 8537906624526350852
+      kati-eloranta-tiger-removebg-preview_37: -1499150700190495355
+      kati-eloranta-tiger-removebg-preview_38: -2205033127067319135
+      kati-eloranta-tiger-removebg-preview_39: -3667704625528163063
+      kati-eloranta-tiger-removebg-preview_4: 8898414398267841028
+      kati-eloranta-tiger-removebg-preview_40: -1448320049710340576
+      kati-eloranta-tiger-removebg-preview_5: -70481364215088444
+      kati-eloranta-tiger-removebg-preview_6: 206773225021534369
+      kati-eloranta-tiger-removebg-preview_7: -232036660969340881
+      kati-eloranta-tiger-removebg-preview_8: 7986010166574293055
+      kati-eloranta-tiger-removebg-preview_9: -147888464414665650
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
