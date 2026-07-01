@@ -26,6 +26,10 @@ public class ShopUIController : MonoBehaviour
     public string notEnoughMessage = "Not enough gold or inventory full";
     public string noItemSelectedMessage = "Select an item";
 
+    [Header("Dynamic Pricing")]
+    public float xpPotionPriceMultiplier = 1.1f;
+    public string xpPotionIdSubstring = "xp";
+
     [Header("UI Colors")]
     public Color panelColor = new Color(0, 0.1f, 0.1f, 0.95f);
     public Color itemButtonColor = new Color(0.2f, 0.2f, 0.2f, 1f);
@@ -105,7 +109,7 @@ public class ShopUIController : MonoBehaviour
 
         shopPanel = CreatePanel("ShopPanel", canvas.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(800, 600), panelColor);
 
-        GameObject title = CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
+        CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
 
         closeButton = CreateButton("CloseButton", shopPanel.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-60, -40), new Vector2(80, 40), closeButtonText, closeButtonColor, 24);
         closeButton.onClick.AddListener(CloseShop);
@@ -132,7 +136,7 @@ public class ShopUIController : MonoBehaviour
         itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(340, 40), "", 30, TextAnchor.MiddleCenter, Color.white);
         itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -260), new Vector2(340, 120), noItemSelectedMessage, 22, TextAnchor.MiddleCenter, new Color(0.8f, 0.8f, 0.8f, 1f));
         itemDescriptionText.overflowMode = TextOverflowModes.Overflow;
-        itemDescriptionText.enableWordWrapping = true;
+        itemDescriptionText.textWrappingMode = TextWrappingModes.Normal;
 
         itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(340, 40), "", 26, TextAnchor.MiddleCenter, Color.yellow);
 
@@ -146,7 +150,7 @@ public class ShopUIController : MonoBehaviour
         tooltipPanel.SetActive(false);
         tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), "", 20, TextAnchor.MiddleCenter, Color.white);
         tooltipText.overflowMode = TextOverflowModes.Overflow;
-        tooltipText.enableWordWrapping = true;
+        tooltipText.textWrappingMode = TextWrappingModes.Normal;
         RectTransform tooltipTextRt = tooltipText.GetComponent<RectTransform>();
         tooltipTextRt.offsetMin = new Vector2(10, 10);
         tooltipTextRt.offsetMax = new Vector2(-10, -10);
@@ -204,7 +208,7 @@ public class ShopUIController : MonoBehaviour
         tmp.fontSize = fontSize;
         tmp.color = color;
         tmp.alignment = GetTextAlignmentOptions(alignment);
-        tmp.enableWordWrapping = true;
+        tmp.textWrappingMode = TextWrappingModes.Normal;
         tmp.raycastTarget = false;
         return tmp;
     }
@@ -263,7 +267,7 @@ public class ShopUIController : MonoBehaviour
         tmp.color = Color.white;
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.raycastTarget = false;
-        tmp.enableWordWrapping = false;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
         return btn;
     }
@@ -351,7 +355,7 @@ public class ShopUIController : MonoBehaviour
         tmp.color = Color.white;
         tmp.alignment = TextAlignmentOptions.Left;
         tmp.raycastTarget = false;
-        tmp.enableWordWrapping = false;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
 
         int capturedIndex = index;
         btn.onClick.AddListener(() => SelectItem(capturedIndex));
@@ -396,7 +400,7 @@ public class ShopUIController : MonoBehaviour
         if (tooltipPanel == null || !tooltipPanel.activeInHierarchy) return;
         Vector2 mousePos = Input.mousePosition;
         RectTransform rt = tooltipPanel.GetComponent<RectTransform>();
-        rt.position = mousePos + new Vector3(15, 15, 0);
+        rt.position = new Vector3(mousePos.x + 15, mousePos.y + 15, 0);
     }
 
     void SelectItem(int index)
@@ -426,6 +430,10 @@ public class ShopUIController : MonoBehaviour
         if (shopItem.itemData == null) return;
 
         bool success = shopManager.BuyItem(selectedItemIndex, playerInventory, playerStats);
+        if (success && shopItem.itemData != null && shopItem.itemData.itemId.Contains(xpPotionIdSubstring))
+        {
+            shopItem.price = Mathf.RoundToInt(shopItem.price * xpPotionPriceMultiplier);
+        }
         UpdateGoldText();
         RefreshShopItems();
         if (itemDescriptionText != null)
