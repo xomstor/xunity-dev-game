@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.InputSystem;
 using TMPro;
 
 public class ShopUIController : MonoBehaviour
@@ -509,9 +510,15 @@ public class ShopUIController : MonoBehaviour
     void UpdateTooltipPosition()
     {
         if (tooltipPanel == null || !tooltipPanel.activeInHierarchy) return;
-        Vector2 mousePos = Input.mousePosition;
+
+        Vector2 pointerPos = Vector2.zero;
+        if (Mouse.current != null)
+            pointerPos = Mouse.current.position.ReadValue();
+        else if (Pointer.current != null)
+            pointerPos = Pointer.current.position.ReadValue();
+
         RectTransform rt = tooltipPanel.GetComponent<RectTransform>();
-        rt.position = new Vector3(mousePos.x + 15, mousePos.y + 15, 0);
+        rt.position = new Vector3(pointerPos.x + 15, pointerPos.y + 15, 0);
     }
 
     void SelectItem(int index)
