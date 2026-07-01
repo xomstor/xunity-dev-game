@@ -16,6 +16,7 @@ MonoBehaviour:
   itemName: Healer Potion
   description: Restores 50 HP
   itemType: 2
+  rarity: 0
   icon: {fileID: 0}
   price: 15
   maxStack: 10

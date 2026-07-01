@@ -5,19 +5,31 @@ public class DropItem
 {
     public ItemData itemData;
     public int quantity = 1;
-    [Range(0f, 1f)] public float baseDropChance = 0.2f;
+    [Range(0f, 1f)] public float baseDropChance = 0.15f;
 }
 
 public class EnemyReward : MonoBehaviour
 {
-    [Header("Rewards")]
+    [Header("Base Rewards")]
     public int experienceReward = 10;
     public int goldReward = 5;
+
+    [Header("Scaling (multiplied by enemy level if set)")]
+    public bool useLevelScaling = false;
+    public int enemyLevel = 1;
+    public float expPerLevel = 5f;
+    public float goldPerLevel = 3f;
 
     [Header("Drops")]
     public DropItem[] drops;
 
-    public int Experience => experienceReward;
-    public int Gold => goldReward;
+    public int Experience => useLevelScaling
+        ? Mathf.RoundToInt(experienceReward + expPerLevel * enemyLevel)
+        : experienceReward;
+
+    public int Gold => useLevelScaling
+        ? Mathf.RoundToInt(goldReward + goldPerLevel * enemyLevel)
+        : goldReward;
+
     public DropItem[] Drops => drops;
 }

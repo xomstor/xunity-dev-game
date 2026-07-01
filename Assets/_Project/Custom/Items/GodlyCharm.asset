@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30af9c88d165ac949b856bbe09aad8ae, type: 3}
-  m_Name: Armor
+  m_Name: GodlyCharm
   m_EditorClassIdentifier: 
-  itemId: armor
-  itemName: Armor
-  description: Sturdy armor. DEF +5
-  itemType: 1
-  rarity: 0
+  itemId: godly_charm
+  itemName: Godly Charm
+  description: The favor of gods themselves. LCK +15, SPD +10, HP +50
+  itemType: 4
+  rarity: 4
   icon: {fileID: 0}
-  price: 60
+  price: 2500
   maxStack: 1
   atkBonus: 0
-  defBonus: 5
-  hpBonus: 0
-  spdBonus: 0
-  lckBonus: 0
+  defBonus: 0
+  hpBonus: 50
+  spdBonus: 10
+  lckBonus: 15
   restoreHp: 0
   experienceReward: 0

@@ -461,13 +461,18 @@ public class ShopUIController : MonoBehaviour
     {
         if (itemContainer == null || shopManager == null) return;
 
+        if (playerStats != null)
+            shopManager.RebuildDynamicShop(playerStats.level);
+
+        ShopItem[] currentItems = shopManager.GetCurrentShopItems();
+
         foreach (GameObject btn in itemButtons)
             if (btn != null) Destroy(btn);
         itemButtons.Clear();
 
-        for (int i = 0; i < shopManager.shopItems.Length; i++)
+        for (int i = 0; i < currentItems.Length; i++)
         {
-            ShopItem shopItem = shopManager.shopItems[i];
+            ShopItem shopItem = currentItems[i];
             if (shopItem.itemData == null) continue;
             if (shopItem.quantity == 0) continue;
 
@@ -487,6 +492,11 @@ public class ShopUIController : MonoBehaviour
         img.sprite = GetWhiteSprite();
         img.type = Image.Type.Simple;
         img.color = itemButtonColor;
+        if (shopItem.itemData != null)
+        {
+            Color rarityTint = shopItem.itemData.GetRarityColor();
+            img.color = Color.Lerp(itemButtonColor, rarityTint, 0.4f);
+        }
         Button btn = go.AddComponent<Button>();
         btn.targetGraphic = img;
         btn.transition = Selectable.Transition.ColorTint;
@@ -507,7 +517,7 @@ public class ShopUIController : MonoBehaviour
         iconGO.AddComponent<CanvasRenderer>();
         Image icon = iconGO.AddComponent<Image>();
         icon.sprite = shopItem.itemData.icon;
-        icon.color = icon.sprite == null ? new Color(0.5f, 0.5f, 0.5f, 1f) : Color.white;
+        icon.color = icon.sprite == null ? shopItem.itemData.GetRarityColor() : Color.white;
 
         GameObject textGO = new GameObject("Name");
         textGO.transform.SetParent(go.transform, false);
@@ -520,7 +530,7 @@ public class ShopUIController : MonoBehaviour
         TextMeshProUGUI tmp = textGO.AddComponent<TextMeshProUGUI>();
         tmp.text = $"{shopItem.itemData.itemName}\n{shopItem.price}g";
         tmp.fontSize = 16;
-        tmp.color = Color.white;
+        tmp.color = shopItem.itemData.GetRarityColor();
         tmp.alignment = TextAlignmentOptions.Left;
         tmp.raycastTarget = false;
         tmp.textWrappingMode = TextWrappingModes.NoWrap;
@@ -581,7 +591,9 @@ public class ShopUIController : MonoBehaviour
     void SelectItem(int index)
     {
         selectedItemIndex = index;
-        ShopItem shopItem = shopManager.shopItems[index];
+        ShopItem[] currentItems = shopManager.GetCurrentShopItems();
+        if (index < 0 || index >= currentItems.Length) return;
+        ShopItem shopItem = currentItems[index];
         if (itemIcon != null)
             itemIcon.sprite = shopItem.itemData.icon;
         if (itemNameText != null)
@@ -594,14 +606,15 @@ public class ShopUIController : MonoBehaviour
 
     void BuySelectedItem()
     {
-        if (selectedItemIndex < 0 || selectedItemIndex >= shopManager.shopItems.Length)
+        ShopItem[] currentItems = shopManager.GetCurrentShopItems();
+        if (selectedItemIndex < 0 || selectedItemIndex >= currentItems.Length)
         {
             if (itemDescriptionText != null)
                 itemDescriptionText.text = noItemSelectedMessage;
             return;
         }
 
-        ShopItem shopItem = shopManager.shopItems[selectedItemIndex];
+        ShopItem shopItem = currentItems[selectedItemIndex];
         if (shopItem.itemData == null) return;
 
         bool success = shopManager.BuyItem(selectedItemIndex, playerInventory, playerStats);

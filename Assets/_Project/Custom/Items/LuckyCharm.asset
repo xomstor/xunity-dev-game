@@ -10,20 +10,20 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30af9c88d165ac949b856bbe09aad8ae, type: 3}
-  m_Name: Armor
+  m_Name: LuckyCharm
   m_EditorClassIdentifier: 
-  itemId: armor
-  itemName: Armor
-  description: Sturdy armor. DEF +5
-  itemType: 1
-  rarity: 0
+  itemId: lucky_charm
+  itemName: Lucky Charm
+  description: Brings good fortune. LCK +8, SPD +5
+  itemType: 4
+  rarity: 3
   icon: {fileID: 0}
-  price: 60
+  price: 800
   maxStack: 1
   atkBonus: 0
-  defBonus: 5
+  defBonus: 0
   hpBonus: 0
-  spdBonus: 0
-  lckBonus: 0
+  spdBonus: 5
+  lckBonus: 8
   restoreHp: 0
   experienceReward: 0

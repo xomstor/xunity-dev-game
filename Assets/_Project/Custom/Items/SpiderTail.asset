@@ -16,6 +16,7 @@ MonoBehaviour:
   itemName: Spider Tail
   description: A poisonous spider tail. Can be sold.
   itemType: 3
+  rarity: 0
   icon: {fileID: 0}
   price: 3
   maxStack: 99

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemName: XP Bottle
   description: Grants 50 XP
   itemType: 2
+  rarity: 0
   icon: {fileID: 0}
   price: 25
   maxStack: 10

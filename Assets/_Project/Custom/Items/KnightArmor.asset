@@ -10,19 +10,19 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 30af9c88d165ac949b856bbe09aad8ae, type: 3}
-  m_Name: Armor
+  m_Name: KnightArmor
   m_EditorClassIdentifier: 
-  itemId: armor
-  itemName: Armor
-  description: Sturdy armor. DEF +5
+  itemId: knight_armor
+  itemName: Knight Armor
+  description: Heavy plate armor. DEF +18, HP +40
   itemType: 1
-  rarity: 0
+  rarity: 2
   icon: {fileID: 0}
-  price: 60
+  price: 400
   maxStack: 1
   atkBonus: 0
-  defBonus: 5
-  hpBonus: 0
+  defBonus: 18
+  hpBonus: 40
   spdBonus: 0
   lckBonus: 0
   restoreHp: 0

@@ -16,6 +16,7 @@ MonoBehaviour:
   itemName: Sword
   description: Sharp blade. ATK +5
   itemType: 0
+  rarity: 0
   icon: {fileID: 0}
   price: 80
   maxStack: 1
