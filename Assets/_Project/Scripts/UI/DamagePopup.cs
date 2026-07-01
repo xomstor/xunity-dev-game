@@ -5,21 +5,32 @@ using System.Collections;
 public class DamagePopup : MonoBehaviour
 {
     public TextMeshProUGUI textMesh;
-    public float moveSpeed = 2f;
     public float fadeDuration = 1f;
-    public float moveDistance = 2f;
-    public Vector3 randomOffset = new Vector3(0.5f, 0.5f, 0f);
+    public float moveDistance = 30f;
+    public Vector2 randomOffset = new Vector2(10f, 10f);
 
     private CanvasGroup canvasGroup;
-    private Vector3 startPosition;
-    private Vector3 targetPosition;
+    private RectTransform rectTransform;
+    private Vector2 startPosition;
+    private Vector2 targetPosition;
     private float elapsed;
-    private Color textColor;
 
     public void Setup(int damage, bool isCrit, Color color)
     {
+        rectTransform = GetComponent<RectTransform>();
+        if (rectTransform == null)
+        {
+            Debug.LogError("DamagePopup: RectTransform is missing!");
+            return;
+        }
+
         if (textMesh == null)
             textMesh = GetComponentInChildren<TextMeshProUGUI>();
+        if (textMesh == null)
+        {
+            Debug.LogError("DamagePopup: TextMeshProUGUI is missing!");
+            return;
+        }
 
         canvasGroup = GetComponent<CanvasGroup>();
         if (canvasGroup == null)
@@ -31,12 +42,11 @@ public class DamagePopup : MonoBehaviour
         if (isCrit)
             textMesh.text += "!";
 
-        startPosition = transform.position;
-        Vector3 randomPos = new Vector3(
+        startPosition = rectTransform.anchoredPosition;
+        Vector2 randomPos = new Vector2(
             Random.Range(-randomOffset.x, randomOffset.x),
-            Random.Range(-randomOffset.y, randomOffset.y),
-            0f);
-        targetPosition = startPosition + Vector3.up * moveDistance + randomPos;
+            Random.Range(-randomOffset.y, randomOffset.y));
+        targetPosition = startPosition + Vector2.up * moveDistance + randomPos;
 
         elapsed = 0f;
         StartCoroutine(Animate());
@@ -49,7 +59,7 @@ public class DamagePopup : MonoBehaviour
             elapsed += Time.deltaTime;
             float t = elapsed / fadeDuration;
 
-            transform.position = Vector3.Lerp(startPosition, targetPosition, t);
+            rectTransform.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, t);
             canvasGroup.alpha = 1f - t;
 
             yield return null;

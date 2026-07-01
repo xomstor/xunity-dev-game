@@ -41,14 +41,37 @@ public class DamagePopupManager : MonoBehaviour
             Debug.LogError("DamagePopupManager: no main camera found!");
             return;
         }
+        if (canvas == null)
+        {
+            Debug.LogError("DamagePopupManager: canvas is not assigned!");
+            return;
+        }
 
         Vector2 screenPosition = Camera.main.WorldToScreenPoint(worldPosition);
-        GameObject popup = Instantiate(damagePopupPrefab, popupContainer != null ? popupContainer : transform);
-        popup.transform.position = screenPosition;
+        Transform parent = popupContainer != null ? popupContainer : canvas.transform;
+        GameObject popup = Instantiate(damagePopupPrefab, parent);
 
         RectTransform rectTransform = popup.GetComponent<RectTransform>();
         if (rectTransform != null)
-            rectTransform.position = screenPosition;
+        {
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
+            rectTransform.pivot = new Vector2(0.5f, 0.5f);
+
+            Vector2 localPoint;
+            if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                canvas.transform as RectTransform,
+                screenPosition,
+                canvas.worldCamera,
+                out localPoint))
+            {
+                rectTransform.anchoredPosition = localPoint;
+            }
+            else
+            {
+                rectTransform.anchoredPosition = screenPosition;
+            }
+        }
 
         DamagePopup damagePopup = popup.GetComponent<DamagePopup>();
         if (damagePopup != null)
