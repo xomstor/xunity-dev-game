@@ -184,12 +184,24 @@ public class ShopUIController : MonoBehaviour
         shopCanvas.sortingLayerID = SortingLayer.NameToID("Foreground");
         shopCanvasGO.AddComponent<GraphicRaycaster>();
         CanvasScaler scaler = shopCanvasGO.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-        scaler.matchWidthOrHeight = 0.5f;
+        CanvasScaler mainScaler = mainCanvas.GetComponent<CanvasScaler>();
+        if (mainScaler != null)
+        {
+            scaler.uiScaleMode = mainScaler.uiScaleMode;
+            scaler.referenceResolution = mainScaler.referenceResolution;
+            scaler.screenMatchMode = mainScaler.screenMatchMode;
+            scaler.matchWidthOrHeight = mainScaler.matchWidthOrHeight;
+            scaler.scaleFactor = mainScaler.scaleFactor;
+        }
+        else
+        {
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
+        }
 
-        shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(900, 650), panelColor);
+        shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.95f), Vector2.zero, Vector2.zero, panelColor);
 
         CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
 

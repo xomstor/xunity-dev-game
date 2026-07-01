@@ -45,17 +45,19 @@ public class ShopUIBuilder : EditorWindow
         }
 
         // Ensure controller is on a Canvas object so the hierarchy is clean
-        Canvas canvas = controller.GetComponent<Canvas>();
-        if (canvas == null)
+        Canvas mainCanvas = controller.GetComponent<Canvas>();
+        if (mainCanvas == null)
         {
-            canvas = FindAnyObjectByType<Canvas>();
-            if (canvas != null)
+            mainCanvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None).FirstOrDefault(c => c.isRootCanvas);
+            if (mainCanvas == null)
+                mainCanvas = FindAnyObjectByType<Canvas>();
+            if (mainCanvas != null)
             {
-                controller.transform.SetParent(canvas.transform, false);
+                controller.transform.SetParent(mainCanvas.transform, false);
             }
         }
 
-        // Create separate shop canvas on Foreground layer
+        // Create separate shop canvas on Foreground layer, using same scaler as main canvas
         GameObject shopCanvasGO = new GameObject("ShopCanvas", typeof(RectTransform));
         shopCanvasGO.transform.SetParent(controller.transform, false);
         Undo.RegisterCreatedObjectUndo(shopCanvasGO, "Build Shop UI");
@@ -66,13 +68,25 @@ public class ShopUIBuilder : EditorWindow
         shopCanvas.sortingLayerID = SortingLayer.NameToID("Foreground");
         shopCanvasGO.AddComponent<GraphicRaycaster>();
         CanvasScaler scaler = shopCanvasGO.AddComponent<CanvasScaler>();
-        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
-        scaler.referenceResolution = new Vector2(1920, 1080);
-        scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
-        scaler.matchWidthOrHeight = 0.5f;
+        CanvasScaler mainScaler = mainCanvas?.GetComponent<CanvasScaler>();
+        if (mainScaler != null)
+        {
+            scaler.uiScaleMode = mainScaler.uiScaleMode;
+            scaler.referenceResolution = mainScaler.referenceResolution;
+            scaler.screenMatchMode = mainScaler.screenMatchMode;
+            scaler.matchWidthOrHeight = mainScaler.matchWidthOrHeight;
+            scaler.scaleFactor = mainScaler.scaleFactor;
+        }
+        else
+        {
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1080, 1920);
+            scaler.screenMatchMode = CanvasScaler.ScreenMatchMode.MatchWidthOrHeight;
+            scaler.matchWidthOrHeight = 0.5f;
+        }
 
-        // Main shop panel
-        GameObject shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(900, 650), controller.panelColor);
+        // Main shop panel: stretches with screen, leaving 5% margin
+        GameObject shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.95f), Vector2.zero, Vector2.zero, controller.panelColor);
 
         // --- Header ---
         GameObject header = CreatePanel("Header", shopPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, 70), new Color(0, 0, 0, 0.4f));
