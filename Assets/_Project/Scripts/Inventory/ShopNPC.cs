@@ -34,16 +34,7 @@ public class ShopNPC : MonoBehaviour
         }
     }
 
-    void Update()
-    {
-        var keyboard = Keyboard.current;
-        if (isPlayerNearby && keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            OpenShop();
-        }
-    }
-
-    void OpenShop()
+    public void OpenShop()
     {
         ShopUIController target = shopUI != null ? shopUI : ShopUIController.Instance;
         if (target != null)

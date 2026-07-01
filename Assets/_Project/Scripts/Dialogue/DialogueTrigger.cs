@@ -21,6 +21,7 @@ public class DialogueTrigger : MonoBehaviour
 
     [Header("Settings")]
     public GameObject interactPrompt;
+    public ShopNPC shopNPC;
 
     private bool isPlayerNearby;
 
@@ -83,5 +84,7 @@ public class DialogueTrigger : MonoBehaviour
     void OnChoiceMade(int choiceIndex)
     {
         Debug.Log($"Player chose option {choiceIndex}");
+        if (choiceIndex == 0 && shopNPC != null)
+            shopNPC.OpenShop();
     }
 }

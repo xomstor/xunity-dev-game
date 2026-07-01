@@ -139,7 +139,7 @@ public class ShopSetupEditor : EditorWindow
         if (tr.localScale.x < 0.5f || tr.localScale.y < 0.5f)
         {
             Undo.RecordObject(tr, "Fix Merchant Scale");
-            tr.localScale = new Vector3(1.75f, 2f, 1f);
+            tr.localScale = new Vector3(2.5f, 3f, 1f);
             EditorUtility.SetDirty(tr);
         }
     }
@@ -155,7 +155,11 @@ public class ShopSetupEditor : EditorWindow
 
         DialogueTrigger dt = merchant.GetComponent<DialogueTrigger>();
         if (dt != null)
+        {
             shopNPC.interactPrompt = dt.interactPrompt;
+            dt.shopNPC = shopNPC;
+            EditorUtility.SetDirty(dt);
+        }
 
         EditorUtility.SetDirty(shopNPC);
     }
