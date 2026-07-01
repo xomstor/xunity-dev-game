@@ -15,7 +15,7 @@ public class PlayerStats : MonoBehaviour
     public int experience = 0;
     public int gold = 0;
     public int experienceToNextLevel = 100;
-    public int skillPoints = 0;
+    public int skillPoints = 1;
 
     [Header("Base Stats")]
     public int baseLck;

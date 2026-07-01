@@ -68,23 +68,20 @@ public class PauseMenu : MonoBehaviour
         GameObject container = new GameObject("StatButtonsContainer");
         RectTransform rt = container.AddComponent<RectTransform>();
         container.transform.SetParent(pausePanel.transform, false);
-        rt.anchorMin = new Vector2(0.5f, 0.5f);
-        rt.anchorMax = new Vector2(0.5f, 0.5f);
-        rt.pivot = new Vector2(0.5f, 0.5f);
-        rt.anchoredPosition = new Vector2(0, -120);
-        rt.sizeDelta = new Vector2(300, 250);
+        rt.anchorMin = new Vector2(0.5f, 0);
+        rt.anchorMax = new Vector2(0.5f, 0);
+        rt.pivot = new Vector2(0.5f, 0);
+        rt.anchoredPosition = new Vector2(0, 100);
+        rt.sizeDelta = new Vector2(400, 70);
 
-        VerticalLayoutGroup vlg = container.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 10;
-        vlg.padding = new RectOffset(10, 10, 10, 10);
-        vlg.childAlignment = TextAnchor.MiddleCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        ContentSizeFitter csf = container.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+        HorizontalLayoutGroup hlg = container.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 10;
+        hlg.padding = new RectOffset(10, 10, 10, 10);
+        hlg.childAlignment = TextAnchor.MiddleCenter;
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = false;
+        hlg.childForceExpandWidth = false;
+        hlg.childForceExpandHeight = false;
 
         buttonsParent = container.transform;
 
@@ -106,6 +103,7 @@ public class PauseMenu : MonoBehaviour
         btnGO.transform.SetParent(buttonsParent, false);
 
         Image img = btnGO.AddComponent<Image>();
+        img.sprite = CreateCircleSprite(64, Color.white);
         img.color = new Color(0.2f, 0.2f, 0.2f, 0.9f);
 
         Button btn = btnGO.AddComponent<Button>();
@@ -114,10 +112,11 @@ public class PauseMenu : MonoBehaviour
         GameObject textGO = new GameObject("Text");
         textGO.transform.SetParent(btnGO.transform, false);
         TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-        text.text = $"+ {statName}";
+        text.text = "+";
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.white;
-        text.fontSize = 24;
+        text.fontSize = 28;
+        text.fontStyle = FontStyles.Bold;
 
         RectTransform textRt = text.GetComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
@@ -126,10 +125,34 @@ public class PauseMenu : MonoBehaviour
         textRt.offsetMax = Vector2.zero;
 
         RectTransform btnRt = btnGO.GetComponent<RectTransform>();
-        btnRt.sizeDelta = new Vector2(0, 45);
+        btnRt.sizeDelta = new Vector2(50, 50);
 
         int capturedIndex = index;
         btn.onClick.AddListener(() => IncreaseStat(capturedIndex));
+    }
+
+    Sprite CreateCircleSprite(int size, Color color)
+    {
+        Texture2D tex = new Texture2D(size, size);
+        Color[] pixels = new Color[size * size];
+        Vector2 center = new Vector2(size / 2f, size / 2f);
+        float radius = size / 2f - 2;
+
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), center);
+                pixels[y * size + x] = dist <= radius ? color : Color.clear;
+            }
+        }
+
+        tex.SetPixels(pixels);
+        tex.Apply();
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100);
     }
 
     public void IncreaseStat(int index)
