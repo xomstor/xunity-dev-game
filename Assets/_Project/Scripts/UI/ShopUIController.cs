@@ -207,16 +207,18 @@ public class ShopUIController : MonoBehaviour
 
         shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.95f), Vector2.zero, Vector2.zero, panelColor);
 
-        CreateText("TitleText", shopPanel.transform, new Vector2(0, 1), new Vector2(0, 1), new Vector2(20, -30), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
-
-        closeButton = CreateButton("CloseButton", shopPanel.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-60, -40), new Vector2(80, 40), closeButtonText, closeButtonColor, 24);
+        // Header
+        GameObject header = CreatePanel("Header", shopPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, 70), new Color(0, 0, 0, 0.4f));
+        CreateText("TitleText", header.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
+        closeButton = CreateButton("CloseButton", header.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-50, 0), new Vector2(60, 40), closeButtonText, closeButtonColor, 22);
         closeButton.onClick.AddListener(CloseShop);
+        goldText = CreateText("GoldText", header.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-160, 0), new Vector2(180, 50), goldPrefix + "0", 28, TextAnchor.MiddleRight, Color.yellow);
 
-        goldText = CreateText("GoldText", shopPanel.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-280, -30), new Vector2(180, 50), goldPrefix + "0", 28, TextAnchor.MiddleRight, Color.yellow);
+        // Body
+        GameObject body = CreatePanel("Body", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, -140), new Color(0, 0, 0, 0));
 
-        GameObject leftPanel = CreatePanel("ItemListPanel", shopPanel.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(170, 0), new Vector2(320, 480), new Color(0, 0, 0, 0.3f));
-
-        GameObject itemList = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, 0), new Vector2(300, 460), new Color(0, 0, 0, 0));
+        GameObject leftPanel = CreatePanel("ItemListPanel", body.transform, new Vector2(0, 0), new Vector2(0, 1), new Vector2(180, 0), new Vector2(360, 0), new Color(0, 0, 0, 0.3f));
+        GameObject itemList = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -20), new Vector2(0, -40), new Color(0, 0, 0, 0));
         VerticalLayoutGroup vlg = itemList.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 10;
         vlg.padding = new RectOffset(10, 10, 10, 10);
@@ -228,20 +230,19 @@ public class ShopUIController : MonoBehaviour
         itemList.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         itemContainer = itemList.transform;
 
-        GameObject rightPanel = CreatePanel("ItemDetailPanel", shopPanel.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-300, 20), new Vector2(360, 440), new Color(0, 0, 0, 0.3f));
-
-        itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -70), new Vector2(100, 100));
-        itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(340, 40), "", 30, TextAnchor.MiddleCenter, Color.white);
-        itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -260), new Vector2(340, 120), noItemSelectedMessage, 22, TextAnchor.UpperCenter, new Color(0.8f, 0.8f, 0.8f, 1f));
+        GameObject rightPanel = CreatePanel("ItemDetailPanel", body.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(180, 0), new Vector2(-360, 0), new Color(0, 0, 0, 0.3f));
+        itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -80), new Vector2(100, 100));
+        itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(300, 40), "", 28, TextAnchor.MiddleCenter, Color.white);
+        itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -290), new Vector2(300, 150), noItemSelectedMessage, 20, TextAnchor.UpperLeft, new Color(0.8f, 0.8f, 0.8f, 1f));
         itemDescriptionText.overflowMode = TextOverflowModes.Overflow;
         itemDescriptionText.textWrappingMode = TextWrappingModes.Normal;
-
-        itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 120), new Vector2(340, 40), "", 26, TextAnchor.MiddleCenter, Color.yellow);
-
-        buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(200, 50), buyButtonText, buyButtonColor, 28);
+        itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 110), new Vector2(300, 40), "", 24, TextAnchor.MiddleCenter, Color.yellow);
+        buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(180, 45), buyButtonText, buyButtonColor, 24);
         buyButton.onClick.AddListener(BuySelectedItem);
 
-        sellButton = CreateButton("SellButton", shopPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(250, 50), sellButtonText, sellButtonColor, 24);
+        // Footer
+        GameObject footer = CreatePanel("Footer", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 35), new Vector2(0, 70), new Color(0, 0, 0, 0.4f));
+        sellButton = CreateButton("SellButton", footer.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(250, 50), sellButtonText, sellButtonColor, 22);
         sellButton.onClick.AddListener(SellAllSouls);
 
         tooltipPanel = CreatePanel("TooltipPanel", shopCanvasGO.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(250, 80), tooltipColor);

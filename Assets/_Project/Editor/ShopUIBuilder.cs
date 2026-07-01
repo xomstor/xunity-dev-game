@@ -96,21 +96,11 @@ public class ShopUIBuilder : EditorWindow
 
         // --- Body ---
         GameObject body = CreatePanel("Body", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, -140), new Color(0, 0, 0, 0));
-        HorizontalLayoutGroup bodyLayout = body.AddComponent<HorizontalLayoutGroup>();
-        bodyLayout.spacing = 20;
-        bodyLayout.padding = new RectOffset(20, 20, 10, 10);
-        bodyLayout.childControlWidth = true;
-        bodyLayout.childControlHeight = true;
-        bodyLayout.childForceExpandWidth = false;
-        bodyLayout.childForceExpandHeight = false;
 
-        // Left: item list
-        GameObject leftPanel = CreatePanel("LeftPanel", body.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Color(0, 0, 0, 0.25f));
-        LayoutElement leftLE = leftPanel.AddComponent<LayoutElement>();
-        leftLE.flexibleWidth = 0.38f;
-        leftLE.flexibleHeight = 1;
+        // Left: item list (fixed width 360, stretches vertically)
+        GameObject leftPanel = CreatePanel("LeftPanel", body.transform, new Vector2(0, 0), new Vector2(0, 1), new Vector2(180, 0), new Vector2(360, 0), new Color(0, 0, 0, 0.25f));
         GameObject listLabel = CreateText("ListLabel", leftPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -15), new Vector2(200, 30), "Items", 20, TextAnchor.MiddleCenter, new Color(0.7f, 0.7f, 0.7f, 1f));
-        GameObject itemContainer = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 20), new Vector2(-10, -40), new Color(0, 0, 0, 0));
+        GameObject itemContainer = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -20), new Vector2(0, -40), new Color(0, 0, 0, 0));
         VerticalLayoutGroup vlg = itemContainer.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 8;
         vlg.padding = new RectOffset(8, 8, 8, 8);
@@ -121,19 +111,16 @@ public class ShopUIBuilder : EditorWindow
         vlg.childForceExpandHeight = false;
         itemContainer.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
 
-        // Right: details
-        GameObject rightPanel = CreatePanel("RightPanel", body.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Color(0, 0, 0, 0.25f));
-        LayoutElement rightLE = rightPanel.AddComponent<LayoutElement>();
-        rightLE.flexibleWidth = 0.62f;
-        rightLE.flexibleHeight = 1;
+        // Right: details (fills remaining width)
+        GameObject rightPanel = CreatePanel("RightPanel", body.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(180, 0), new Vector2(-360, 0), new Color(0, 0, 0, 0.25f));
         GameObject detailsLabel = CreateText("DetailsLabel", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -15), new Vector2(200, 30), "Details", 20, TextAnchor.MiddleCenter, new Color(0.7f, 0.7f, 0.7f, 1f));
         GameObject itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -80), new Vector2(100, 100));
-        GameObject itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(360, 40), "Item Name", 28, TextAnchor.MiddleCenter, Color.white);
-        GameObject itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -290), new Vector2(360, 150), controller.noItemSelectedMessage, 20, TextAnchor.UpperLeft, new Color(0.8f, 0.8f, 0.8f, 1f));
+        GameObject itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(300, 40), "Item Name", 28, TextAnchor.MiddleCenter, Color.white);
+        GameObject itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -290), new Vector2(300, 150), controller.noItemSelectedMessage, 20, TextAnchor.UpperLeft, new Color(0.8f, 0.8f, 0.8f, 1f));
         TextMeshProUGUI descTmp = itemDescriptionText.GetComponent<TextMeshProUGUI>();
         descTmp.overflowMode = TextOverflowModes.Overflow;
         descTmp.textWrappingMode = TextWrappingModes.Normal;
-        GameObject itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 110), new Vector2(360, 40), "Price: --", 24, TextAnchor.MiddleCenter, Color.yellow);
+        GameObject itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 110), new Vector2(300, 40), "Price: --", 24, TextAnchor.MiddleCenter, Color.yellow);
         GameObject buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(180, 45), controller.buyButtonText, controller.buyButtonColor, 24);
 
         // --- Footer ---
