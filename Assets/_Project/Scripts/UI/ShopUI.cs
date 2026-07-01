@@ -9,6 +9,11 @@ public class ShopUI : MonoBehaviour
     public Inventory playerInventory;
     public PlayerStats playerStats;
 
+    [Header("Sell")]
+    public ItemData spiderTailItem;
+    public Button sellButton;
+    public TextMeshProUGUI sellText;
+
     [Header("UI")]
     public GameObject shopPanel;
     public Transform itemContainer;
@@ -34,7 +39,10 @@ public class ShopUI : MonoBehaviour
             closeButton.onClick.AddListener(CloseShop);
 
         if (buyButton != null)
-            buyButton.onClick.AddListener(BuySelectedItem);
+            buyButton.gameObject.SetActive(false);
+
+        if (sellButton != null)
+            sellButton.onClick.AddListener(SellSpiderTails);
     }
 
     void Update()
@@ -50,6 +58,7 @@ public class ShopUI : MonoBehaviour
 
         RefreshShopItems();
         UpdateGoldText();
+        UpdateSellText();
         ClearItemDetails();
     }
 
@@ -83,8 +92,28 @@ public class ShopUI : MonoBehaviour
 
             int index = i;
             if (button != null)
-                button.onClick.AddListener(() => SelectItem(index));
+                button.onClick.AddListener(() => BuyItem(index));
         }
+    }
+
+    void BuyItem(int index)
+    {
+        if (shopManager == null || playerInventory == null || playerStats == null) return;
+
+        ShopItem shopItem = shopManager.shopItems[index];
+        if (shopItem == null || shopItem.itemData == null) return;
+
+        bool success = shopManager.BuyItem(index, playerInventory, playerStats);
+        if (success)
+        {
+            UpdateGoldText();
+            RefreshShopItems();
+        }
+
+        SelectItem(index);
+
+        if (itemDescriptionText != null)
+            itemDescriptionText.text = success ? "Purchased!" : "Not enough gold or inventory full";
     }
 
     void SelectItem(int index)
@@ -96,27 +125,30 @@ public class ShopUI : MonoBehaviour
             itemIcon.sprite = shopItem.itemData.icon;
         if (itemNameText != null)
             itemNameText.text = shopItem.itemData.itemName;
-        if (itemDescriptionText != null)
+        if (itemDescriptionText != null && itemDescriptionText.text != "Purchased!" && itemDescriptionText.text != "Not enough gold or inventory full")
             itemDescriptionText.text = shopItem.itemData.description;
         if (itemPriceText != null)
             itemPriceText.text = $"Price: {shopItem.price}g";
     }
 
-    void BuySelectedItem()
+    void SellSpiderTails()
     {
-        if (selectedItemIndex < 0) return;
         if (shopManager == null || playerInventory == null || playerStats == null) return;
+        if (spiderTailItem == null) return;
 
-        if (shopManager.BuyItem(selectedItemIndex, playerInventory, playerStats))
+        int sold = shopManager.SellItem(spiderTailItem, int.MaxValue, playerInventory, playerStats);
+        if (sold > 0)
         {
             UpdateGoldText();
-            RefreshShopItems();
-            ClearItemDetails();
+            UpdateSellText();
         }
-        else
-        {
-            Debug.Log("Not enough gold or inventory full");
-        }
+    }
+
+    void UpdateSellText()
+    {
+        if (sellText == null || spiderTailItem == null || playerInventory == null) return;
+        int count = playerInventory.GetItemCount(spiderTailItem);
+        sellText.text = $"Sell Spider Tail ({count})\n+{count * spiderTailItem.price}g";
     }
 
     void UpdateGoldText()
