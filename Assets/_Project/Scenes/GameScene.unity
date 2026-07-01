@@ -235,8 +235,12 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
+    - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: damage
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
       value: 200
@@ -244,6 +248,14 @@ PrefabInstance:
     - target: {fileID: 3725400688312187317, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: m_Name
       value: Maiden Variant
+      objectReference: {fileID: 0}
+    - target: {fileID: 4602598328316504966, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: goldReward
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 4602598328316504966, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: experienceReward
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 7215091074791239903, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: m_LocalPosition.x
@@ -2209,8 +2221,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi
@@ -2459,7 +2479,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -3137,6 +3157,41 @@ Transform:
   - {fileID: 1536885821}
   m_Father: {fileID: 297649835}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &194587708
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 194587709}
+  m_Layer: 0
+  m_Name: L2
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &194587709
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 194587708}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 1281268445}
+  - {fileID: 1506042564}
+  - {fileID: 1742798782}
+  - {fileID: 2118558417}
+  m_Father: {fileID: 378629450}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!28 &208426810
 Texture2D:
   m_ObjectHideFlags: 0
@@ -3189,8 +3244,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (2)
@@ -6057,8 +6120,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (3)
@@ -6375,24 +6446,11 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
-  - {fileID: 130412966}
-  - {fileID: 1281268445}
-  - {fileID: 1506042564}
-  - {fileID: 1742798782}
-  - {fileID: 2118558417}
-  - {fileID: 2083337292}
-  - {fileID: 210125706}
-  - {fileID: 349289945}
-  - {fileID: 1391067247}
-  - {fileID: 1919960432}
-  - {fileID: 525399033}
-  - {fileID: 6869682}
-  - {fileID: 1010008383}
-  - {fileID: 1544612537}
-  - {fileID: 896446489}
-  - {fileID: 600428678}
-  - {fileID: 395380435}
-  - {fileID: 1878680507}
+  - {fileID: 1679516959}
+  - {fileID: 194587709}
+  - {fileID: 828578706}
+  - {fileID: 928177126}
+  - {fileID: 1108228349}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &385071710
@@ -6493,7 +6551,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -7911,8 +7969,24 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: enemyLevel
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: useLevelScaling
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (6)
@@ -8470,7 +8544,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -10888,6 +10962,44 @@ Sprite:
   m_Bones: []
   m_ScriptableObjects: []
   m_SpriteID: 
+--- !u!1 &828578705
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 828578706}
+  m_Layer: 0
+  m_Name: L3
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &828578706
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 828578705}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 6869682}
+  - {fileID: 1010008383}
+  - {fileID: 1544612537}
+  - {fileID: 896446489}
+  - {fileID: 600428678}
+  - {fileID: 395380435}
+  - {fileID: 1878680507}
+  m_Father: {fileID: 378629450}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!28 &828787517
 Texture2D:
   m_ObjectHideFlags: 0
@@ -12523,7 +12635,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -12972,6 +13084,37 @@ Sprite:
   m_Bones: []
   m_ScriptableObjects: []
   m_SpriteID: 
+--- !u!1 &928177125
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 928177126}
+  m_Layer: 0
+  m_Name: L4
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &928177126
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 928177125}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 378629450}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &931566608
 GameObject:
   m_ObjectHideFlags: 0
@@ -13814,6 +13957,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutoCombat
   team: 0
   canBeTargeted: 1
+  faceRightByDefault: 1
   ignoreTags:
   - World
   maxHealth: 100
@@ -14087,7 +14231,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -14401,6 +14545,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::AutoCombat
   team: 2
   canBeTargeted: 1
+  faceRightByDefault: 1
   ignoreTags:
   - World
   maxHealth: 100
@@ -15042,6 +15187,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1105523999}
   m_CullTransparentMesh: 1
+--- !u!1 &1108228348
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1108228349}
+  m_Layer: 0
+  m_Name: L5
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1108228349
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1108228348}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 378629450}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1122293447
 GameObject:
   m_ObjectHideFlags: 0
@@ -17098,7 +17274,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 194587709}
     m_Modifications:
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalScale.x
@@ -17114,11 +17290,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -4.352
+      value: -4.23
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -15.8171
+      value: -17
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -17157,9 +17333,17 @@ PrefabInstance:
       value: Tigga
       objectReference: {fileID: 0}
     - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: damage
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: maxHealth
       value: 150
       objectReference: {fileID: 0}
+    - target: {fileID: 8652764411933334936, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -19644,8 +19828,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (4)
@@ -21057,7 +21249,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 194587709}
     m_Modifications:
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalScale.x
@@ -21073,11 +21265,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.1037197
+      value: 1.2257195
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -15.764639
+      value: -16.94754
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -21116,9 +21308,17 @@ PrefabInstance:
       value: Tigga
       objectReference: {fileID: 0}
     - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: damage
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: maxHealth
       value: 150
       objectReference: {fileID: 0}
+    - target: {fileID: 8652764411933334936, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -21439,7 +21639,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -22878,6 +23078,44 @@ Sprite:
   m_Bones: []
   m_ScriptableObjects: []
   m_SpriteID: 
+--- !u!1 &1679516958
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1679516959}
+  m_Layer: 0
+  m_Name: L1
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &1679516959
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1679516958}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 130412966}
+  - {fileID: 2083337292}
+  - {fileID: 210125706}
+  - {fileID: 349289945}
+  - {fileID: 1391067247}
+  - {fileID: 1919960432}
+  - {fileID: 525399033}
+  m_Father: {fileID: 378629450}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1687482014
 GameObject:
   m_ObjectHideFlags: 0
@@ -23115,6 +23353,10 @@ MonoBehaviour:
   buttonsParent: {fileID: 0}
   playerStats: {fileID: 981941166}
   playerCombat: {fileID: 981941165}
+  playerInventory: {fileID: 981941169}
+  equipmentManager: {fileID: 0}
+  inventoryContainer: {fileID: 0}
+  equippedText: {fileID: 0}
 --- !u!4 &1716972747
 Transform:
   m_ObjectHideFlags: 0
@@ -23390,7 +23632,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 194587709}
     m_Modifications:
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalScale.x
@@ -23402,11 +23644,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 22.975494
+      value: 23.097494
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -16.281366
+      value: -17.464268
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -23444,6 +23686,30 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tigga
       objectReference: {fileID: 0}
+    - target: {fileID: 8004003527608554776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: m_Size.x
+      value: 0.87719035
+      objectReference: {fileID: 0}
+    - target: {fileID: 8004003527608554776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: m_Size.y
+      value: 0.47351545
+      objectReference: {fileID: 0}
+    - target: {fileID: 8004003527608554776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: m_Offset.x
+      value: -0.06140481
+      objectReference: {fileID: 0}
+    - target: {fileID: 8004003527608554776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: m_Offset.y
+      value: 0.103589386
+      objectReference: {fileID: 0}
+    - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: damage
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8652764411933334936, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -24818,7 +25084,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 828578706}
     m_Modifications:
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: maxHealth
@@ -25743,8 +26009,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (5)
@@ -28314,8 +28588,16 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 1679516959}
     m_Modifications:
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 9c0d1e2f3a4b5c6d7e8f9a0b1c2d3e4f, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
       value: Spyder Pi (1)
@@ -28422,7 +28704,7 @@ PrefabInstance:
   serializedVersion: 2
   m_Modification:
     serializedVersion: 3
-    m_TransformParent: {fileID: 378629450}
+    m_TransformParent: {fileID: 194587709}
     m_Modifications:
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalScale.x
@@ -28434,11 +28716,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 48.74772
+      value: 48.86972
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -16.281366
+      value: -17.464268
       objectReference: {fileID: 0}
     - target: {fileID: 700566974759295419, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
       propertyPath: m_LocalPosition.z
@@ -28476,6 +28758,14 @@ PrefabInstance:
       propertyPath: m_Name
       value: Tigga (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 8196125545270900776, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: damage
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 8652764411933334936, guid: 3e9ddeb63e102f54582ba436e3359a92, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: 1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d, type: 2}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

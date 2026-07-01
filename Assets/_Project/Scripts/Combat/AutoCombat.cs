@@ -12,6 +12,7 @@ public class AutoCombat : MonoBehaviour
     [Header("Team")]
     public CombatTeam team = CombatTeam.Enemy;
     public bool canBeTargeted = true;
+    public bool faceRightByDefault = true;
     public string[] ignoreTags = new string[] { "World" };
 
     [Header("Stats")]
@@ -41,6 +42,7 @@ public class AutoCombat : MonoBehaviour
     private bool isDead;
     private Rigidbody2D rb;
     private float regenAccum;
+    private int lastAnimState = -1;
 
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
@@ -49,6 +51,8 @@ public class AutoCombat : MonoBehaviour
     {
         isDead = false;
         currentHealth = maxHealth;
+        lastAnimState = -1;
+        CancelInvoke(nameof(HideAfterDeath));
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
             col.enabled = true;
@@ -68,8 +72,18 @@ public class AutoCombat : MonoBehaviour
             rb = GetComponentInParent<Rigidbody2D>();
         if (anim == null)
             anim = GetComponent<Animator>();
-        if (anim == null)
-            anim = GetComponentInChildren<Animator>();
+        if (anim == null || anim.runtimeAnimatorController == null)
+        {
+            Animator[] animators = GetComponentsInChildren<Animator>(true);
+            foreach (Animator candidate in animators)
+            {
+                if (candidate != null && candidate.runtimeAnimatorController != null)
+                {
+                    anim = candidate;
+                    break;
+                }
+            }
+        }
 
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)
@@ -81,6 +95,9 @@ public class AutoCombat : MonoBehaviour
 
         if (team == CombatTeam.Enemy && chaseTarget && rb == null)
             Debug.LogWarning($"{name}: chaseTarget is enabled but no Rigidbody2D found. Enemy will not move!");
+
+        if (rb != null && team == CombatTeam.Enemy)
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
 
         Collider2D[] cols = GetComponentsInChildren<Collider2D>();
         bool hasNonTrigger = false;
@@ -110,15 +127,15 @@ public class AutoCombat : MonoBehaviour
 
             if (distance <= attackRange)
             {
-                if (playerController != null)
+                if (attackTimer <= 0)
                 {
-                    playerController.Attack();
-                    SetAnimState(0);
-                }
-                else
-                {
-                    Attack();
-                    SetAnimState(0);
+                    if (playerController != null)
+                        playerController.Attack();
+                    else
+                    {
+                        Attack();
+                        SetAnimState(0);
+                    }
                 }
             }
             else if (playerController == null && chaseTarget && rb != null)
@@ -158,6 +175,12 @@ public class AutoCombat : MonoBehaviour
     {
         if (target == null) return float.MaxValue;
         Collider2D targetCollider = target.GetComponent<Collider2D>();
+        Collider2D myCollider = GetComponent<Collider2D>();
+        if (targetCollider != null && myCollider != null)
+        {
+            ColliderDistance2D dist = myCollider.Distance(targetCollider);
+            return Mathf.Max(0f, dist.distance);
+        }
         if (targetCollider != null)
             return Vector2.Distance(transform.position, targetCollider.ClosestPoint(transform.position));
         return Vector2.Distance(transform.position, target.position);
@@ -165,14 +188,24 @@ public class AutoCombat : MonoBehaviour
 
     void SetAnimState(int state)
     {
-        if (anim == null) return;
-        if (!HasAnimatorParameter("AnimState")) return;
-        anim.SetInteger("AnimState", state);
+        if (anim == null || anim.runtimeAnimatorController == null) return;
+        if (state == lastAnimState) return;
+        lastAnimState = state;
+
+        if (HasAnimatorParameter("AnimState"))
+        {
+            anim.SetInteger("AnimState", state);
+        }
+        else
+        {
+            if (state == 1)
+                anim.Play("Move", 0, 0f);
+        }
     }
 
     bool HasAnimatorParameter(string paramName)
     {
-        if (anim == null) return false;
+        if (anim == null || anim.runtimeAnimatorController == null) return false;
         foreach (AnimatorControllerParameter param in anim.parameters)
         {
             if (param.name == paramName)
@@ -181,13 +214,13 @@ public class AutoCombat : MonoBehaviour
         return false;
     }
 
-    public void TryAttack()
+    public bool TryAttack()
     {
-        if (attackTimer > 0) return;
-        if (target == null) return;
+        if (attackTimer > 0) return false;
+        if (target == null) return false;
 
         float distance = GetDistanceToTarget();
-        if (distance > attackRange) return;
+        if (distance > attackRange) return false;
 
         attackTimer = attackCooldown;
 
@@ -199,7 +232,7 @@ public class AutoCombat : MonoBehaviour
         {
             targetCombat.TakeDamage(finalDamage);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, isPlayer);
-            return;
+            return true;
         }
 
         PlayerStats targetStats = FindPlayerStats(target);
@@ -207,10 +240,11 @@ public class AutoCombat : MonoBehaviour
         {
             targetStats.TakeDamage(finalDamage);
             ShowDamagePopup(GetPopupPosition(targetStats.transform), finalDamage, isCrit, isPlayer);
-            return;
+            return true;
         }
 
         Debug.LogWarning($"{name}: target {target.name} has no AutoCombat or PlayerStats!");
+        return false;
     }
 
     Vector3 GetPopupPosition(Transform t)
@@ -223,12 +257,12 @@ public class AutoCombat : MonoBehaviour
 
     void ShowDamagePopup(Vector3 position, int damage, bool isCrit, bool isPlayer)
     {
-        if (DamagePopupManager.Instance == null)
+        if (DamagePopupManager.Instance == null) return;
+        try
         {
-            Debug.LogError($"{name}: DamagePopupManager not found in scene!");
-            return;
+            DamagePopupManager.Instance.ShowDamage(position, damage, isCrit, isPlayer);
         }
-        DamagePopupManager.Instance.ShowDamage(position, damage, isCrit, isPlayer);
+        catch { }
     }
 
     int GetFinalDamage(out bool isCrit)
@@ -326,14 +360,23 @@ public class AutoCombat : MonoBehaviour
     {
         Vector2 direction = (target.position - transform.position).normalized;
 
-        // ✅ ИСПРАВЛЕНО: velocity вместо linearVelocity
         rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
 
-        // Поворот спрайта в направлении движения
-        if (direction.x > 0.1f)
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-        else if (direction.x < -0.1f)
-            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+        float absX = Mathf.Abs(transform.localScale.x);
+        if (faceRightByDefault)
+        {
+            if (direction.x > 0.1f)
+                transform.localScale = new Vector3(absX, transform.localScale.y, 1);
+            else if (direction.x < -0.1f)
+                transform.localScale = new Vector3(-absX, transform.localScale.y, 1);
+        }
+        else
+        {
+            if (direction.x > 0.1f)
+                transform.localScale = new Vector3(-absX, transform.localScale.y, 1);
+            else if (direction.x < -0.1f)
+                transform.localScale = new Vector3(absX, transform.localScale.y, 1);
+        }
     }
 
     void Attack()
@@ -342,7 +385,7 @@ public class AutoCombat : MonoBehaviour
 
         attackTimer = attackCooldown;
 
-        if (anim != null)
+        if (anim != null && anim.runtimeAnimatorController != null && HasAnimatorParameter(attackTrigger))
         {
             anim.SetTrigger(attackTrigger);
         }
@@ -375,10 +418,10 @@ public class AutoCombat : MonoBehaviour
         if (stats != null)
             stats.hp = currentHealth;
 
-        if (anim != null)
+        if (anim != null && anim.runtimeAnimatorController != null)
         {
-            string trigger = GetComponentInChildren<PlayerController>() != null ? "Hurt" : hitTrigger;
-            anim.SetTrigger(trigger);
+            if (GetComponentInChildren<PlayerController>() != null && HasAnimatorParameter("Hurt"))
+                anim.SetTrigger("Hurt");
         }
 
         PlayerAudio playerAudio = GetComponent<PlayerAudio>();
@@ -398,7 +441,7 @@ public class AutoCombat : MonoBehaviour
         GiveRewards();
         GiveDrops();
 
-        if (anim != null)
+        if (anim != null && anim.runtimeAnimatorController != null && HasAnimatorParameter(deathTrigger))
             anim.SetTrigger(deathTrigger);
 
         // Отключаем управление игроком
@@ -422,7 +465,21 @@ public class AutoCombat : MonoBehaviour
         if (deathEffect != null)
             Instantiate(deathEffect, transform.position, Quaternion.identity);
 
+        Invoke(nameof(HideAfterDeath), 1.5f);
+
         EnemyRespawnManager.Instance?.RegisterDeath(this);
+    }
+
+    void HideAfterDeath()
+    {
+        SpriteRenderer[] sprites = GetComponentsInChildren<SpriteRenderer>();
+        foreach (var sr in sprites)
+        {
+            if (sr != null)
+                sr.enabled = false;
+        }
+        if (anim != null)
+            anim.enabled = false;
     }
 
     void GiveRewards()

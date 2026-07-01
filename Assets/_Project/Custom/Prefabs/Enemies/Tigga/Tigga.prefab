@@ -105,6 +105,10 @@ PrefabInstance:
       value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 7939322267234456635, guid: 0b23a4263e5e84c4c98c671868a220b1, type: 3}
+      propertyPath: faceRightByDefault
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7939322267234456635, guid: 0b23a4263e5e84c4c98c671868a220b1, type: 3}
       propertyPath: displayName
       value: Spyder
       objectReference: {fileID: 0}

@@ -74,31 +74,29 @@ public class EquipmentManager : MonoBehaviour
 
         ClearSlotForItem(item);
         RemoveStats(item);
-        inventory.AddItem(item, 1);
         return true;
     }
 
     ItemData GetSlotForItem(ItemData item)
     {
         if (item.itemType == ItemType.Weapon) return weapon;
+        if (IsBoots(item)) return boots;
         if (item.itemType == ItemType.Armor) return armor;
-        if (item.itemType == ItemType.Misc)
-        {
-            if (item.spdBonus > 0 && item.lckBonus == 0) return boots;
-            return accessory;
-        }
+        if (item.itemType == ItemType.Misc) return accessory;
         return null;
     }
 
     void SetSlotForItem(ItemData item)
     {
         if (item.itemType == ItemType.Weapon) weapon = item;
+        else if (IsBoots(item)) boots = item;
         else if (item.itemType == ItemType.Armor) armor = item;
-        else if (item.itemType == ItemType.Misc)
-        {
-            if (item.spdBonus > 0 && item.lckBonus == 0) boots = item;
-            else accessory = item;
-        }
+        else if (item.itemType == ItemType.Misc) accessory = item;
+    }
+
+    bool IsBoots(ItemData item)
+    {
+        return item != null && item.spdBonus > 0 && item.atkBonus == 0 && item.defBonus == 0;
     }
 
     void ClearSlotForItem(ItemData item)

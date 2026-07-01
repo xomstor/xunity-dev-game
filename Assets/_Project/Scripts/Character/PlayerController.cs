@@ -141,8 +141,7 @@ public class PlayerController : MonoBehaviour
         playerAudio?.PlayAttack(attackCombo);
 
         AutoCombat combat = GetComponent<AutoCombat>();
-        if (combat != null)
-            combat.TryAttack();
+        combat?.TryAttack();
 
         Invoke(nameof(ResetAttack), 0.5f);
     }

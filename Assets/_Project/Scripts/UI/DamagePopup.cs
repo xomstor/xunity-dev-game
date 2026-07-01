@@ -1,6 +1,5 @@
 using UnityEngine;
 using TMPro;
-using System.Collections;
 
 public class DamagePopup : MonoBehaviour
 {
@@ -14,6 +13,7 @@ public class DamagePopup : MonoBehaviour
     private Vector2 startPosition;
     private Vector2 targetPosition;
     private float elapsed;
+    private bool animating;
 
     public void Setup(int damage, bool isCrit, Color color)
     {
@@ -31,8 +31,6 @@ public class DamagePopup : MonoBehaviour
             Debug.LogError("DamagePopup: TextMeshProUGUI is missing!");
             return;
         }
-        if (textMesh.font == null)
-            Debug.LogError("DamagePopup: TextMeshProUGUI has no font assigned!");
 
         textMesh.gameObject.SetActive(true);
         textMesh.enabled = true;
@@ -44,8 +42,12 @@ public class DamagePopup : MonoBehaviour
         textMesh.text = damage.ToString();
         textMesh.color = color;
         textMesh.fontSize = isCrit ? 72 : 54;
-        textMesh.outlineColor = Color.black;
-        textMesh.outlineWidth = 0.25f;
+        try
+        {
+            textMesh.outlineColor = Color.black;
+            textMesh.outlineWidth = 0.25f;
+        }
+        catch { }
         if (isCrit)
             textMesh.text += "!";
 
@@ -56,22 +58,23 @@ public class DamagePopup : MonoBehaviour
         targetPosition = startPosition + Vector2.up * moveDistance + randomPos;
 
         elapsed = 0f;
-        StartCoroutine(Animate());
+        animating = true;
     }
 
-    IEnumerator Animate()
+    void Update()
     {
-        while (elapsed < fadeDuration)
+        if (!animating) return;
+
+        elapsed += Time.deltaTime;
+        float t = elapsed / fadeDuration;
+
+        rectTransform.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, t);
+        canvasGroup.alpha = 1f - t;
+
+        if (elapsed >= fadeDuration)
         {
-            elapsed += Time.deltaTime;
-            float t = elapsed / fadeDuration;
-
-            rectTransform.anchoredPosition = Vector2.Lerp(startPosition, targetPosition, t);
-            canvasGroup.alpha = 1f - t;
-
-            yield return null;
+            animating = false;
+            Destroy(gameObject);
         }
-
-        Destroy(gameObject);
     }
 }

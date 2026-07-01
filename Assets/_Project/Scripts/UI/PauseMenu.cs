@@ -4,6 +4,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class PauseMenu : MonoBehaviour
 {
@@ -27,7 +30,7 @@ public class PauseMenu : MonoBehaviour
     private bool inventoryVisible;
     private readonly string[] statNames = { "HP", "ATK", "DEF", "SPD", "LCK" };
     private readonly List<GameObject> inventoryButtons = new List<GameObject>();
-    private int selectedInvIndex = -1;
+    private int selectedInvIndex;
 
     void Awake()
     {
@@ -37,14 +40,66 @@ public class PauseMenu : MonoBehaviour
             playerCombat = FindAnyObjectByType<AutoCombat>();
         if (playerInventory == null)
             playerInventory = FindAnyObjectByType<Inventory>();
+        if (playerInventory == null)
+            playerInventory = gameObject.AddComponent<Inventory>();
         if (equipmentManager == null)
             equipmentManager = FindAnyObjectByType<EquipmentManager>();
+        if (equipmentManager == null)
+        {
+            GameObject playerObj = playerStats != null ? playerStats.gameObject : (playerCombat != null ? playerCombat.gameObject : gameObject);
+            equipmentManager = playerObj.GetComponent<EquipmentManager>();
+            if (equipmentManager == null)
+                equipmentManager = playerObj.AddComponent<EquipmentManager>();
+        }
 
         if (buttonsParent == null)
             CreateStatButtons();
 
         if (inventoryContainer == null)
             CreateInventoryPanel();
+
+        AddStartingItems();
+    }
+
+    void AddStartingItems()
+    {
+        if (playerInventory == null)
+        {
+            Debug.LogError("[PauseMenu] playerInventory is NULL in AddStartingItems!");
+            return;
+        }
+
+        ItemData healerPotion = null;
+
+        ItemData[] allItems = Resources.FindObjectsOfTypeAll<ItemData>();
+        foreach (ItemData item in allItems)
+        {
+            if (item.itemId == "healer_potion") { healerPotion = item; break; }
+        }
+
+        Debug.Log($"[PauseMenu] Resources.FindObjectsOfTypeAll found {allItems.Length} ItemData assets. healerPotion={(healerPotion != null ? healerPotion.itemName : "NULL")}");
+
+#if UNITY_EDITOR
+        if (healerPotion == null)
+        {
+            healerPotion = UnityEditor.AssetDatabase.LoadAssetAtPath<ItemData>("Assets/_Project/Custom/Items/HealerPotion.asset");
+            Debug.Log($"[PauseMenu] AssetDatabase.LoadAssetAtPath result: {(healerPotion != null ? healerPotion.itemName : "NULL")}");
+        }
+#endif
+
+        if (healerPotion != null)
+        {
+            int current = playerInventory.GetItemCount(healerPotion);
+            int missing = Mathf.Max(0, 2 - current);
+            Debug.Log($"[PauseMenu] HealerPotion found. Current count={current}, adding {missing}. Inventory items before: {playerInventory.items.Count}");
+            if (missing > 0)
+                playerInventory.AddItem(healerPotion, missing);
+            Debug.Log($"[PauseMenu] Inventory items after: {playerInventory.items.Count}");
+        }
+        else
+        {
+            Debug.LogError("[PauseMenu] HealerPotion ItemData not found anywhere!");
+        }
     }
 
     void Update()
@@ -275,12 +330,12 @@ public class PauseMenu : MonoBehaviour
         GameObject invPanel = new GameObject("InventoryPanel");
         invPanel.transform.SetParent(pausePanel.transform, false);
         RectTransform invRt = invPanel.AddComponent<RectTransform>();
-        invRt.anchorMin = new Vector2(1f, 0.5f);
-        invRt.anchorMax = new Vector2(1f, 0.5f);
-        invRt.pivot = new Vector2(1f, 0.5f);
-        invRt.anchoredPosition = new Vector2(-20, 0);
-        float invWidth = Mathf.Min(420f, panelWidth * 0.38f);
-        float invHeight = panelHeight * 0.82f;
+        invRt.anchorMin = new Vector2(0.5f, 0.5f);
+        invRt.anchorMax = new Vector2(0.5f, 0.5f);
+        invRt.pivot = new Vector2(0.5f, 0.5f);
+        invRt.anchoredPosition = new Vector2(0, 95);
+        float invWidth = Mathf.Min(760f, panelWidth * 0.72f);
+        float invHeight = Mathf.Min(430f, panelHeight * 0.68f);
         invRt.sizeDelta = new Vector2(invWidth, invHeight);
 
         Image invBg = invPanel.AddComponent<Image>();
@@ -288,8 +343,8 @@ public class PauseMenu : MonoBehaviour
         invBg.raycastTarget = true;
 
         VerticalLayoutGroup vlg = invPanel.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 4;
-        vlg.padding = new RectOffset(8, 8, 8, 30);
+        vlg.spacing = 8;
+        vlg.padding = new RectOffset(10, 10, 10, 10);
         vlg.childAlignment = TextAnchor.UpperCenter;
         vlg.childControlWidth = true;
         vlg.childControlHeight = false;
@@ -300,70 +355,79 @@ public class PauseMenu : MonoBehaviour
         eqGO.transform.SetParent(invPanel.transform, false);
         eqGO.AddComponent<CanvasRenderer>();
         equippedText = eqGO.AddComponent<TextMeshProUGUI>();
-        equippedText.fontSize = 18;
+        equippedText.fontSize = 30;
+        equippedText.enableAutoSizing = true;
+        equippedText.fontSizeMin = 20;
+        equippedText.fontSizeMax = 46;
         equippedText.alignment = TextAlignmentOptions.TopLeft;
         equippedText.color = new Color(1f, 0.85f, 0.3f, 1f);
         RectTransform eqRt = eqGO.GetComponent<RectTransform>();
-        eqRt.sizeDelta = new Vector2(0, 80);
+        eqRt.sizeDelta = new Vector2(0, 120);
 
-        GameObject scrollGO = new GameObject("InventoryScroll");
-        scrollGO.transform.SetParent(invPanel.transform, false);
-        RectTransform scrollRt = scrollGO.AddComponent<RectTransform>();
-        scrollRt.sizeDelta = new Vector2(0, invHeight - 120);
+        GameObject cardGO = new GameObject("InventoryCard");
+        cardGO.transform.SetParent(invPanel.transform, false);
+        RectTransform cardRt = cardGO.AddComponent<RectTransform>();
+        cardRt.sizeDelta = new Vector2(0, 170);
+        cardGO.AddComponent<CanvasRenderer>();
+        Image cardBg = cardGO.AddComponent<Image>();
+        cardBg.color = new Color(0.05f, 0.05f, 0.08f, 0.85f);
+        inventoryContainer = cardGO.transform;
 
-        Image scrollBg = scrollGO.AddComponent<Image>();
-        scrollBg.color = new Color(0.05f, 0.05f, 0.08f, 0.8f);
+        GameObject navGO = new GameObject("InventoryNav");
+        navGO.transform.SetParent(invPanel.transform, false);
+        RectTransform navRt = navGO.AddComponent<RectTransform>();
+        navRt.sizeDelta = new Vector2(0, 70);
+        HorizontalLayoutGroup nav = navGO.AddComponent<HorizontalLayoutGroup>();
+        nav.spacing = 8;
+        nav.childAlignment = TextAnchor.MiddleCenter;
+        nav.childControlWidth = false;
+        nav.childControlHeight = false;
+        nav.childForceExpandWidth = false;
+        nav.childForceExpandHeight = false;
 
-        ScrollRect scrollRect = scrollGO.AddComponent<ScrollRect>();
-        scrollRect.horizontal = false;
-        scrollRect.vertical = true;
-        scrollRect.scrollSensitivity = 20f;
-
-        GameObject contentGO = new GameObject("Content");
-        contentGO.transform.SetParent(scrollGO.transform, false);
-        RectTransform contentRt = contentGO.AddComponent<RectTransform>();
-        contentRt.anchorMin = new Vector2(0, 1);
-        contentRt.anchorMax = new Vector2(1, 1);
-        contentRt.pivot = new Vector2(0.5f, 1);
-        contentRt.sizeDelta = new Vector2(0, 0);
-        VerticalLayoutGroup contentVlg = contentGO.AddComponent<VerticalLayoutGroup>();
-        contentVlg.spacing = 3;
-        contentVlg.padding = new RectOffset(4, 4, 4, 4);
-        contentVlg.childAlignment = TextAnchor.UpperCenter;
-        contentVlg.childControlWidth = true;
-        contentVlg.childControlHeight = false;
-        contentVlg.childForceExpandWidth = true;
-        contentVlg.childForceExpandHeight = false;
-        ContentSizeFitter csf = contentGO.AddComponent<ContentSizeFitter>();
-        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-
-        scrollRect.content = contentRt;
-        inventoryContainer = contentGO.transform;
-
-        GameObject toggleBtnGO = new GameObject("ToggleInventoryBtn");
-        toggleBtnGO.transform.SetParent(invPanel.transform, false);
-        RectTransform toggleRt = toggleBtnGO.AddComponent<RectTransform>();
-        toggleRt.sizeDelta = new Vector2(0, 36);
-        toggleBtnGO.AddComponent<CanvasRenderer>();
-        Image toggleImg = toggleBtnGO.AddComponent<Image>();
-        toggleImg.color = new Color(0.2f, 0.4f, 0.6f, 0.9f);
-        Button toggleBtn = toggleBtnGO.AddComponent<Button>();
-        GameObject toggleTextGO = new GameObject("Text");
-        toggleTextGO.transform.SetParent(toggleBtnGO.transform, false);
-        toggleTextGO.AddComponent<CanvasRenderer>();
-        TextMeshProUGUI toggleText = toggleTextGO.AddComponent<TextMeshProUGUI>();
-        toggleText.text = "Inventory";
-        toggleText.alignment = TextAlignmentOptions.Center;
-        toggleText.fontSize = 20;
-        toggleText.color = Color.white;
-        RectTransform ttRt = toggleTextGO.GetComponent<RectTransform>();
-        ttRt.anchorMin = Vector2.zero;
-        ttRt.anchorMax = Vector2.one;
-        ttRt.offsetMin = Vector2.zero;
-        ttRt.offsetMax = Vector2.zero;
-        toggleBtn.onClick.AddListener(() => { inventoryVisible = !inventoryVisible; RefreshInventory(); });
+        CreateSmallButton(navGO.transform, "←", new Vector2(90, 60), () => SelectInventoryOffset(-1));
+        CreateSmallButton(navGO.transform, "Применить", new Vector2(260, 60), () => OnItemAction(selectedInvIndex));
+        CreateSmallButton(navGO.transform, "→", new Vector2(90, 60), () => SelectInventoryOffset(1));
 
         inventoryVisible = true;
+    }
+
+    Button CreateSmallButton(Transform parent, string label, Vector2 size, UnityEngine.Events.UnityAction action)
+    {
+        GameObject btnGO = new GameObject(label);
+        btnGO.transform.SetParent(parent, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.color = new Color(0.2f, 0.45f, 0.65f, 0.95f);
+        Button btn = btnGO.AddComponent<Button>();
+        btn.onClick.AddListener(action);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.sizeDelta = size;
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(btnGO.transform, false);
+        textGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+        text.text = label;
+        text.fontSize = 40;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 26;
+        text.fontSizeMax = 46;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        RectTransform textRt = textGO.GetComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+        return btn;
+    }
+
+    void SelectInventoryOffset(int offset)
+    {
+        if (playerInventory == null || playerInventory.items.Count == 0) return;
+        selectedInvIndex = (selectedInvIndex + offset + playerInventory.items.Count) % playerInventory.items.Count;
+        RefreshInventory();
     }
 
     void RefreshInventory()
@@ -379,108 +443,91 @@ public class PauseMenu : MonoBehaviour
         if (!inventoryVisible) return;
         if (playerInventory == null || equipmentManager == null) return;
 
-        for (int i = 0; i < playerInventory.items.Count; i++)
+        if (playerInventory.items.Count == 0)
         {
-            InventoryItem invItem = playerInventory.items[i];
-            if (invItem.itemData == null) continue;
-
-            bool isEquipped = equipmentManager.IsEquipped(invItem.itemData);
-            bool canEquip = equipmentManager.CanEquip(invItem.itemData);
-
-            GameObject row = CreateInventoryRow(invItem, i, isEquipped, canEquip);
-            inventoryButtons.Add(row);
+            CreateInventoryCard(null, 0);
+            return;
         }
 
-        if (inventoryButtons.Count == 0)
-        {
-            GameObject empty = new GameObject("EmptyMsg");
-            empty.transform.SetParent(inventoryContainer, false);
-            empty.AddComponent<CanvasRenderer>();
-            TextMeshProUGUI emptyText = empty.AddComponent<TextMeshProUGUI>();
-            emptyText.text = "Inventory is empty";
-            emptyText.fontSize = 18;
-            emptyText.alignment = TextAlignmentOptions.Center;
-            emptyText.color = new Color(0.5f, 0.5f, 0.5f, 1f);
-            RectTransform emptyRt = empty.GetComponent<RectTransform>();
-            emptyRt.sizeDelta = new Vector2(0, 40);
-            inventoryButtons.Add(empty);
-        }
+        selectedInvIndex = Mathf.Clamp(selectedInvIndex, 0, playerInventory.items.Count - 1);
+        CreateInventoryCard(playerInventory.items[selectedInvIndex], selectedInvIndex);
     }
 
-    GameObject CreateInventoryRow(InventoryItem invItem, int index, bool isEquipped, bool canEquip)
+    void CreateInventoryCard(InventoryItem invItem, int index)
     {
+        foreach (Transform child in inventoryContainer)
+            Destroy(child.gameObject);
+
+        GameObject contentGO = new GameObject("Content");
+        contentGO.transform.SetParent(inventoryContainer, false);
+        RectTransform contentRt = contentGO.AddComponent<RectTransform>();
+        contentRt.anchorMin = Vector2.zero;
+        contentRt.anchorMax = Vector2.one;
+        contentRt.offsetMin = new Vector2(8, 8);
+        contentRt.offsetMax = new Vector2(-8, -8);
+
+        if (invItem == null || invItem.itemData == null)
+        {
+            TextMeshProUGUI emptyText = contentGO.AddComponent<TextMeshProUGUI>();
+            emptyText.text = "Inventory is empty";
+            emptyText.fontSize = 46;
+            emptyText.enableAutoSizing = true;
+            emptyText.fontSizeMin = 26;
+            emptyText.fontSizeMax = 46;
+            emptyText.alignment = TextAlignmentOptions.Center;
+            emptyText.color = new Color(0.6f, 0.6f, 0.6f, 1f);
+            return;
+        }
+
         ItemData item = invItem.itemData;
+        Image bg = inventoryContainer.GetComponent<Image>();
+        if (bg != null)
+            bg.color = Color.Lerp(new Color(0.05f, 0.05f, 0.08f, 0.85f), item.GetRarityColor(), 0.25f);
 
-        GameObject row = new GameObject($"InvItem_{item.itemName}");
-        row.transform.SetParent(inventoryContainer, false);
-        RectTransform rowRt = row.AddComponent<RectTransform>();
-        rowRt.sizeDelta = new Vector2(0, 52);
-        row.AddComponent<CanvasRenderer>();
-        Image rowBg = row.AddComponent<Image>();
-        rowBg.color = Color.Lerp(new Color(0.12f, 0.12f, 0.16f, 0.9f), item.GetRarityColor(), 0.25f);
-
-        HorizontalLayoutGroup hlg = row.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 6;
-        hlg.padding = new RectOffset(6, 6, 4, 4);
-        hlg.childAlignment = TextAnchor.MiddleLeft;
+        HorizontalLayoutGroup hlg = contentGO.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 10;
+        hlg.childAlignment = TextAnchor.MiddleCenter;
         hlg.childControlWidth = false;
         hlg.childControlHeight = false;
         hlg.childForceExpandWidth = false;
         hlg.childForceExpandHeight = false;
 
         GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(row.transform, false);
+        iconGO.transform.SetParent(contentGO.transform, false);
         iconGO.AddComponent<CanvasRenderer>();
         Image icon = iconGO.AddComponent<Image>();
-        icon.sprite = item.icon;
-        icon.color = item.icon == null ? item.GetRarityColor() : Color.white;
-        RectTransform iconRt = iconGO.GetComponent<RectTransform>();
-        iconRt.sizeDelta = new Vector2(36, 36);
-
-        GameObject nameGO = new GameObject("Name");
-        nameGO.transform.SetParent(row.transform, false);
-        nameGO.AddComponent<CanvasRenderer>();
-        TextMeshProUGUI nameText = nameGO.AddComponent<TextMeshProUGUI>();
-        nameText.text = $"{item.itemName}";
-        if (invItem.quantity > 1)
-            nameText.text += $" x{invItem.quantity}";
-        nameText.fontSize = 18;
-        nameText.alignment = TextAlignmentOptions.Left;
-        nameText.color = item.GetRarityColor();
-        nameText.raycastTarget = false;
-        RectTransform nameRt = nameGO.GetComponent<RectTransform>();
-        nameRt.sizeDelta = new Vector2(180, 40);
-
-        if (canEquip || isEquipped)
+        Sprite itemIcon = item.icon;
+#if UNITY_EDITOR
+        if (itemIcon == null)
         {
-            GameObject btnGO = new GameObject(isEquipped ? "UnequipBtn" : "EquipBtn");
-            btnGO.transform.SetParent(row.transform, false);
-            btnGO.AddComponent<CanvasRenderer>();
-            Image btnImg = btnGO.AddComponent<Image>();
-            btnImg.color = isEquipped ? new Color(0.7f, 0.2f, 0.2f, 0.9f) : new Color(0.2f, 0.6f, 0.3f, 0.9f);
-            Button btn = btnGO.AddComponent<Button>();
-            RectTransform btnRt = btnGO.GetComponent<RectTransform>();
-            btnRt.sizeDelta = new Vector2(90, 36);
-
-            GameObject btnTextGO = new GameObject("Text");
-            btnTextGO.transform.SetParent(btnGO.transform, false);
-            btnTextGO.AddComponent<CanvasRenderer>();
-            TextMeshProUGUI btnText = btnTextGO.AddComponent<TextMeshProUGUI>();
-            btnText.text = isEquipped ? "Снять" : "Надеть";
-            btnText.fontSize = 16;
-            btnText.alignment = TextAlignmentOptions.Center;
-            btnText.color = Color.white;
-            RectTransform btRt = btnTextGO.GetComponent<RectTransform>();
-            btRt.anchorMin = Vector2.zero;
-            btRt.anchorMax = Vector2.one;
-            btRt.offsetMin = Vector2.zero;
-            btRt.offsetMax = Vector2.zero;
-
-            int capturedIndex = index;
-            btn.onClick.AddListener(() => OnItemAction(capturedIndex));
+            Object[] subAssets = UnityEditor.AssetDatabase.LoadAllAssetsAtPath($"Assets/_Project/Custom/Items/{item.itemName.Replace(" ", "")}.png");
+            if (subAssets != null)
+            {
+                foreach (Object sub in subAssets)
+                {
+                    if (sub is Sprite s) { itemIcon = s; break; }
+                }
+            }
         }
+#endif
+        icon.sprite = itemIcon;
+        icon.color = itemIcon == null ? item.GetRarityColor() : Color.white;
+        RectTransform iconRt = iconGO.GetComponent<RectTransform>();
+        iconRt.sizeDelta = new Vector2(110, 110);
 
-        return row;
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(contentGO.transform, false);
+        textGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+        text.text = $"{index + 1}/{playerInventory.items.Count}\n{item.itemName} x{invItem.quantity}\n{item.description}";
+        text.fontSize = 46;
+        text.enableAutoSizing = true;
+        text.fontSizeMin = 24;
+        text.fontSizeMax = 46;
+        text.alignment = TextAlignmentOptions.Left;
+        text.color = item.GetRarityColor();
+        RectTransform textRt = textGO.GetComponent<RectTransform>();
+        textRt.sizeDelta = new Vector2(560, 145);
     }
 
     void OnItemAction(int index)
@@ -495,13 +542,19 @@ public class PauseMenu : MonoBehaviour
         {
             equipmentManager.Unequip(invItem.itemData, playerInventory);
         }
-        else
+        else if (equipmentManager.CanEquip(invItem.itemData))
         {
-            if (playerInventory.GetItemCount(invItem.itemData) > 0)
-            {
-                playerInventory.RemoveItem(invItem.itemData, 1);
-                equipmentManager.Equip(invItem.itemData, playerInventory);
-            }
+            equipmentManager.Equip(invItem.itemData, playerInventory);
+        }
+        else if (invItem.itemData.restoreHp > 0)
+        {
+            playerCombat?.Heal(invItem.itemData.restoreHp);
+            playerInventory.RemoveItem(invItem.itemData, 1);
+        }
+        else if (invItem.itemData.experienceReward > 0)
+        {
+            playerStats?.AddReward(invItem.itemData.experienceReward, 0);
+            playerInventory.RemoveItem(invItem.itemData, 1);
         }
 
         UpdateStatsDisplay();
