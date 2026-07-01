@@ -72,7 +72,7 @@ public class PauseMenu : MonoBehaviour
         rt.anchorMax = new Vector2(0.5f, 0);
         rt.pivot = new Vector2(0.5f, 0);
         rt.anchoredPosition = new Vector2(0, 100);
-        rt.sizeDelta = new Vector2(400, 70);
+        rt.sizeDelta = new Vector2(580, 70);
 
         HorizontalLayoutGroup hlg = container.AddComponent<HorizontalLayoutGroup>();
         hlg.spacing = 10;
@@ -102,9 +102,13 @@ public class PauseMenu : MonoBehaviour
         GameObject btnGO = new GameObject($"Btn_{statName}");
         btnGO.transform.SetParent(buttonsParent, false);
 
+        Color leftColor = new Color(0f, 1f, 0.5f, 1f);
+        Color rightColor = new Color(0f, 0.85f, 1f, 1f);
+        Color shadowColor = new Color(0f, 0.3f, 0.4f, 0.75f);
+
         Image img = btnGO.AddComponent<Image>();
-        img.sprite = CreateCircleSprite(64, Color.white);
-        img.color = new Color(0.2f, 0.2f, 0.2f, 0.9f);
+        img.sprite = CreateGradientPillSprite(110, 50, 100, 40, leftColor, rightColor, shadowColor, new Vector2(3, -3));
+        img.color = Color.white;
 
         Button btn = btnGO.AddComponent<Button>();
         btn.targetGraphic = img;
@@ -112,10 +116,10 @@ public class PauseMenu : MonoBehaviour
         GameObject textGO = new GameObject("Text");
         textGO.transform.SetParent(btnGO.transform, false);
         TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-        text.text = "+";
+        text.text = statName;
         text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.white;
-        text.fontSize = 28;
+        text.color = Color.black;
+        text.fontSize = 22;
         text.fontStyle = FontStyles.Bold;
 
         RectTransform textRt = text.GetComponent<RectTransform>();
@@ -125,25 +129,36 @@ public class PauseMenu : MonoBehaviour
         textRt.offsetMax = Vector2.zero;
 
         RectTransform btnRt = btnGO.GetComponent<RectTransform>();
-        btnRt.sizeDelta = new Vector2(50, 50);
+        btnRt.sizeDelta = new Vector2(100, 40);
 
         int capturedIndex = index;
         btn.onClick.AddListener(() => IncreaseStat(capturedIndex));
     }
 
-    Sprite CreateCircleSprite(int size, Color color)
+    Sprite CreateGradientPillSprite(int texWidth, int texHeight, int pillWidth, int pillHeight, Color leftColor, Color rightColor, Color shadowColor, Vector2 shadowOffset)
     {
-        Texture2D tex = new Texture2D(size, size);
-        Color[] pixels = new Color[size * size];
-        Vector2 center = new Vector2(size / 2f, size / 2f);
-        float radius = size / 2f - 2;
+        Texture2D tex = new Texture2D(texWidth, texHeight);
+        Color[] pixels = new Color[texWidth * texHeight];
+        Vector2 center = new Vector2(texWidth / 2f, texHeight / 2f);
+        Vector2 shadowCenter = center + shadowOffset;
 
-        for (int y = 0; y < size; y++)
+        for (int y = 0; y < texHeight; y++)
         {
-            for (int x = 0; x < size; x++)
+            for (int x = 0; x < texWidth; x++)
             {
-                float dist = Vector2.Distance(new Vector2(x, y), center);
-                pixels[y * size + x] = dist <= radius ? color : Color.clear;
+                int i = y * texWidth + x;
+                pixels[i] = Color.clear;
+
+                if (IsInsidePill(x, y, shadowCenter.x, shadowCenter.y, pillWidth, pillHeight))
+                {
+                    pixels[i] = shadowColor;
+                }
+
+                if (IsInsidePill(x, y, center.x, center.y, pillWidth, pillHeight))
+                {
+                    float t = Mathf.InverseLerp(center.x - pillWidth / 2f, center.x + pillWidth / 2f, x);
+                    pixels[i] = Color.Lerp(leftColor, rightColor, t);
+                }
             }
         }
 
@@ -152,7 +167,23 @@ public class PauseMenu : MonoBehaviour
         tex.wrapMode = TextureWrapMode.Clamp;
         tex.filterMode = FilterMode.Bilinear;
 
-        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f), 100);
+        return Sprite.Create(tex, new Rect(0, 0, texWidth, texHeight), new Vector2(0.5f, 0.5f), 100);
+    }
+
+    bool IsInsidePill(int x, int y, float cx, float cy, int width, int height)
+    {
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+        float radius = halfHeight;
+
+        float dx = Mathf.Abs(x - cx);
+        float dy = Mathf.Abs(y - cy);
+
+        if (dx <= halfWidth - radius)
+            return dy <= halfHeight;
+
+        dx -= halfWidth - radius;
+        return dx * dx + dy * dy <= radius * radius;
     }
 
     public void IncreaseStat(int index)
