@@ -105,7 +105,7 @@ public class ShopSetupEditor : EditorWindow
             string path = AssetDatabase.GUIDToAssetPath(itemGuids[i]);
             ItemData item = AssetDatabase.LoadAssetAtPath<ItemData>(path);
             if (item == null) continue;
-            if (item.itemName.Contains("Spider") || item.itemId.Contains("spider")) continue;
+            if (IsSoulItem(item)) continue;
 
             itemList.Add(new ShopItem { itemData = item, price = item.price > 0 ? item.price : 1, quantity = -1 });
         }
@@ -113,6 +113,19 @@ public class ShopSetupEditor : EditorWindow
         shopManager.shopItems = itemList.ToArray();
         EditorUtility.SetDirty(shopManager);
         return shopManager;
+    }
+
+    static bool IsSoulItem(ItemData item)
+    {
+        string[] keywords = new[] { "soul", "tail", "loot", "drop", "essence" };
+        string name = item.itemName.ToLower();
+        string id = item.itemId.ToLower();
+        foreach (string keyword in keywords)
+        {
+            if (name.Contains(keyword) || id.Contains(keyword))
+                return true;
+        }
+        return false;
     }
 
     static void FixMerchantSprite(GameObject merchant)
@@ -189,11 +202,14 @@ public class ShopSetupEditor : EditorWindow
         controller.playerStats = FindAnyObjectByType<PlayerStats>();
         controller.playerInventory = FindAnyObjectByType<Inventory>();
 
-        string[] spiderTailGuids = AssetDatabase.FindAssets("SpiderTail t:ItemData", new[] { "Assets/_Project/Custom/Items" });
-        if (spiderTailGuids.Length > 0)
+        controller.soulItems = new System.Collections.Generic.List<ItemData>();
+        string[] allItemGuids = AssetDatabase.FindAssets("t:ItemData", new[] { "Assets/_Project/Custom/Items" });
+        foreach (string guid in allItemGuids)
         {
-            string path = AssetDatabase.GUIDToAssetPath(spiderTailGuids[0]);
-            controller.spiderTailItem = AssetDatabase.LoadAssetAtPath<ItemData>(path);
+            string path = AssetDatabase.GUIDToAssetPath(guid);
+            ItemData item = AssetDatabase.LoadAssetAtPath<ItemData>(path);
+            if (item != null && IsSoulItem(item))
+                controller.soulItems.Add(item);
         }
 
         EditorUtility.SetDirty(controller);
