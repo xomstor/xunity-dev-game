@@ -203,6 +203,6 @@ MonoBehaviour:
   experienceReward: 10
   goldReward: 5
   drops:
-  - itemData: {fileID: 0}
+  - itemData: {fileID: 11400000, guid: b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6, type: 2}
     quantity: 1
-    baseDropChance: 0.2
+    baseDropChance: 0.5

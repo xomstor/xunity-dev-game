@@ -96,6 +96,30 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: experienceReward
+      value: 15
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: goldReward
+      value: 8
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.size
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].itemData
+      value: 
+      objectReference: {fileID: 11400000, guid: c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8, type: 2}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].quantity
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -5298535963188171927, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
+      propertyPath: drops.Array.data[0].baseDropChance
+      value: 0.4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []

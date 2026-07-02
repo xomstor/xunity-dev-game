@@ -299,6 +299,20 @@ public class PauseMenu : MonoBehaviour
 
         if (statsText != null)
         {
+            int junkCount = 0;
+            int junkValue = 0;
+            if (playerInventory != null)
+            {
+                foreach (InventoryItem invItem in playerInventory.items)
+                {
+                    if (invItem.itemData != null && invItem.itemData.itemType == ItemType.Material)
+                    {
+                        junkCount += invItem.quantity;
+                        junkValue += invItem.itemData.price * invItem.quantity;
+                    }
+                }
+            }
+
             statsText.text =
                 $"Level: {playerStats.level}\n" +
                 $"XP: {playerStats.experience} / {playerStats.experienceToNextLevel}\n" +
@@ -310,7 +324,9 @@ public class PauseMenu : MonoBehaviour
                 $"SPD: {playerStats.spd}\n" +
                 $"LCK: {playerStats.lck}\n\n" +
                 $"Regen: {playerStats.GetHpRegenPerSecond():F1} HP/sec\n" +
-                $"Crit: {playerStats.GetCritChance() * 100f:F0}%";
+                $"Crit: {playerStats.GetCritChance() * 100f:F0}%\n\n" +
+                $"Junk: {junkCount} items\n" +
+                $"Sell Value: {junkValue}g";
         }
 
         if (skillPointsText != null)
