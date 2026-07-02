@@ -2,6 +2,8 @@ using UnityEngine;
 
 public class AutoHealthBarSpawner : MonoBehaviour
 {
+    public static AutoHealthBarSpawner Instance { get; private set; }
+
     [Header("Prefabs")]
     public GameObject healthBarPrefab;
 
@@ -15,27 +17,22 @@ public class AutoHealthBarSpawner : MonoBehaviour
     public Vector2 playerBarPosition = new Vector2(20, -20);
     public Vector2 playerBarSize = new Vector2(200, 25);
 
-    void Start()
+    void Awake()
     {
-        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
-
-        foreach (var combatant in allCombatants)
+        if (Instance != null && Instance != this)
         {
-            bool shouldSpawn = false;
-
-            if (combatant.team == CombatTeam.Player && spawnForPlayers)
-                shouldSpawn = true;
-            else if (combatant.team == CombatTeam.Enemy && spawnForEnemies)
-                shouldSpawn = true;
-
-            if (shouldSpawn)
-            {
-                CreateHealthBar(combatant);
-            }
+            Destroy(gameObject);
+            return;
         }
+        Instance = this;
     }
 
-    void CreateHealthBar(AutoCombat combatant)
+    void Start()
+    {
+        SpawnAllBars();
+    }
+
+    void SpawnAllBars()
     {
         if (healthBarPrefab == null || canvas == null)
         {
@@ -43,22 +40,67 @@ public class AutoHealthBarSpawner : MonoBehaviour
             return;
         }
 
+        AutoCombat[] allCombatants = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
+
+        foreach (var combatant in allCombatants)
+        {
+            if (!ShouldSpawnFor(combatant)) continue;
+            if (HasHealthBar(combatant)) continue; // Не создаём если уже есть
+
+            CreateHealthBar(combatant);
+        }
+    }
+
+    // ✅ ПУБЛИЧНЫЙ МЕТОД - создать бар для конкретного врага!
+    public void SpawnBarForEnemy(AutoCombat enemy)
+    {
+        if (enemy == null) return;
+        if (healthBarPrefab == null || canvas == null) return;
+        if (!ShouldSpawnFor(enemy)) return;
+        if (HasHealthBar(enemy)) return; // Уже есть - не создаём
+
+        CreateHealthBar(enemy);
+        Debug.Log($"🔨 Spawner: HP Bar создан для {enemy.name}");
+    }
+
+    bool ShouldSpawnFor(AutoCombat combatant)
+    {
+        if (combatant.team == CombatTeam.Player && spawnForPlayers)
+            return true;
+        if (combatant.team == CombatTeam.Enemy && spawnForEnemies)
+            return true;
+        return false;
+    }
+
+    bool HasHealthBar(AutoCombat combatant)
+    {
+        HealthBarUI[] existingBars = FindObjectsByType<HealthBarUI>();
+        foreach (var bar in existingBars)
+        {
+            if (bar.target == combatant)
+                return true;
+        }
+        return false;
+    }
+
+    void CreateHealthBar(AutoCombat combatant)
+    {
         GameObject barInstance = Instantiate(healthBarPrefab, canvas.transform);
         barInstance.name = $"HealthBar_{combatant.gameObject.name}";
 
-        HealthBarUI healthBar = barInstance.GetComponent<HealthBarUI>();
-        if (healthBar == null)
+        HealthBarUI health = barInstance.GetComponent<HealthBarUI>();
+        if (health == null)
         {
             Debug.LogError("HealthBar prefab missing HealthBarUI component!");
             Destroy(barInstance);
             return;
         }
 
-        healthBar.SetTarget(combatant);
+        health.SetTarget(combatant);
 
         if (combatant.team == CombatTeam.Player && playerBarFixedPosition)
         {
-            healthBar.followTarget = false;
+            health.followTarget = false;
 
             RectTransform rect = barInstance.GetComponent<RectTransform>();
             rect.anchorMin = new Vector2(0, 1);
@@ -69,7 +111,7 @@ public class AutoHealthBarSpawner : MonoBehaviour
         }
         else
         {
-            healthBar.followTarget = true;
+            health.followTarget = true;
         }
     }
 }

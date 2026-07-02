@@ -48,25 +48,8 @@ public class EnemyRespawnManager : MonoBehaviour
 
     void Update()
     {
-        string sceneName = SceneManager.GetActiveScene().name;
-        if (!sceneEnemies.ContainsKey(sceneName)) return;
-
-        List<EnemyState> states = sceneEnemies[sceneName];
-        for (int i = states.Count - 1; i >= 0; i--)
-        {
-            if (Time.time - states[i].deathTime >= respawnDelay)
-            {
-                AutoCombat enemy = FindEnemyByName(states[i].enemyId);
-                if (enemy != null && enemy.IsDead)
-                {
-                    RespawnEnemy(enemy);
-                }
-                states.RemoveAt(i);
-            }
-        }
-
-        if (sceneEnemies[sceneName].Count == 0)
-            sceneEnemies.Remove(sceneName);
+        // ❌ АВТО-РЕСПАВН ОТКЛЮЧЕН!
+        // Теперь только ручной через Teleport2D или вызов RespawnAllEnemies()
     }
 
     AutoCombat FindEnemyByName(string enemyName)
@@ -98,12 +81,25 @@ public class EnemyRespawnManager : MonoBehaviour
 
     public void RespawnAllEnemies()
     {
+        int respawnedCount = 0;
+        int skippedCount = 0;
+
         AutoCombat[] enemies = FindObjectsByType<AutoCombat>(FindObjectsInactive.Exclude);
         foreach (AutoCombat enemy in enemies)
         {
             if (enemy.team != CombatTeam.Enemy) continue;
+
+            if (!enemy.IsDead)
+            {
+                skippedCount++;
+                continue;
+            }
+
             RespawnEnemy(enemy);
+            respawnedCount++;
         }
+
+        Debug.Log($"🔄 RespawnAllEnemies: {respawnedCount} респавнено, {skippedCount} пропущено");
     }
 
     void RespawnEnemy(AutoCombat enemy)
@@ -135,6 +131,36 @@ public class EnemyRespawnManager : MonoBehaviour
         {
             if (sr != null)
                 sr.enabled = true;
+        }
+
+        // ✅✅✅ ВОССТАНАВЛИВАЕМ HP BAR! ✅✅✅
+        RestoreHealthBarForEnemy(enemy);
+
+        Debug.Log($"✅ {enemy.name} респавнён!");
+    }
+
+    // ✅ НОВЫЙ МЕТОД: Включаем HP bar обратно!
+    void RestoreHealthBarForEnemy(AutoCombat enemy)
+    {
+        // Ищем все HP bars (включая неактивные!)
+        HealthBarUI[] allBars = FindObjectsByType<HealthBarUI>(FindObjectsInactive.Include); // ✅
+        foreach (var bar in allBars)
+        {
+            if (bar.target == enemy)
+            {
+                // Включаем gameObject обратно!
+                bar.gameObject.SetActive(true);
+
+                Debug.Log($"   💚 HP Bar для {enemy.name} восстановлен!");
+                return; // Нашли - выходим
+            }
+        }
+
+        // Если бар не найден (мог быть уничтожен) - пробуем через Spawner
+        if (AutoHealthBarSpawner.Instance != null)
+        {
+            AutoHealthBarSpawner.Instance.SpawnBarForEnemy(enemy);
+            Debug.Log($"   🔨 HP Bar для {enemy.name} создан заново через Spawner");
         }
     }
 }
