@@ -6,6 +6,8 @@ public class DropItem
     public ItemData itemData;
     public int quantity = 1;
     [Range(0f, 1f)] public float baseDropChance = 0.15f;
+    [Tooltip("If true, this item will only drop once per save (stored in PlayerPrefs)")]
+    public bool dropOnlyOnce;
 }
 
 public class EnemyReward : MonoBehaviour

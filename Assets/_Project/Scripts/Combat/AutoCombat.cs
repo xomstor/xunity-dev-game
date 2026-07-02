@@ -508,11 +508,22 @@ public class AutoCombat : MonoBehaviour
 
         foreach (DropItem drop in reward.Drops)
         {
+            if (drop.itemData == null) continue;
+
+            if (drop.dropOnlyOnce)
+            {
+                string key = "DropOnce_" + drop.itemData.itemId;
+                if (PlayerPrefs.GetInt(key, 0) == 1) continue;
+            }
+
             float chance = Mathf.Min(drop.baseDropChance * luckMultiplier, 1f);
-            if (Random.value <= chance && drop.itemData != null)
+            if (Random.value <= chance)
             {
                 playerInventory?.AddItem(drop.itemData, drop.quantity);
                 Debug.Log($"Dropped: {drop.itemData.itemName} x{drop.quantity}");
+
+                if (drop.dropOnlyOnce)
+                    PlayerPrefs.SetInt("DropOnce_" + drop.itemData.itemId, 1);
             }
         }
     }

@@ -6,6 +6,8 @@ public class DialogueChoice
 {
     [TextArea] public string choiceText;
     [TextArea] public string[] responseLines;
+    [Header("Sub-choices (shown after responseLines, if any)")]
+    [SerializeReference] public DialogueChoice[] subChoices;
 }
 
 public class DialogueTrigger : MonoBehaviour
@@ -22,8 +24,20 @@ public class DialogueTrigger : MonoBehaviour
     [Header("Settings")]
     public GameObject interactPrompt;
     public ShopNPC shopNPC;
+    public bool openShopOnChoice0 = true;
+
+    [Header("Quest (optional)")]
+    public ItemData requiredItem;
+    public int requiredAmount = 1;
+    public int rewardGold = 50;
+    public int rewardExperience = 100;
+    [TextArea] public string[] questCompleteLines;
+    [TextArea] public string[] questProgressLines;
+    [TextArea] public string[] questAlreadyDoneLines;
 
     private bool isPlayerNearby;
+    private bool questCompleted;
+    private bool questStarted;
 
     void Start()
     {
@@ -64,16 +78,15 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (DialogueSystem.Instance == null) return;
 
+        if (requiredItem != null)
+        {
+            HandleQuestDialogue();
+            return;
+        }
+
         if (hasChoices && choices.Length > 0)
         {
-            string[] choiceTexts = new string[choices.Length];
-            string[][] responses = new string[choices.Length][];
-            for (int i = 0; i < choices.Length; i++)
-            {
-                choiceTexts[i] = choices[i].choiceText;
-                responses[i] = choices[i].responseLines;
-            }
-            DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
+            DialogueSystem.Instance.ShowDialogueWithChoiceTree(dialogueLines, choices, npcName, npcFace, OnChoiceMade);
         }
         else
         {
@@ -81,10 +94,60 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
+    void HandleQuestDialogue()
+    {
+        if (questCompleted)
+        {
+            DialogueSystem.Instance.ShowDialogue(questAlreadyDoneLines, npcName, npcFace);
+            return;
+        }
+
+        Inventory inventory = FindAnyObjectByType<Inventory>();
+        PlayerStats stats = FindAnyObjectByType<PlayerStats>();
+
+        if (inventory == null || stats == null)
+        {
+            DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+            return;
+        }
+
+        int count = inventory.GetItemCount(requiredItem);
+
+        if (count >= requiredAmount)
+        {
+            inventory.RemoveItem(requiredItem, requiredAmount);
+            stats.gold += rewardGold;
+            stats.AddReward(rewardExperience, 0);
+            questCompleted = true;
+
+            string[] lines = new string[questCompleteLines.Length + 1];
+            questCompleteLines.CopyTo(lines, 0);
+            lines[lines.Length - 1] = $"+{rewardGold} gold\n+{rewardExperience} XP";
+
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+        }
+        else if (questStarted)
+        {
+            string[] lines = new string[questProgressLines.Length + 1];
+            questProgressLines.CopyTo(lines, 0);
+            lines[lines.Length - 1] = $": {count}/{requiredAmount} {requiredItem.itemName}";
+
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+        }
+        else
+        {
+            questStarted = true;
+            if (hasChoices && choices.Length > 0)
+                DialogueSystem.Instance.ShowDialogueWithChoiceTree(dialogueLines, choices, npcName, npcFace, OnChoiceMade);
+            else
+                DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+        }
+    }
+
     void OnChoiceMade(int choiceIndex)
     {
         Debug.Log($"Player chose option {choiceIndex}");
-        if (choiceIndex == 0)
+        if (choiceIndex == 0 && openShopOnChoice0)
         {
             if (shopNPC != null)
                 shopNPC.OpenShop();

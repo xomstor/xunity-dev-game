@@ -62,6 +62,16 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
     }
 
+    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName = "", Sprite faceSprite = null, System.Action<int> callback = null)
+    {
+        if (currentDialogue != null)
+            StopCoroutine(currentDialogue);
+        
+        SetSpeakerInfo(npcName, faceSprite);
+        onChoiceMade = callback;
+        currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));
+    }
+
     void SetSpeakerInfo(string name, Sprite face)
     {
         if (npcNameText != null)
@@ -98,6 +108,82 @@ public class DialogueSystem : MonoBehaviour
         }
 
         yield return ShowChoices(choiceTexts, choiceResponses);
+    }
+
+    IEnumerator DisplayDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices)
+    {
+        if (dialoguePanel != null)
+            dialoguePanel.SetActive(true);
+
+        foreach (string line in lines)
+        {
+            continuePressed = false;
+            yield return TypeText(line);
+            yield return new WaitUntil(() => continuePressed);
+        }
+
+        yield return ShowChoiceTree(choices);
+    }
+
+    IEnumerator ShowChoiceTree(DialogueChoice[] choices)
+    {
+        DialogueChoice[] currentChoices = choices;
+
+        while (currentChoices != null && currentChoices.Length > 0)
+        {
+            string[] choiceTexts = new string[currentChoices.Length];
+            for (int i = 0; i < currentChoices.Length; i++)
+                choiceTexts[i] = currentChoices[i].choiceText;
+
+            choiceIndex = -1;
+            if (choicePanel != null)
+                choicePanel.SetActive(true);
+            if (continueButton != null)
+                continueButton.gameObject.SetActive(false);
+
+            ClearChoiceButtons();
+
+            for (int i = 0; i < choiceTexts.Length; i++)
+            {
+                int index = i;
+                Button button = Instantiate(choiceButtonPrefab, choiceButtonContainer);
+                button.GetComponentInChildren<TextMeshProUGUI>().text = choiceTexts[i];
+                button.onClick.AddListener(() => OnChoiceSelected(index));
+            }
+
+            yield return new WaitUntil(() => choiceIndex >= 0);
+
+            if (choicePanel != null)
+                choicePanel.SetActive(false);
+            if (continueButton != null)
+                continueButton.gameObject.SetActive(true);
+
+            ClearChoiceButtons();
+
+            DialogueChoice selected = currentChoices[choiceIndex];
+
+            if (selected.responseLines != null)
+            {
+                foreach (string line in selected.responseLines)
+                {
+                    continuePressed = false;
+                    yield return TypeText(line);
+                    yield return new WaitUntil(() => continuePressed);
+                }
+            }
+
+            if (selected.subChoices != null && selected.subChoices.Length > 0)
+            {
+                currentChoices = selected.subChoices;
+            }
+            else
+            {
+                onChoiceMade?.Invoke(choiceIndex);
+                currentChoices = null;
+            }
+        }
+
+        HideDialogue();
     }
 
     void HideDialogue()

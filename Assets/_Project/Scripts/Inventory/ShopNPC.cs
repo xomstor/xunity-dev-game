@@ -6,8 +6,6 @@ public class ShopNPC : MonoBehaviour
     public ShopUIController shopUI;
     public GameObject interactPrompt;
 
-    private bool isPlayerNearby;
-
     void Start()
     {
         if (interactPrompt != null)
@@ -18,7 +16,6 @@ public class ShopNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = true;
             if (interactPrompt != null)
                 interactPrompt.SetActive(true);
         }
@@ -28,7 +25,6 @@ public class ShopNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = false;
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
         }

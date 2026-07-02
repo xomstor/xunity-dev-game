@@ -45,6 +45,9 @@ public class PlayerController : MonoBehaviour
     private float rollTimer;
     private float rollCooldownTimer;
     private int rollDirection;
+    private Collider2D currentGroundCollider;
+    private float dropThroughTimer;
+    private Collider2D ignoredPlatform;
 
     void Awake()
     {
@@ -73,6 +76,9 @@ public class PlayerController : MonoBehaviour
 
             if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && jumpCount > 0)
                 Jump();
+
+            if (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame)
+                TryDropThrough();
 
             if (keyboard.jKey.wasPressedThisFrame)
                 Attack();
@@ -183,6 +189,16 @@ public class PlayerController : MonoBehaviour
     {
         CheckGround();
 
+        if (dropThroughTimer > 0)
+        {
+            dropThroughTimer -= Time.fixedDeltaTime;
+            if (dropThroughTimer <= 0 && ignoredPlatform != null)
+            {
+                Physics2D.IgnoreCollision(col, ignoredPlatform, false);
+                ignoredPlatform = null;
+            }
+        }
+
         if (isRolling)
         {
             rb.linearVelocity = new Vector2(rollDirection * rollSpeed, rb.linearVelocity.y);
@@ -213,7 +229,23 @@ public class PlayerController : MonoBehaviour
         Vector2 origin = new Vector2(bounds.center.x, bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance, groundLayer);
         isGrounded = hit.collider != null;
+        currentGroundCollider = hit.collider;
         if (isGrounded) jumpCount = maxJumps;
+    }
+
+    void TryDropThrough()
+    {
+        if (!isGrounded || currentGroundCollider == null) return;
+
+        PlatformEffector2D effector = currentGroundCollider.GetComponent<PlatformEffector2D>();
+        if (effector != null)
+        {
+            Physics2D.IgnoreCollision(col, currentGroundCollider, true);
+            ignoredPlatform = currentGroundCollider;
+            dropThroughTimer = 0.5f;
+            isGrounded = false;
+            jumpCount = Mathf.Max(jumpCount, 1);
+        }
     }
 
     public void SetMoveInput(float input) => moveInput = input;

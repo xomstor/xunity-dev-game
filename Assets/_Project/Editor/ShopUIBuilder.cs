@@ -48,7 +48,7 @@ public class ShopUIBuilder : EditorWindow
         Canvas mainCanvas = controller.GetComponent<Canvas>();
         if (mainCanvas == null)
         {
-            mainCanvas = FindObjectsByType<Canvas>(FindObjectsSortMode.None).FirstOrDefault(c => c.isRootCanvas);
+            mainCanvas = FindObjectsByType<Canvas>().FirstOrDefault(c => c.isRootCanvas);
             if (mainCanvas == null)
                 mainCanvas = FindAnyObjectByType<Canvas>();
             if (mainCanvas != null)
