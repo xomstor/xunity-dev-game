@@ -35,6 +35,8 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
     private bool isGrounded;
     private float moveInput;
+    private float keyboardMoveInput;
+    private float externalMoveInput;
     private int jumpCount;
     private float moveHeldTime;
     private float currentMoveSpeed;
@@ -71,42 +73,21 @@ public class PlayerController : MonoBehaviour
         var keyboard = Keyboard.current;
         if (keyboard != null)
         {
-            float keyInput = 0f;
-            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) keyInput -= 1f;
-            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyInput += 1f;
-            if (keyInput != 0f)
-            {
-                moveInput = keyInput;
-                rawMoveInput = keyInput;
-            }
+            keyboardMoveInput = 0f;
+            if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) keyboardMoveInput -= 1f;
+            if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyboardMoveInput += 1f;
 
-            if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && jumpCount > 0)
+            if (keyboard.wKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame)
                 Jump();
 
             if (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame)
             {
-                if (isGrounded)
-                {
-                    if (TryDropThrough())
-                    {
-                        // dropped through successfully
-                    }
-                    else
-                    {
-                        isCrouching = true;
-                        if (anim != null) anim.SetBool("Crouch", true);
-                    }
-                }
+                if (!TryDropThrough())
+                    StartCrouch();
             }
 
             if (keyboard.sKey.wasReleasedThisFrame || keyboard.downArrowKey.wasReleasedThisFrame)
-            {
-                if (isCrouching)
-                {
-                    isCrouching = false;
-                    if (anim != null) anim.SetBool("Crouch", false);
-                }
-            }
+                StopCrouch();
 
             if (keyboard.jKey.wasPressedThisFrame)
                 Attack();
@@ -114,6 +95,11 @@ public class PlayerController : MonoBehaviour
             if (keyboard.kKey.wasPressedThisFrame)
                 Roll();
         }
+
+        moveInput = keyboardMoveInput != 0f ? keyboardMoveInput : externalMoveInput;
+        rawMoveInput = moveInput;
+        if (isCrouching)
+            moveInput = 0f;
 
         UpdateRoll();
         UpdateMoveSpeed();
@@ -236,7 +222,6 @@ public class PlayerController : MonoBehaviour
             rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
         }
 
-        moveInput = 0f;
     }
 
     void UpdateAnimator()
@@ -280,9 +265,7 @@ public class PlayerController : MonoBehaviour
 
     public void SetMoveInput(float input)
     {
-        rawMoveInput = input;
-        if (isCrouching) input = 0f;
-        moveInput = input;
+        externalMoveInput = input;
     }
 
     public void StartCrouch()

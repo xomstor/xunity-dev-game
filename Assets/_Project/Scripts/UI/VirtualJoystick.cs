@@ -99,35 +99,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (isHolding && player != null)
         {
-            float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
-            player.SetMoveInput(horizontal);
-
-            float verticalThreshold = 0.7f;
-
-            if (input.y > verticalThreshold && !jumpTriggered)
-            {
-                jumpTriggered = true;
-                player.Jump();
-            }
-            else if (input.y < verticalThreshold * 0.5f)
-            {
-                jumpTriggered = false;
-            }
-
-            if (input.y < -verticalThreshold)
-            {
-                if (!wasCrouching)
-                {
-                    wasCrouching = true;
-                    if (!player.TryDropThrough())
-                        player.StartCrouch();
-                }
-            }
-            else if (wasCrouching && input.y > -verticalThreshold * 0.5f)
-            {
-                wasCrouching = false;
-                player.StopCrouch();
-            }
+            ApplyInputActions();
         }
     }
 
@@ -188,8 +160,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         handle.anchoredPosition = delta;
         input = delta / handleRange;
 
-        float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
-        if (player != null) player.SetMoveInput(horizontal);
+        ApplyInputActions();
     }
 
     public void OnPointerUp(PointerEventData eventData)
@@ -214,6 +185,42 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public Vector2 GetInput() => input;
 
+    public bool IsUsable => enabled && gameObject.activeInHierarchy && background != null && handle != null;
+
+    void ApplyInputActions()
+    {
+        if (player == null) return;
+
+        float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
+        player.SetMoveInput(horizontal);
+
+        float verticalThreshold = 0.7f;
+        if (input.y > verticalThreshold && !jumpTriggered)
+        {
+            jumpTriggered = true;
+            player.Jump();
+        }
+        else if (input.y < verticalThreshold * 0.5f)
+        {
+            jumpTriggered = false;
+        }
+
+        if (input.y < -verticalThreshold)
+        {
+            if (!wasCrouching)
+            {
+                wasCrouching = true;
+                if (!player.TryDropThrough())
+                    player.StartCrouch();
+            }
+        }
+        else if (wasCrouching && input.y > -verticalThreshold * 0.5f)
+        {
+            wasCrouching = false;
+            player.StopCrouch();
+        }
+    }
+
     void ApplyTransparency()
     {
         SetVisualAlpha(joystickAlpha);
@@ -232,7 +239,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (visualCircleImage != null)
         {
             Color c = visualCircleImage.color;
-            c.a = alpha;
+            c.a = alpha > 0f ? Mathf.Max(alpha, 0.55f) : 0f;
             visualCircleImage.color = c;
         }
         if (handleImage != null)
@@ -248,8 +255,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         isFloating = enabled;
         PlayerPrefs.SetInt("FloatingJoystick", enabled ? 1 : 0);
         PlayerPrefs.Save();
-        Debug.Log($"[VirtualJoystick] SetFloating({enabled}) — isFloating now = {isFloating}");
-
         if (enabled)
             SetupFloatingMode();
         else
@@ -298,7 +303,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         }
 
         SetVisualAlpha(0f);
-        Debug.Log("[VirtualJoystick] Floating mode setup complete");
     }
 
     void DisableFloatingMode()
@@ -335,7 +339,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         }
 
         SetVisualAlpha(joystickAlpha);
-        Debug.Log("[VirtualJoystick] Floating mode disabled");
     }
 
     void LoadSettings()
@@ -360,7 +363,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         visualCircle.pivot = new Vector2(0.5f, 0.5f);
         visualCircle.SetAsFirstSibling();
         visualCircleImage = ringGO.AddComponent<JoystickRingGraphic>();
-        visualCircleImage.color = new Color(1f, 0.55f, 0.1f, joystickAlpha);
+        visualCircleImage.color = new Color(1f, 0.55f, 0.1f, Mathf.Max(joystickAlpha, 0.55f));
         visualCircleImage.raycastTarget = false;
     }
 

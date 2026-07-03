@@ -166,7 +166,7 @@ public class PauseMenu : MonoBehaviour
         VirtualJoystick[] joysticks = FindObjectsOfType<VirtualJoystick>();
         foreach (VirtualJoystick candidate in joysticks)
         {
-            if (candidate != null && candidate.enabled && candidate.gameObject.activeInHierarchy)
+            if (candidate != null && candidate.IsUsable)
             {
                 joystick = candidate;
                 break;
