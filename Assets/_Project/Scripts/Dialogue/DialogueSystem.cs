@@ -14,6 +14,7 @@ public class DialogueSystem : MonoBehaviour
     public TextMeshProUGUI npcNameText;
     public Image npcFaceImage;
     public Button continueButton;
+    public Button closeButton;
     public GameObject choicePanel;
     public Transform choiceButtonContainer;
     public Button choiceButtonPrefab;
@@ -25,7 +26,7 @@ public class DialogueSystem : MonoBehaviour
     private Coroutine currentDialogue;
     private bool continuePressed;
     private int choiceIndex = -1;
-    private System.Action<int> onChoiceMade;
+    private System.Action<int, DialogueChoice> onChoiceMade;
 
     // Face animation state
     private Sprite[] activeFaceFrames;
@@ -47,6 +48,9 @@ public class DialogueSystem : MonoBehaviour
 
         if (continueButton != null)
             continueButton.onClick.AddListener(OnContinuePressed);
+
+        if (closeButton != null)
+            closeButton.onClick.AddListener(CloseDialogue);
     }
 
     public void ShowDialogue(string[] lines, string npcName = "", Sprite faceSprite = null)
@@ -67,7 +71,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogue(lines));
     }
 
-    public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName = "", Sprite faceSprite = null, System.Action<int> callback = null)
+    public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName = "", Sprite faceSprite = null, System.Action<int, DialogueChoice> callback = null)
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
@@ -77,7 +81,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
     }
 
-    public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName, Sprite[] faceFrames, System.Action<int> callback = null)
+    public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName, Sprite[] faceFrames, System.Action<int, DialogueChoice> callback = null)
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
@@ -87,7 +91,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
     }
 
-    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName = "", Sprite faceSprite = null, System.Action<int> callback = null)
+    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName = "", Sprite faceSprite = null, System.Action<int, DialogueChoice> callback = null)
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
@@ -97,7 +101,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));
     }
 
-    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName, Sprite[] faceFrames, System.Action<int> callback = null)
+    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName, Sprite[] faceFrames, System.Action<int, DialogueChoice> callback = null)
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
@@ -146,6 +150,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(true);
 
         foreach (string line in lines)
         {
@@ -161,6 +167,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(true);
 
         foreach (string line in lines)
         {
@@ -176,6 +184,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(true);
 
         foreach (string line in lines)
         {
@@ -193,9 +203,26 @@ public class DialogueSystem : MonoBehaviour
 
         while (currentChoices != null && currentChoices.Length > 0)
         {
-            string[] choiceTexts = new string[currentChoices.Length];
+            int validChoiceCount = 0;
             for (int i = 0; i < currentChoices.Length; i++)
-                choiceTexts[i] = currentChoices[i].choiceText;
+            {
+                if (currentChoices[i] != null)
+                    validChoiceCount++;
+            }
+
+            if (validChoiceCount == 0)
+                break;
+
+            DialogueChoice[] validChoices = new DialogueChoice[validChoiceCount];
+            string[] choiceTexts = new string[validChoiceCount];
+            int validIndex = 0;
+            for (int i = 0; i < currentChoices.Length; i++)
+            {
+                if (currentChoices[i] == null) continue;
+                validChoices[validIndex] = currentChoices[i];
+                choiceTexts[validIndex] = currentChoices[i].choiceText;
+                validIndex++;
+            }
 
             choiceIndex = -1;
             if (choicePanel != null)
@@ -222,7 +249,7 @@ public class DialogueSystem : MonoBehaviour
 
             ClearChoiceButtons();
 
-            DialogueChoice selected = currentChoices[choiceIndex];
+            DialogueChoice selected = validChoices[choiceIndex];
 
             if (selected.responseLines != null)
             {
@@ -240,7 +267,7 @@ public class DialogueSystem : MonoBehaviour
             }
             else
             {
-                onChoiceMade?.Invoke(choiceIndex);
+                onChoiceMade?.Invoke(choiceIndex, selected);
                 currentChoices = null;
             }
         }
@@ -250,6 +277,13 @@ public class DialogueSystem : MonoBehaviour
 
     void HideDialogue()
     {
+        if (choicePanel != null)
+            choicePanel.SetActive(false);
+        if (continueButton != null)
+            continueButton.gameObject.SetActive(true);
+        if (closeButton != null)
+            closeButton.gameObject.SetActive(false);
+        ClearChoiceButtons();
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
         currentDialogue = null;
@@ -295,7 +329,7 @@ public class DialogueSystem : MonoBehaviour
 
         HideDialogue();
 
-        onChoiceMade?.Invoke(choiceIndex);
+        onChoiceMade?.Invoke(choiceIndex, null);
     }
 
     void ClearChoiceButtons()
@@ -312,6 +346,11 @@ public class DialogueSystem : MonoBehaviour
 
     IEnumerator TypeText(string text)
     {
+        if (dialogueText == null) yield break;
+
+        if (text == null)
+            text = "";
+
         dialogueText.text = "";
         
         foreach (char letter in text.ToCharArray())
@@ -351,5 +390,15 @@ public class DialogueSystem : MonoBehaviour
     public void OnContinuePressed()
     {
         continuePressed = true;
+    }
+
+    public void CloseDialogue()
+    {
+        if (currentDialogue != null)
+        {
+            StopCoroutine(currentDialogue);
+            currentDialogue = null;
+        }
+        HideDialogue();
     }
 }

@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.UI;
 using TMPro;
 
 public class ItemNotification : MonoBehaviour
@@ -22,6 +23,16 @@ public class ItemNotification : MonoBehaviour
     private CanvasGroup canvasGroup;
     private Coroutine currentRoutine;
 
+    public static ItemNotification EnsureInstance()
+    {
+        if (Instance != null)
+            return Instance;
+
+        GameObject go = new GameObject("ItemNotification");
+        DontDestroyOnLoad(go);
+        return go.AddComponent<ItemNotification>();
+    }
+
     void Awake()
     {
         if (Instance != null && Instance != this)
@@ -30,6 +41,9 @@ public class ItemNotification : MonoBehaviour
             return;
         }
         Instance = this;
+
+        if (notificationPanel == null || notificationText == null)
+            CreateDefaultUI();
 
         if (notificationPanel != null)
         {
@@ -49,6 +63,43 @@ public class ItemNotification : MonoBehaviour
                 audioSource.playOnAwake = false;
             }
         }
+    }
+
+    void CreateDefaultUI()
+    {
+        GameObject canvasGO = new GameObject("ItemNotificationCanvas");
+        canvasGO.transform.SetParent(transform, false);
+        Canvas canvas = canvasGO.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 5000;
+        canvasGO.AddComponent<CanvasScaler>();
+        canvasGO.AddComponent<GraphicRaycaster>();
+
+        notificationPanel = new GameObject("NotificationPanel");
+        notificationPanel.transform.SetParent(canvasGO.transform, false);
+        RectTransform panelRt = notificationPanel.AddComponent<RectTransform>();
+        panelRt.anchorMin = new Vector2(0.5f, 0.82f);
+        panelRt.anchorMax = new Vector2(0.5f, 0.82f);
+        panelRt.pivot = new Vector2(0.5f, 0.5f);
+        panelRt.sizeDelta = new Vector2(520f, 70f);
+        panelRt.anchoredPosition = Vector2.zero;
+
+        Image bg = notificationPanel.AddComponent<Image>();
+        bg.color = new Color(0f, 0f, 0f, 0.65f);
+
+        GameObject textGO = new GameObject("NotificationText");
+        textGO.transform.SetParent(notificationPanel.transform, false);
+        RectTransform textRt = textGO.AddComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = new Vector2(20f, 8f);
+        textRt.offsetMax = new Vector2(-20f, -8f);
+
+        notificationText = textGO.AddComponent<TextMeshProUGUI>();
+        notificationText.alignment = TextAlignmentOptions.Center;
+        notificationText.fontSize = 28f;
+        notificationText.color = Color.white;
+        notificationText.raycastTarget = false;
     }
 
     public void ShowPickup(string itemName, int quantity = 1)

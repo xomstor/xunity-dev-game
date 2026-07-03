@@ -97,13 +97,11 @@ public class Inventory : MonoBehaviour
 
     void NotifyPickup(ItemData item, int qty)
     {
-        if (ItemNotification.Instance != null)
-            ItemNotification.Instance.ShowPickup(item.itemName, qty);
+        ItemNotification.EnsureInstance().ShowPickup(item.itemName, qty);
     }
 
     void NotifySpend(ItemData item, int qty)
     {
-        if (ItemNotification.Instance != null)
-            ItemNotification.Instance.ShowSpend(item.itemName, qty);
+        ItemNotification.EnsureInstance().ShowSpend(item.itemName, qty);
     }
 }

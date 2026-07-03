@@ -8,6 +8,9 @@ public class DialogueChoice
     [TextArea] public string[] responseLines;
     [Header("Sub-choices (shown after responseLines, if any)")]
     [SerializeReference] public DialogueChoice[] subChoices;
+    [Header("Quest")]
+    [Tooltip("If true, selecting this choice starts the associated quest")]
+    public bool startsQuest;
 }
 
 public class DialogueTrigger : MonoBehaviour
@@ -22,6 +25,16 @@ public class DialogueTrigger : MonoBehaviour
     public Sprite npcFace;
     [Tooltip("Animated frames for NPC face (overrides npcFace if assigned)")]
     public Sprite[] npcFaceFrames;
+
+    [Header("Post-Quest Appearance")]
+    [Tooltip("Face portrait shown in dialogue after quest is completed")]
+    public Sprite npcFaceAfterQuest;
+    [Tooltip("Animated face frames after quest (overrides npcFaceAfterQuest)")]
+    public Sprite[] npcFaceFramesAfterQuest;
+    [Tooltip("Animator controller to switch to after quest completion")]
+    public RuntimeAnimatorController animatorAfterQuest;
+    [Tooltip("Static sprite to use after quest if no animator is assigned")]
+    public Sprite spriteAfterQuest;
 
     [Header("Settings")]
     public GameObject interactPrompt;
@@ -100,77 +113,151 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (questCompleted)
         {
-            ShowNPCDialogue(questAlreadyDoneLines);
+            ShowNPCDialogue(CombineLines(dialogueLines, questAlreadyDoneLines));
             return;
         }
 
         Inventory inventory = FindAnyObjectByType<Inventory>();
         PlayerStats stats = FindAnyObjectByType<PlayerStats>();
 
-        if (inventory == null || stats == null)
+        if (inventory != null && stats != null && requiredItem != null)
         {
-            ShowNPCDialogue(dialogueLines);
+            int count = inventory.GetItemCount(requiredItem);
+
+            if (count >= requiredAmount)
+            {
+                inventory.RemoveItem(requiredItem, requiredAmount);
+                stats.gold += rewardGold;
+                stats.AddReward(rewardExperience, 0);
+                questCompleted = true;
+                SwapToPostQuestAppearance();
+
+                string[] rewardLines = AppendLine(questCompleteLines, $"+{rewardGold} gold\n+{rewardExperience} XP");
+
+                ShowNPCDialogue(CombineLines(dialogueLines, rewardLines));
+                return;
+            }
+
+            if (count > 0)
+            {
+                questStarted = true;
+                string[] progressStateLines = AppendLine(questProgressLines, $": {count}/{requiredAmount} {requiredItem.itemName}");
+
+                ShowNPCDialogue(CombineLines(dialogueLines, progressStateLines));
+                return;
+            }
+        }
+
+        if (questStarted)
+        {
+            string itemName = requiredItem != null ? requiredItem.itemName : "item";
+            string[] progressStateLines = AppendLine(questProgressLines, $": 0/{requiredAmount} {itemName}");
+            ShowNPCDialogue(CombineLines(dialogueLines, progressStateLines));
             return;
         }
 
-        int count = inventory.GetItemCount(requiredItem);
-
-        if (count >= requiredAmount)
-        {
-            inventory.RemoveItem(requiredItem, requiredAmount);
-            stats.gold += rewardGold;
-            stats.AddReward(rewardExperience, 0);
-            questCompleted = true;
-
-            string[] lines = new string[questCompleteLines.Length + 1];
-            questCompleteLines.CopyTo(lines, 0);
-            lines[lines.Length - 1] = $"+{rewardGold} gold\n+{rewardExperience} XP";
-
-            ShowNPCDialogue(lines);
-        }
-        else if (questStarted)
-        {
-            string[] lines = new string[questProgressLines.Length + 1];
-            questProgressLines.CopyTo(lines, 0);
-            lines[lines.Length - 1] = $": {count}/{requiredAmount} {requiredItem.itemName}";
-
-            ShowNPCDialogue(lines);
-        }
+        if (hasChoices && choices.Length > 0)
+            ShowNPCDialogueWithChoices(dialogueLines, choices, OnChoiceMade);
         else
+            ShowNPCDialogue(dialogueLines);
+    }
+
+    string[] AppendLine(string[] lines, string line)
+    {
+        int length = lines != null ? lines.Length : 0;
+        string[] result = new string[length + 1];
+        if (length > 0)
+            lines.CopyTo(result, 0);
+        result[result.Length - 1] = line;
+        return result;
+    }
+
+    string[] CombineLines(string[] baseLines, string[] stateLines)
+    {
+        int baseLength = baseLines != null ? baseLines.Length : 0;
+        int stateLength = stateLines != null ? stateLines.Length : 0;
+        string[] lines = new string[baseLength + stateLength];
+        if (baseLength > 0)
+            baseLines.CopyTo(lines, 0);
+        if (stateLength > 0)
+            stateLines.CopyTo(lines, baseLength);
+        return lines;
+    }
+
+    void SwapToPostQuestAppearance()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animatorAfterQuest != null && animator != null)
         {
-            questStarted = true;
-            if (hasChoices && choices.Length > 0)
-                ShowNPCDialogueWithChoices(dialogueLines, choices, OnChoiceMade);
-            else
-                ShowNPCDialogue(dialogueLines);
+            animator.runtimeAnimatorController = animatorAfterQuest;
+        }
+        else if (spriteAfterQuest != null)
+        {
+            if (animator != null)
+                animator.runtimeAnimatorController = null;
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = spriteAfterQuest;
         }
     }
 
     void ShowNPCDialogue(string[] lines)
     {
-        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFaceFrames);
-        else
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
-    }
+        Sprite face = npcFace;
+        Sprite[] faceFrames = npcFaceFrames;
 
-    void ShowNPCDialogueWithChoices(string[] lines, DialogueChoice[] choices, System.Action<int> callback)
-    {
-        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
-            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, npcFaceFrames, callback);
-        else
-            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, npcFace, callback);
-    }
-
-    void OnChoiceMade(int choiceIndex)
-    {
-        Debug.Log($"Player chose option {choiceIndex}");
-        if (choiceIndex == 0 && openShopOnChoice0)
+        if (questCompleted)
         {
-            if (shopNPC != null)
-                shopNPC.OpenShop();
-            else
-                Debug.LogError($"[{name}] DialogueTrigger.shopNPC is not assigned. Cannot open shop.");
+            if (npcFaceFramesAfterQuest != null && npcFaceFramesAfterQuest.Length > 0)
+                faceFrames = npcFaceFramesAfterQuest;
+            else if (npcFaceAfterQuest != null)
+            {
+                faceFrames = null;
+                face = npcFaceAfterQuest;
+            }
+        }
+
+        if (faceFrames != null && faceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, faceFrames);
+        else
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, face);
+    }
+
+    void ShowNPCDialogueWithChoices(string[] lines, DialogueChoice[] choices, System.Action<int, DialogueChoice> callback)
+    {
+        Sprite face = npcFace;
+        Sprite[] faceFrames = npcFaceFrames;
+
+        if (questCompleted)
+        {
+            if (npcFaceFramesAfterQuest != null && npcFaceFramesAfterQuest.Length > 0)
+                faceFrames = npcFaceFramesAfterQuest;
+            else if (npcFaceAfterQuest != null)
+            {
+                faceFrames = null;
+                face = npcFaceAfterQuest;
+            }
+        }
+
+        if (faceFrames != null && faceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, faceFrames, callback);
+        else
+            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, face, callback);
+    }
+
+    void OnChoiceMade(int choiceIndex, DialogueChoice selected)
+    {
+        Debug.Log($"Player chose option {choiceIndex}: {selected?.choiceText}");
+
+        if (selected != null && selected.startsQuest)
+        {
+            questStarted = true;
+            Debug.Log($"[{name}] Quest started via dialogue choice.");
+        }
+
+        if (choiceIndex == 0 && openShopOnChoice0 && shopNPC != null)
+        {
+            shopNPC.OpenShop();
         }
     }
 }

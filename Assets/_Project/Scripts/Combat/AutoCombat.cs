@@ -505,25 +505,53 @@ public class AutoCombat : MonoBehaviour
         float luckMultiplier = playerStats != null ? playerStats.GetDropChanceMultiplier() : 1f;
 
         Inventory playerInventory = FindAnyObjectByType<Inventory>();
+        if (playerInventory == null)
+        {
+            Debug.LogWarning($"[{name}] Drop skipped: Inventory not found.");
+            return;
+        }
 
         foreach (DropItem drop in reward.Drops)
         {
-            if (drop.itemData == null) continue;
-
-            if (drop.dropOnlyOnce)
+            if (drop.itemData == null)
             {
-                string key = "DropOnce_" + drop.itemData.itemId;
-                if (PlayerPrefs.GetInt(key, 0) == 1) continue;
+                Debug.LogWarning($"[{name}] Drop skipped: itemData is null.");
+                continue;
+            }
+
+            string onceKey = "DropOnce_" + drop.itemData.itemId;
+            if (drop.dropOnlyOnce && PlayerPrefs.GetInt(onceKey, 0) == 1)
+            {
+                if (playerInventory.GetItemCount(drop.itemData) > 0)
+                {
+                    Debug.Log($"[{name}] Drop skipped: {drop.itemData.itemName} already dropped once.");
+                    continue;
+                }
+
+                PlayerPrefs.DeleteKey(onceKey);
+                Debug.LogWarning($"[{name}] Repaired stale drop flag for {drop.itemData.itemName}: item was not in inventory.");
             }
 
             float chance = Mathf.Min(drop.baseDropChance * luckMultiplier, 1f);
-            if (Random.value <= chance)
-            {
-                playerInventory?.AddItem(drop.itemData, drop.quantity);
-                Debug.Log($"Dropped: {drop.itemData.itemName} x{drop.quantity}");
+            float roll = Random.value;
+            Debug.Log($"[{name}] Drop roll: {drop.itemData.itemName}, roll={roll:0.000}, chance={chance:0.000}, once={drop.dropOnlyOnce}");
 
-                if (drop.dropOnlyOnce)
-                    PlayerPrefs.SetInt("DropOnce_" + drop.itemData.itemId, 1);
+            if (roll <= chance)
+            {
+                bool added = playerInventory.AddItem(drop.itemData, drop.quantity);
+                if (added)
+                {
+                    Debug.Log($"Dropped: {drop.itemData.itemName} x{drop.quantity}");
+                    if (drop.dropOnlyOnce)
+                    {
+                        PlayerPrefs.SetInt(onceKey, 1);
+                        PlayerPrefs.Save();
+                    }
+                }
+                else
+                {
+                    Debug.LogWarning($"[{name}] Drop failed: Inventory rejected {drop.itemData.itemName} x{drop.quantity}.");
+                }
             }
         }
     }

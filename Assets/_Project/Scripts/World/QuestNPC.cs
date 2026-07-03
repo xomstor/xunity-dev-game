@@ -15,6 +15,16 @@ public class QuestNPC : MonoBehaviour
     [Tooltip("Animated frames for NPC face (overrides npcFace if assigned)")]
     public Sprite[] npcFaceFrames;
 
+    [Header("Post-Quest Appearance")]
+    [Tooltip("Face portrait shown in dialogue after quest is completed")]
+    public Sprite npcFaceAfterQuest;
+    [Tooltip("Animated face frames after quest (overrides npcFaceAfterQuest)")]
+    public Sprite[] npcFaceFramesAfterQuest;
+    [Tooltip("Animator controller to switch to after quest completion")]
+    public RuntimeAnimatorController animatorAfterQuest;
+    [Tooltip("Static sprite to use after quest if no animator is assigned")]
+    public Sprite spriteAfterQuest;
+
     [Header("Dialogue Lines")]
     [TextArea] public string[] introLines;
     [TextArea] public string[] progressLines;
@@ -26,7 +36,6 @@ public class QuestNPC : MonoBehaviour
 
     private bool isPlayerNearby;
     private bool questCompleted;
-    private bool questStarted;
 
     void Start()
     {
@@ -74,58 +83,102 @@ public class QuestNPC : MonoBehaviour
 
         if (questCompleted)
         {
-            ShowNPCDialogue(alreadyDoneLines);
-            return;
-        }
-
-        if (!questStarted)
-        {
-            questStarted = true;
-            ShowNPCDialogue(introLines);
+            ShowNPCDialogue(CombineLines(introLines, alreadyDoneLines));
             return;
         }
 
         Inventory inventory = FindAnyObjectByType<Inventory>();
         PlayerStats stats = FindAnyObjectByType<PlayerStats>();
 
-        if (inventory == null || stats == null || requiredItem == null)
+        if (inventory != null && stats != null && requiredItem != null)
         {
-            ShowNPCDialogue(
-                new string[] { "Something is wrong... come back later." });
-            return;
+            int count = inventory.GetItemCount(requiredItem);
+
+            if (count >= requiredAmount)
+            {
+                string[] rewardLines = AppendLine(completeLines, $"+{rewardGold} gold\n+{rewardExperience} XP");
+
+                inventory.RemoveItem(requiredItem, requiredAmount);
+                stats.gold += rewardGold;
+                stats.AddReward(rewardExperience, 0);
+                questCompleted = true;
+                SwapToPostQuestAppearance();
+
+                ShowNPCDialogue(CombineLines(introLines, rewardLines));
+                return;
+            }
+
+            if (count > 0)
+            {
+                string[] progressStateLines = AppendLine(progressLines, $"You have: {count}/{requiredAmount} {requiredItem.itemName}");
+
+                ShowNPCDialogue(CombineLines(introLines, progressStateLines));
+                return;
+            }
         }
 
-        int count = inventory.GetItemCount(requiredItem);
+        ShowNPCDialogue(introLines);
+    }
 
-        if (count >= requiredAmount)
+    string[] AppendLine(string[] lines, string line)
+    {
+        int length = lines != null ? lines.Length : 0;
+        string[] result = new string[length + 1];
+        if (length > 0)
+            lines.CopyTo(result, 0);
+        result[result.Length - 1] = line;
+        return result;
+    }
+
+    string[] CombineLines(string[] baseLines, string[] stateLines)
+    {
+        int baseLength = baseLines != null ? baseLines.Length : 0;
+        int stateLength = stateLines != null ? stateLines.Length : 0;
+        string[] lines = new string[baseLength + stateLength];
+        if (baseLength > 0)
+            baseLines.CopyTo(lines, 0);
+        if (stateLength > 0)
+            stateLines.CopyTo(lines, baseLength);
+        return lines;
+    }
+
+    void SwapToPostQuestAppearance()
+    {
+        Animator animator = GetComponent<Animator>();
+        if (animatorAfterQuest != null && animator != null)
         {
-            string[] lines = new string[completeLines.Length + 1];
-            completeLines.CopyTo(lines, 0);
-            lines[lines.Length - 1] = $"+{rewardGold} gold\n+{rewardExperience} XP";
-
-            inventory.RemoveItem(requiredItem, requiredAmount);
-            stats.gold += rewardGold;
-            stats.AddReward(rewardExperience, 0);
-            questCompleted = true;
-
-            ShowNPCDialogue(lines);
+            animator.runtimeAnimatorController = animatorAfterQuest;
         }
-        else
+        else if (spriteAfterQuest != null)
         {
-            string[] lines = new string[progressLines.Length + 1];
-            progressLines.CopyTo(lines, 0);
-            lines[lines.Length - 1] = $"You have: {count}/{requiredAmount} {requiredItem.itemName}";
-
-            ShowNPCDialogue(lines);
+            if (animator != null)
+                animator.runtimeAnimatorController = null;
+            SpriteRenderer sr = GetComponent<SpriteRenderer>();
+            if (sr != null)
+                sr.sprite = spriteAfterQuest;
         }
     }
 
     void ShowNPCDialogue(string[] lines)
     {
-        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFaceFrames);
+        Sprite face = npcFace;
+        Sprite[] faceFrames = npcFaceFrames;
+
+        if (questCompleted)
+        {
+            if (npcFaceFramesAfterQuest != null && npcFaceFramesAfterQuest.Length > 0)
+                faceFrames = npcFaceFramesAfterQuest;
+            else if (npcFaceAfterQuest != null)
+            {
+                faceFrames = null;
+                face = npcFaceAfterQuest;
+            }
+        }
+
+        if (faceFrames != null && faceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, faceFrames);
         else
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, face);
     }
 
     void TryCompleteQuestFallback()

@@ -74,7 +74,7 @@ public class LevelEndTeleport : MonoBehaviour
             DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
     }
 
-    void OnChoiceMade(int choiceIndex)
+    void OnChoiceMade(int choiceIndex, DialogueChoice selected)
     {
         if (choiceIndex == 0)
         {
