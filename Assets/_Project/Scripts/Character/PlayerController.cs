@@ -45,6 +45,8 @@ public class PlayerController : MonoBehaviour
     private float rollTimer;
     private float rollCooldownTimer;
     private int rollDirection;
+    private float rawMoveInput;
+    private bool isCrouching;
     private Collider2D currentGroundCollider;
     private float dropThroughTimer;
     private Collider2D ignoredPlatform;
@@ -72,13 +74,39 @@ public class PlayerController : MonoBehaviour
             float keyInput = 0f;
             if (keyboard.aKey.isPressed || keyboard.leftArrowKey.isPressed) keyInput -= 1f;
             if (keyboard.dKey.isPressed || keyboard.rightArrowKey.isPressed) keyInput += 1f;
-            if (keyInput != 0f) moveInput = keyInput;
+            if (keyInput != 0f)
+            {
+                moveInput = keyInput;
+                rawMoveInput = keyInput;
+            }
 
             if ((keyboard.spaceKey.wasPressedThisFrame || keyboard.wKey.wasPressedThisFrame) && jumpCount > 0)
                 Jump();
 
             if (keyboard.sKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame)
-                TryDropThrough();
+            {
+                if (isGrounded)
+                {
+                    if (TryDropThrough())
+                    {
+                        // dropped through successfully
+                    }
+                    else
+                    {
+                        isCrouching = true;
+                        if (anim != null) anim.SetBool("Crouch", true);
+                    }
+                }
+            }
+
+            if (keyboard.sKey.wasReleasedThisFrame || keyboard.downArrowKey.wasReleasedThisFrame)
+            {
+                if (isCrouching)
+                {
+                    isCrouching = false;
+                    if (anim != null) anim.SetBool("Crouch", false);
+                }
+            }
 
             if (keyboard.jKey.wasPressedThisFrame)
                 Attack();
@@ -91,9 +119,9 @@ public class PlayerController : MonoBehaviour
         UpdateMoveSpeed();
         UpdateAttackComboTimer();
 
-        if (moveInput > 0)
+        if (rawMoveInput > 0)
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-        else if (moveInput < 0)
+        else if (rawMoveInput < 0)
             transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
 
         UpdateAnimator();
@@ -233,9 +261,9 @@ public class PlayerController : MonoBehaviour
         if (isGrounded) jumpCount = maxJumps;
     }
 
-    void TryDropThrough()
+    public bool TryDropThrough()
     {
-        if (!isGrounded || currentGroundCollider == null) return;
+        if (!isGrounded || currentGroundCollider == null) return false;
 
         PlatformEffector2D effector = currentGroundCollider.GetComponent<PlatformEffector2D>();
         if (effector != null)
@@ -245,10 +273,35 @@ public class PlayerController : MonoBehaviour
             dropThroughTimer = 0.5f;
             isGrounded = false;
             jumpCount = Mathf.Max(jumpCount, 1);
+            return true;
+        }
+        return false;
+    }
+
+    public void SetMoveInput(float input)
+    {
+        rawMoveInput = input;
+        if (isCrouching) input = 0f;
+        moveInput = input;
+    }
+
+    public void StartCrouch()
+    {
+        if (isGrounded && !isCrouching)
+        {
+            isCrouching = true;
+            if (anim != null) anim.SetBool("Crouch", true);
         }
     }
 
-    public void SetMoveInput(float input) => moveInput = input;
+    public void StopCrouch()
+    {
+        if (isCrouching)
+        {
+            isCrouching = false;
+            if (anim != null) anim.SetBool("Crouch", false);
+        }
+    }
 
     public void Jump()
     {

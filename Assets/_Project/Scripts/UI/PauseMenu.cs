@@ -26,6 +26,10 @@ public class PauseMenu : MonoBehaviour
     public Transform inventoryContainer;
     public TextMeshProUGUI equippedText;
 
+    [Header("Settings Panel (auto-created)")]
+    private GameObject settingsPanel;
+    private Toggle floatingJoystickToggle;
+
     private bool isPaused;
     private bool inventoryVisible;
     private readonly string[] statNames = { "HP", "ATK", "DEF", "SPD", "LCK" };
@@ -57,6 +61,9 @@ public class PauseMenu : MonoBehaviour
 
         if (inventoryContainer == null)
             CreateInventoryPanel();
+
+        CreateSettingsPanel();
+        CreateSettingsButton();
 
         AddStartingItems();
     }
@@ -134,6 +141,152 @@ public class PauseMenu : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(0);
+    }
+
+    public void OpenSettings()
+    {
+        if (settingsPanel != null)
+        {
+            settingsPanel.SetActive(true);
+            if (floatingJoystickToggle != null)
+                floatingJoystickToggle.isOn = PlayerPrefs.GetInt("FloatingJoystick", 0) == 1;
+        }
+    }
+
+    public void CloseSettings()
+    {
+        if (settingsPanel != null)
+            settingsPanel.SetActive(false);
+    }
+
+    public void OnFloatingJoystickToggle(bool value)
+    {
+        Debug.Log($"[PauseMenu] OnFloatingJoystickToggle called with value={value}");
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        Debug.Log($"[PauseMenu] VirtualJoystick found: {joystick != null}");
+        if (joystick != null)
+            joystick.SetFloating(value);
+        else
+        {
+            PlayerPrefs.SetInt("FloatingJoystick", value ? 1 : 0);
+            PlayerPrefs.Save();
+            Debug.LogWarning("[PauseMenu] VirtualJoystick not found in scene! Saved to PlayerPrefs only.");
+        }
+    }
+
+    void CreateSettingsPanel()
+    {
+        if (pausePanel == null) return;
+
+        settingsPanel = new GameObject("SettingsPanel");
+        settingsPanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = settingsPanel.AddComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.5f, 0.5f);
+        srt.anchorMax = new Vector2(0.5f, 0.5f);
+        srt.pivot = new Vector2(0.5f, 0.5f);
+        srt.anchoredPosition = Vector2.zero;
+        srt.sizeDelta = new Vector2(500, 300);
+
+        Image bg = settingsPanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = settingsPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 20;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(settingsPanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "Настройки";
+        title.fontSize = 48;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = Color.white;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        GameObject toggleGO = new GameObject("FloatingJoystickToggle");
+        toggleGO.transform.SetParent(settingsPanel.transform, false);
+        toggleGO.AddComponent<CanvasRenderer>();
+        Image toggleBg = toggleGO.AddComponent<Image>();
+        toggleBg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Toggle toggle = toggleGO.AddComponent<Toggle>();
+        toggle.targetGraphic = toggleBg;
+        RectTransform toggleRt = toggleGO.GetComponent<RectTransform>();
+        toggleRt.sizeDelta = new Vector2(0, 70);
+
+        GameObject checkGO = new GameObject("Checkmark");
+        checkGO.transform.SetParent(toggleGO.transform, false);
+        checkGO.AddComponent<CanvasRenderer>();
+        Image checkImg = checkGO.AddComponent<Image>();
+        checkImg.color = new Color(0f, 1f, 0.5f, 1f);
+        RectTransform checkRt = checkGO.GetComponent<RectTransform>();
+        checkRt.anchorMin = new Vector2(0, 0.5f);
+        checkRt.anchorMax = new Vector2(0, 0.5f);
+        checkRt.pivot = new Vector2(0.5f, 0.5f);
+        checkRt.anchoredPosition = new Vector2(35, 0);
+        checkRt.sizeDelta = new Vector2(40, 40);
+        toggle.graphic = checkImg;
+        toggle.isOn = false;
+        floatingJoystickToggle = toggle;
+
+        GameObject labelGO = new GameObject("Label");
+        labelGO.transform.SetParent(toggleGO.transform, false);
+        labelGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI label = labelGO.AddComponent<TextMeshProUGUI>();
+        label.text = "Плавающий джойстик";
+        label.fontSize = 36;
+        label.alignment = TextAlignmentOptions.Left;
+        label.color = Color.white;
+        RectTransform labelRt = labelGO.GetComponent<RectTransform>();
+        labelRt.anchorMin = new Vector2(0, 0.5f);
+        labelRt.anchorMax = new Vector2(1, 0.5f);
+        labelRt.pivot = new Vector2(0, 0.5f);
+        labelRt.offsetMin = new Vector2(80, -35);
+        labelRt.offsetMax = new Vector2(-10, 35);
+
+        toggle.onValueChanged.AddListener(OnFloatingJoystickToggle);
+
+        CreateSmallButton(settingsPanel.transform, "Закрыть", new Vector2(300, 60), CloseSettings);
+
+        settingsPanel.SetActive(false);
+    }
+
+    void CreateSettingsButton()
+    {
+        if (pausePanel == null) return;
+
+        GameObject btnGO = new GameObject("SettingsButton");
+        btnGO.transform.SetParent(pausePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.color = new Color(1, 1, 1, 0.8f);
+
+#if UNITY_EDITOR
+        Sprite icon = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>(
+            "Assets/_Project/Custom/Prefabs/UI/settings-icon-14950.png");
+        if (icon != null)
+            img.sprite = icon;
+        else
+            img.color = new Color(0.2f, 0.45f, 0.65f, 0.76f);
+#else
+        img.color = new Color(0.2f, 0.45f, 0.65f, 0.76f);
+#endif
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(OpenSettings);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(1, 1);
+        rt.anchoredPosition = new Vector2(-180, -20);
+        rt.sizeDelta = new Vector2(80, 80);
     }
 
     void CreateStatButtons()

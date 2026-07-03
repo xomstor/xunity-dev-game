@@ -66,12 +66,22 @@ public class SwipeRollInput : MonoBehaviour
 
         if (player == null) return;
 
-        // Horizontal swipe triggers roll in that direction
         if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
         {
             int direction = delta.x > 0 ? 1 : -1;
             player.SetMoveInput(direction);
             player.Roll();
+        }
+        else if (delta.y > 0)
+        {
+            player.Jump();
+        }
+        else if (delta.y < 0)
+        {
+            if (!player.TryDropThrough())
+            {
+                player.StartCrouch();
+            }
         }
     }
 }
