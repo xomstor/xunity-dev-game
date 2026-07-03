@@ -20,11 +20,17 @@ public class DialogueSystem : MonoBehaviour
 
     [Header("Settings")]
     public float typingSpeed = 0.05f;
+    public float faceAnimationFPS = 8f;
 
     private Coroutine currentDialogue;
     private bool continuePressed;
     private int choiceIndex = -1;
     private System.Action<int> onChoiceMade;
+
+    // Face animation state
+    private Sprite[] activeFaceFrames;
+    private int faceFrameIndex;
+    private float faceTimer;
 
     void Awake()
     {
@@ -52,12 +58,31 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogue(lines));
     }
 
+    public void ShowDialogue(string[] lines, string npcName, Sprite[] faceFrames)
+    {
+        if (currentDialogue != null)
+            StopCoroutine(currentDialogue);
+        
+        SetSpeakerInfo(npcName, faceFrames);
+        currentDialogue = StartCoroutine(DisplayDialogue(lines));
+    }
+
     public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName = "", Sprite faceSprite = null, System.Action<int> callback = null)
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
         
         SetSpeakerInfo(npcName, faceSprite);
+        onChoiceMade = callback;
+        currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
+    }
+
+    public void ShowDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses, string npcName, Sprite[] faceFrames, System.Action<int> callback = null)
+    {
+        if (currentDialogue != null)
+            StopCoroutine(currentDialogue);
+        
+        SetSpeakerInfo(npcName, faceFrames);
         onChoiceMade = callback;
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
     }
@@ -72,12 +97,43 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));
     }
 
+    public void ShowDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices, string npcName, Sprite[] faceFrames, System.Action<int> callback = null)
+    {
+        if (currentDialogue != null)
+            StopCoroutine(currentDialogue);
+        
+        SetSpeakerInfo(npcName, faceFrames);
+        onChoiceMade = callback;
+        currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));
+    }
+
     void SetSpeakerInfo(string name, Sprite face)
     {
         if (npcNameText != null)
             npcNameText.text = name;
+
+        activeFaceFrames = null;
+
         if (npcFaceImage != null)
             npcFaceImage.sprite = face;
+    }
+
+    void SetSpeakerInfo(string name, Sprite[] frames)
+    {
+        if (npcNameText != null)
+            npcNameText.text = name;
+
+        if (npcFaceImage != null && frames != null && frames.Length > 0)
+        {
+            activeFaceFrames = frames;
+            faceFrameIndex = 0;
+            faceTimer = 0f;
+            npcFaceImage.sprite = frames[0];
+        }
+        else
+        {
+            activeFaceFrames = null;
+        }
     }
 
     IEnumerator DisplayDialogue(string[] lines)
@@ -191,6 +247,7 @@ public class DialogueSystem : MonoBehaviour
         if (dialoguePanel != null)
             dialoguePanel.SetActive(false);
         currentDialogue = null;
+        activeFaceFrames = null;
     }
 
     IEnumerator ShowChoices(string[] choiceTexts, string[][] choiceResponses)
@@ -270,6 +327,19 @@ public class DialogueSystem : MonoBehaviour
         var keyboard = Keyboard.current;
         if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
             OnContinuePressed();
+
+        // Animate NPC face frames
+        if (activeFaceFrames != null && activeFaceFrames.Length > 1 && npcFaceImage != null)
+        {
+            faceTimer += Time.deltaTime;
+            float interval = 1f / faceAnimationFPS;
+            if (faceTimer >= interval)
+            {
+                faceTimer -= interval;
+                faceFrameIndex = (faceFrameIndex + 1) % activeFaceFrames.Length;
+                npcFaceImage.sprite = activeFaceFrames[faceFrameIndex];
+            }
+        }
     }
 
     public void OnContinuePressed()

@@ -20,6 +20,8 @@ public class DialogueTrigger : MonoBehaviour
     [Header("NPC Info")]
     public string npcName = "NPC";
     public Sprite npcFace;
+    [Tooltip("Animated frames for NPC face (overrides npcFace if assigned)")]
+    public Sprite[] npcFaceFrames;
 
     [Header("Settings")]
     public GameObject interactPrompt;
@@ -86,11 +88,11 @@ public class DialogueTrigger : MonoBehaviour
 
         if (hasChoices && choices.Length > 0)
         {
-            DialogueSystem.Instance.ShowDialogueWithChoiceTree(dialogueLines, choices, npcName, npcFace, OnChoiceMade);
+            ShowNPCDialogueWithChoices(dialogueLines, choices, OnChoiceMade);
         }
         else
         {
-            DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+            ShowNPCDialogue(dialogueLines);
         }
     }
 
@@ -98,7 +100,7 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (questCompleted)
         {
-            DialogueSystem.Instance.ShowDialogue(questAlreadyDoneLines, npcName, npcFace);
+            ShowNPCDialogue(questAlreadyDoneLines);
             return;
         }
 
@@ -107,7 +109,7 @@ public class DialogueTrigger : MonoBehaviour
 
         if (inventory == null || stats == null)
         {
-            DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+            ShowNPCDialogue(dialogueLines);
             return;
         }
 
@@ -124,7 +126,7 @@ public class DialogueTrigger : MonoBehaviour
             questCompleteLines.CopyTo(lines, 0);
             lines[lines.Length - 1] = $"+{rewardGold} gold\n+{rewardExperience} XP";
 
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+            ShowNPCDialogue(lines);
         }
         else if (questStarted)
         {
@@ -132,16 +134,32 @@ public class DialogueTrigger : MonoBehaviour
             questProgressLines.CopyTo(lines, 0);
             lines[lines.Length - 1] = $": {count}/{requiredAmount} {requiredItem.itemName}";
 
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+            ShowNPCDialogue(lines);
         }
         else
         {
             questStarted = true;
             if (hasChoices && choices.Length > 0)
-                DialogueSystem.Instance.ShowDialogueWithChoiceTree(dialogueLines, choices, npcName, npcFace, OnChoiceMade);
+                ShowNPCDialogueWithChoices(dialogueLines, choices, OnChoiceMade);
             else
-                DialogueSystem.Instance.ShowDialogue(dialogueLines, npcName, npcFace);
+                ShowNPCDialogue(dialogueLines);
         }
+    }
+
+    void ShowNPCDialogue(string[] lines)
+    {
+        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFaceFrames);
+        else
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+    }
+
+    void ShowNPCDialogueWithChoices(string[] lines, DialogueChoice[] choices, System.Action<int> callback)
+    {
+        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, npcFaceFrames, callback);
+        else
+            DialogueSystem.Instance.ShowDialogueWithChoiceTree(lines, choices, npcName, npcFace, callback);
     }
 
     void OnChoiceMade(int choiceIndex)

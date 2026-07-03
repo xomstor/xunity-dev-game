@@ -21,6 +21,8 @@ public class LevelEndTeleport : MonoBehaviour
     public string choiceContinueText = "Продолжить";
     public string npcName = "Портал";
     public Sprite npcFace;
+    [Tooltip("Animated frames for NPC face (overrides npcFace if assigned)")]
+    public Sprite[] npcFaceFrames;
 
     private bool dialogShown;
     private float triggerTime;
@@ -66,7 +68,10 @@ public class LevelEndTeleport : MonoBehaviour
             new string[] { "Продолжаем путь..." }
         };
 
-        DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
+        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFaceFrames, OnChoiceMade);
+        else
+            DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
     }
 
     void OnChoiceMade(int choiceIndex)

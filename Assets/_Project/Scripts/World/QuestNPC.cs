@@ -12,6 +12,8 @@ public class QuestNPC : MonoBehaviour
     [Header("NPC Info")]
     public string npcName = "NPC";
     public Sprite npcFace;
+    [Tooltip("Animated frames for NPC face (overrides npcFace if assigned)")]
+    public Sprite[] npcFaceFrames;
 
     [Header("Dialogue Lines")]
     [TextArea] public string[] introLines;
@@ -72,14 +74,14 @@ public class QuestNPC : MonoBehaviour
 
         if (questCompleted)
         {
-            DialogueSystem.Instance.ShowDialogue(alreadyDoneLines, npcName, npcFace);
+            ShowNPCDialogue(alreadyDoneLines);
             return;
         }
 
         if (!questStarted)
         {
             questStarted = true;
-            DialogueSystem.Instance.ShowDialogue(introLines, npcName, npcFace);
+            ShowNPCDialogue(introLines);
             return;
         }
 
@@ -88,9 +90,8 @@ public class QuestNPC : MonoBehaviour
 
         if (inventory == null || stats == null || requiredItem == null)
         {
-            DialogueSystem.Instance.ShowDialogue(
-                new string[] { "Something is wrong... come back later." },
-                npcName, npcFace);
+            ShowNPCDialogue(
+                new string[] { "Something is wrong... come back later." });
             return;
         }
 
@@ -107,7 +108,7 @@ public class QuestNPC : MonoBehaviour
             stats.AddReward(rewardExperience, 0);
             questCompleted = true;
 
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+            ShowNPCDialogue(lines);
         }
         else
         {
@@ -115,8 +116,16 @@ public class QuestNPC : MonoBehaviour
             progressLines.CopyTo(lines, 0);
             lines[lines.Length - 1] = $"You have: {count}/{requiredAmount} {requiredItem.itemName}";
 
-            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
+            ShowNPCDialogue(lines);
         }
+    }
+
+    void ShowNPCDialogue(string[] lines)
+    {
+        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFaceFrames);
+        else
+            DialogueSystem.Instance.ShowDialogue(lines, npcName, npcFace);
     }
 
     void TryCompleteQuestFallback()

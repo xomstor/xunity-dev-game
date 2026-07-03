@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 3
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 0}
+  m_SkyboxMaterial: {fileID: 2100000, guid: fc5eed779bb97e143aec9e14e0dc2d04, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -93,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 0fefa477ae454f24bb26c337dd6d4fe3, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -1597,6 +1597,7 @@ RectTransform:
   - {fileID: 1621748943}
   - {fileID: 2140998736}
   - {fileID: 140569811}
+  - {fileID: 1292971710}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1645,6 +1646,7 @@ MonoBehaviour:
   choiceButtonContainer: {fileID: 889357986}
   choiceButtonPrefab: {fileID: 2955081284767695575, guid: c5706126d8978f64db023626e7a2b606, type: 3}
   typingSpeed: 0.05
+  faceAnimationFPS: 8
 --- !u!114 &93468230
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3350,7 +3352,9 @@ MonoBehaviour:
     \u0413\u043E\u0440\u043E\u0434"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames:
+  - {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
 --- !u!1 &193490044
 GameObject:
   m_ObjectHideFlags: 0
@@ -4458,7 +4462,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -4761,7 +4765,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &281398853
 Transform:
   m_ObjectHideFlags: 0
@@ -5635,7 +5639,12 @@ MonoBehaviour:
     \u0445\u0430\u0431"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames:
+  - {fileID: 2841884429609040004, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: 5710020610065128668, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -3710534372843853562, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: 3325131769600981843, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
 --- !u!1 &296535477
 GameObject:
   m_ObjectHideFlags: 0
@@ -14295,6 +14304,7 @@ MonoBehaviour:
   npcName: "\u041A\u0430\u0447\u043A\u043E\u0432\u044B\u0439 \u0423\u0431\u043E\u0440\u0449\u0438\u043A
     \u0424\u043B\u0438\u043D\u043D"
   npcFace: {fileID: 6409705411929556632, guid: c3b33d6a620d5f44581dfee021867b0d, type: 3}
+  npcFaceFrames: []
   interactPrompt: {fileID: 1252784088}
   shopNPC: {fileID: 0}
   openShopOnChoice0: 1
@@ -15524,7 +15534,7 @@ Transform:
   m_GameObject: {fileID: 981941156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -32.01, y: -14.82, z: 0}
+  m_LocalPosition: {x: -1.2, y: -2.4, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -16153,6 +16163,7 @@ MonoBehaviour:
   choices: []
   npcName: "\u041B\u0438\u0440\u0430 \u0412\u0435\u0439\u043D"
   npcFace: {fileID: 2150897734078096205, guid: 5de54a1c41fda7045a6095ccf226aca4, type: 3}
+  npcFaceFrames: []
   interactPrompt: {fileID: 483771129}
   shopNPC: {fileID: 0}
   openShopOnChoice0: 0
@@ -17063,7 +17074,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -19455,6 +19466,71 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1292621925}
   m_CullTransparentMesh: 1
+--- !u!1 &1292971709
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1292971710}
+  - component: {fileID: 1292971712}
+  - component: {fileID: 1292971711}
+  m_Layer: 5
+  m_Name: ScreenEdgeFade
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1292971710
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292971709}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 93468227}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: -2180, y: -980}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1292971711
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292971709}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98cb728dba5247a40aff53526d78d7d6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::ScreenEdgeFade
+  m_Material: {fileID: 0}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  horizontalFade: 0.12
+  verticalFade: 0.12
+  centerAlpha: 0
+  edgeAlpha: 0.85
+--- !u!222 &1292971712
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1292971709}
+  m_CullTransparentMesh: 1
 --- !u!1 &1303264525
 GameObject:
   m_ObjectHideFlags: 0
@@ -20069,7 +20145,8 @@ MonoBehaviour:
     \u0445\u0430\u0431"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames: []
 --- !u!213 &1346764691
 Sprite:
   serializedVersion: 2
@@ -21425,6 +21502,7 @@ MonoBehaviour:
     subChoices: []
   npcName: "\u0414\u044F\u0434\u044E\u0448\u043A\u0430 \u0411\u0440\u0430\u043D\u0442"
   npcFace: {fileID: -1728020032609300961, guid: 16b17c74ac57c414e9fe4f61aae8c55e, type: 3}
+  npcFaceFrames: []
   interactPrompt: {fileID: 894264503}
   shopNPC: {fileID: 1384101255}
   openShopOnChoice0: 1
@@ -23947,7 +24025,7 @@ GameObject:
   - component: {fileID: 1541533478}
   - component: {fileID: 1541533477}
   m_Layer: 0
-  m_Name: Exit_EnterLevel_5 (1)
+  m_Name: Exit_EnterLevel_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -23993,7 +24071,12 @@ MonoBehaviour:
     \u0445\u0430\u0431"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames:
+  - {fileID: 1274900481999701410, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -4840135360779014123, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -4803260961430326544, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -1753022364280532097, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
 --- !u!61 &1541533478
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -25612,7 +25695,7 @@ Camera:
   m_GameObject: {fileID: 1616801616}
   m_Enabled: 1
   serializedVersion: 2
-  m_ClearFlags: 2
+  m_ClearFlags: 1
   m_BackGroundColor: {r: 0.08170166, g: 0.18200421, b: 0.33962262, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
@@ -28936,7 +29019,12 @@ MonoBehaviour:
     \u0445\u0430\u0431"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames:
+  - {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: 9107350669865463310, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -6073454215048933653, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -1441925772311421160, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
 --- !u!28 &1906181267
 Texture2D:
   m_ObjectHideFlags: 0
@@ -29686,7 +29774,12 @@ MonoBehaviour:
     \u0445\u0430\u0431"
   choiceContinueText: "\u041F\u0440\u043E\u0434\u043E\u043B\u0436\u0438\u0442\u044C"
   npcName: "\u041F\u043E\u0440\u0442\u0430\u043B"
-  npcFace: {fileID: 0}
+  npcFace: {fileID: -6610014000531180604, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  npcFaceFrames:
+  - {fileID: 5449351636163149327, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -5859589450115112501, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -5434872506136904071, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
+  - {fileID: -4911276739484066389, guid: 837dcda79de512c47ab104bf2ff4f5c0, type: 3}
 --- !u!1 &1928227135
 GameObject:
   m_ObjectHideFlags: 0
