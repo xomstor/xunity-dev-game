@@ -31,8 +31,12 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private Vector2 originalAnchorMax;
     private Image backgroundImage;
     private Image handleImage;
+    private RectTransform touchArea;
+    private Image touchAreaImage;
     private RectTransform visualCircle;
-    private Image visualCircleImage;
+    private JoystickRingGraphic visualCircleImage;
+    private Vector2 floatingOrigin;
+    private int activePointerId = int.MinValue;
     private Sprite originalBackgroundSprite;
     private Vector2 originalHandleSize;
     private Transform originalHandleParent;
@@ -84,6 +88,7 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
             originalRingSize = background.sizeDelta;
         }
 
+        EnsureProceduralRing();
         ApplyTransparency();
         LoadSettings();
         if (isFloating) SetupFloatingMode();
@@ -128,10 +133,18 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        isHolding = true;
-        SetVisualAlpha(joystickActiveAlpha);
+        if (isHolding) return;
 
-        if (isFloating && visualCircle != null)
+        isHolding = true;
+        activePointerId = eventData.pointerId;
+        input = Vector2.zero;
+        if (handle != null)
+            handle.anchoredPosition = Vector2.zero;
+
+        if (!isFloating)
+            SetVisualAlpha(joystickActiveAlpha);
+
+        if (isFloating)
         {
             RectTransform parentRt = background.parent as RectTransform;
             if (parentRt != null)
@@ -140,9 +153,10 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
                 if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
                     parentRt, eventData.position, uiCamera, out localPoint))
                 {
-                    visualCircle.anchoredPosition = localPoint;
-                    visualCircle.gameObject.SetActive(true);
-                    visualCircle.SetAsLastSibling();
+                    floatingOrigin = localPoint;
+                    background.anchoredPosition = floatingOrigin;
+                    background.SetAsLastSibling();
+                    SetVisualAlpha(joystickActiveAlpha);
                 }
             }
         }
@@ -152,31 +166,41 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnDrag(PointerEventData eventData)
     {
-        RectTransform dragRef = isFloating ? visualCircle : background;
-        if (dragRef == null) dragRef = background;
+        if (!isHolding || eventData.pointerId != activePointerId) return;
 
         Vector2 localPoint;
-        if (RectTransformUtility.ScreenPointToLocalPointInRectangle(
-            dragRef, eventData.position, uiCamera, out localPoint))
+        if (isFloating)
         {
-            Vector2 delta = Vector2.ClampMagnitude(localPoint, handleRange);
-            handle.anchoredPosition = delta;
-            input = delta / handleRange;
+            RectTransform parentRt = background.parent as RectTransform;
+            if (parentRt == null) return;
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                parentRt, eventData.position, uiCamera, out localPoint)) return;
 
-            float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
-            if (player != null) player.SetMoveInput(horizontal);
+            localPoint -= floatingOrigin;
         }
+        else
+        {
+            if (!RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                background, eventData.position, uiCamera, out localPoint)) return;
+        }
+
+        Vector2 delta = Vector2.ClampMagnitude(localPoint, handleRange);
+        handle.anchoredPosition = delta;
+        input = delta / handleRange;
+
+        float horizontal = Mathf.Abs(input.x) > deadZone ? input.x : 0f;
+        if (player != null) player.SetMoveInput(horizontal);
     }
 
     public void OnPointerUp(PointerEventData eventData)
     {
+        if (!isHolding || eventData.pointerId != activePointerId) return;
+
         isHolding = false;
+        activePointerId = int.MinValue;
         input = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
-        SetVisualAlpha(joystickAlpha);
-
-        if (isFloating && visualCircle != null)
-            visualCircle.gameObject.SetActive(false);
+        SetVisualAlpha(isFloating ? 0f : joystickAlpha);
 
         jumpTriggered = false;
         if (wasCrouching)
@@ -197,23 +221,19 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void SetVisualAlpha(float alpha)
     {
-        if (!isFloating)
+        if (backgroundImage != null)
         {
-            if (backgroundImage != null)
-            {
-                Color c = backgroundImage.color;
-                c.a = alpha;
-                backgroundImage.color = c;
-            }
+            backgroundImage.enabled = true;
+            backgroundImage.raycastTarget = !isFloating;
+            Color c = backgroundImage.color;
+            c.a = 0f;
+            backgroundImage.color = c;
         }
-        else
+        if (visualCircleImage != null)
         {
-            if (visualCircleImage != null)
-            {
-                Color c = visualCircleImage.color;
-                c.a = alpha;
-                visualCircleImage.color = c;
-            }
+            Color c = visualCircleImage.color;
+            c.a = alpha;
+            visualCircleImage.color = c;
         }
         if (handleImage != null)
         {
@@ -238,58 +258,20 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     void SetupFloatingMode()
     {
-        if (visualCircle != null) return;
-
         RectTransform parentRt = background.parent as RectTransform;
-        if (parentRt != null)
-        {
-            background.anchorMin = new Vector2(0, 0);
-            background.anchorMax = new Vector2(1, 1);
-            background.offsetMin = Vector2.zero;
-            background.offsetMax = Vector2.zero;
-            background.pivot = new Vector2(0.5f, 0.5f);
-        }
+        if (parentRt == null) return;
 
-        // Ensure background has an Image for raycast, make it fully transparent
-        if (backgroundImage == null)
-            backgroundImage = background.GetComponent<Image>();
-        if (backgroundImage == null)
-            backgroundImage = background.gameObject.AddComponent<Image>();
-        backgroundImage.color = new Color(0, 0, 0, 0);
-        backgroundImage.raycastTarget = true;
+        EnsureProceduralRing();
 
-        // Hide ALL other images under background except handleImage
-        Image[] allImages = background.GetComponentsInChildren<Image>(true);
-        foreach (Image img in allImages)
-        {
-            if (img == backgroundImage) continue;
-            if (img == handleImage) continue;
-            Color c = img.color;
-            c.a = 0;
-            img.color = c;
-            img.raycastTarget = false;
-        }
+        background.anchorMin = new Vector2(0.5f, 0.5f);
+        background.anchorMax = new Vector2(0.5f, 0.5f);
+        background.pivot = new Vector2(0.5f, 0.5f);
+        background.sizeDelta = originalBackgroundSize;
+        background.anchoredPosition = originalBackgroundPos;
 
-        // Create visual circle (ring) as sibling of background, same size as original
-        GameObject visualGO = new GameObject("VisualCircle");
-        visualGO.transform.SetParent(background.parent, false);
-        visualCircle = visualGO.AddComponent<RectTransform>();
-        visualCircle.anchorMin = new Vector2(0.5f, 0.5f);
-        visualCircle.anchorMax = new Vector2(0.5f, 0.5f);
-        visualCircle.pivot = new Vector2(0.5f, 0.5f);
-        visualCircle.sizeDelta = originalRingSize != Vector2.zero ? originalRingSize : originalBackgroundSize;
-        visualCircle.anchoredPosition = originalBackgroundPos;
-        Image vImg = visualGO.AddComponent<Image>();
-        vImg.sprite = originalBackgroundSprite;
-        vImg.color = new Color(1, 1, 1, joystickAlpha);
-        vImg.preserveAspect = true;
-        vImg.raycastTarget = false;
-        visualCircleImage = vImg;
-
-        // Move handle to visualCircle, preserve original size
         if (handle != null)
         {
-            handle.SetParent(visualCircle, false);
+            handle.SetParent(background, false);
             handle.anchorMin = new Vector2(0.5f, 0.5f);
             handle.anchorMax = new Vector2(0.5f, 0.5f);
             handle.pivot = new Vector2(0.5f, 0.5f);
@@ -298,13 +280,43 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
             if (handleImage != null) handleImage.raycastTarget = false;
         }
 
-        visualGO.transform.SetAsLastSibling();
-        visualGO.SetActive(false);
+        if (touchArea == null)
+        {
+            GameObject touchGO = new GameObject("JoystickTouchArea");
+            touchGO.transform.SetParent(parentRt, false);
+            touchArea = touchGO.AddComponent<RectTransform>();
+            touchArea.anchorMin = new Vector2(0f, 0f);
+            touchArea.anchorMax = new Vector2(0.45f, 0.6f);
+            touchArea.offsetMin = Vector2.zero;
+            touchArea.offsetMax = Vector2.zero;
+            touchArea.pivot = new Vector2(0.5f, 0.5f);
+            touchAreaImage = touchGO.AddComponent<Image>();
+            touchAreaImage.color = new Color(0f, 0f, 0f, 0f);
+            touchAreaImage.raycastTarget = true;
+            touchGO.AddComponent<JoystickTouchForwarder>().Init(this);
+            touchArea.SetAsFirstSibling();
+        }
+
+        SetVisualAlpha(0f);
         Debug.Log("[VirtualJoystick] Floating mode setup complete");
     }
 
     void DisableFloatingMode()
     {
+        if (touchArea != null)
+        {
+            Destroy(touchArea.gameObject);
+            touchArea = null;
+            touchAreaImage = null;
+        }
+
+        EnsureProceduralRing();
+
+        background.anchorMin = originalAnchorMin;
+        background.anchorMax = originalAnchorMax;
+        background.anchoredPosition = originalBackgroundPos;
+        background.sizeDelta = originalBackgroundSize;
+
         if (handle != null)
         {
             handle.SetParent(originalHandleParent != null ? originalHandleParent : background, false);
@@ -316,34 +328,64 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
             if (handleImage != null) handleImage.raycastTarget = true;
         }
 
-        if (visualCircle != null)
+        if (backgroundImage != null)
         {
-            Destroy(visualCircle.gameObject);
-            visualCircle = null;
-            visualCircleImage = null;
+            backgroundImage.enabled = true;
+            backgroundImage.raycastTarget = true;
         }
 
-        background.anchorMin = originalAnchorMin;
-        background.anchorMax = originalAnchorMax;
-        background.anchoredPosition = originalBackgroundPos;
-        background.sizeDelta = originalBackgroundSize;
-
-        // Restore alpha on background and all child images (except handle, handled by SetVisualAlpha)
-        Image[] allImages = background.GetComponentsInChildren<Image>(true);
-        foreach (Image img in allImages)
-        {
-            if (img == handleImage) continue;
-            Color c = img.color;
-            c.a = joystickAlpha;
-            img.color = c;
-            img.raycastTarget = true;
-        }
-
+        SetVisualAlpha(joystickAlpha);
         Debug.Log("[VirtualJoystick] Floating mode disabled");
     }
 
     void LoadSettings()
     {
         isFloating = PlayerPrefs.GetInt("FloatingJoystick", 0) == 1;
+    }
+
+    void EnsureProceduralRing()
+    {
+        if (backgroundImage == null)
+            backgroundImage = background.GetComponent<Image>();
+
+        if (visualCircle != null) return;
+
+        GameObject ringGO = new GameObject("JoystickRing");
+        ringGO.transform.SetParent(background, false);
+        visualCircle = ringGO.AddComponent<RectTransform>();
+        visualCircle.anchorMin = Vector2.zero;
+        visualCircle.anchorMax = Vector2.one;
+        visualCircle.offsetMin = Vector2.zero;
+        visualCircle.offsetMax = Vector2.zero;
+        visualCircle.pivot = new Vector2(0.5f, 0.5f);
+        visualCircle.SetAsFirstSibling();
+        visualCircleImage = ringGO.AddComponent<JoystickRingGraphic>();
+        visualCircleImage.color = new Color(1f, 0.55f, 0.1f, joystickAlpha);
+        visualCircleImage.raycastTarget = false;
+    }
+
+    private class JoystickTouchForwarder : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
+    {
+        private VirtualJoystick joystick;
+
+        public void Init(VirtualJoystick source)
+        {
+            joystick = source;
+        }
+
+        public void OnPointerDown(PointerEventData eventData)
+        {
+            joystick?.OnPointerDown(eventData);
+        }
+
+        public void OnDrag(PointerEventData eventData)
+        {
+            joystick?.OnDrag(eventData);
+        }
+
+        public void OnPointerUp(PointerEventData eventData)
+        {
+            joystick?.OnPointerUp(eventData);
+        }
     }
 }

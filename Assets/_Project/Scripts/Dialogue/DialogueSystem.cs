@@ -115,7 +115,10 @@ public class DialogueSystem : MonoBehaviour
         activeFaceFrames = null;
 
         if (npcFaceImage != null)
+        {
             npcFaceImage.sprite = face;
+            npcFaceImage.enabled = face != null;
+        }
     }
 
     void SetSpeakerInfo(string name, Sprite[] frames)
@@ -129,10 +132,13 @@ public class DialogueSystem : MonoBehaviour
             faceFrameIndex = 0;
             faceTimer = 0f;
             npcFaceImage.sprite = frames[0];
+            npcFaceImage.enabled = true;
         }
         else
         {
             activeFaceFrames = null;
+            if (npcFaceImage != null)
+                npcFaceImage.enabled = false;
         }
     }
 

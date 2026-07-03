@@ -162,7 +162,16 @@ public class PauseMenu : MonoBehaviour
     public void OnFloatingJoystickToggle(bool value)
     {
         Debug.Log($"[PauseMenu] OnFloatingJoystickToggle called with value={value}");
-        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        VirtualJoystick joystick = null;
+        VirtualJoystick[] joysticks = FindObjectsOfType<VirtualJoystick>();
+        foreach (VirtualJoystick candidate in joysticks)
+        {
+            if (candidate != null && candidate.enabled && candidate.gameObject.activeInHierarchy)
+            {
+                joystick = candidate;
+                break;
+            }
+        }
         Debug.Log($"[PauseMenu] VirtualJoystick found: {joystick != null}");
         if (joystick != null)
             joystick.SetFloating(value);
