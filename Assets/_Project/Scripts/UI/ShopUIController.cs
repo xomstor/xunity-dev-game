@@ -18,11 +18,11 @@ public class ShopUIController : MonoBehaviour
     [Header("UI Text")]
     public string titleText = "Shop";
     public string goldPrefix = "Gold: ";
-    public string buyButtonText = "Buy";
-    public string sellButtonText = "Sell Souls";
+    public string buyButtonText = "BUY";
+    public string sellButtonText = "Продать Души";
     public string closeButtonText = "X";
-    public string pricePrefix = "Price: ";
-    public string priceSuffix = "g";
+    public string pricePrefix = "";
+    public string priceSuffix = "";
     public string purchasedMessage = "Purchased!";
     public string notEnoughMessage = "Not enough gold or inventory full";
     public string noItemSelectedMessage = "Select an item";
@@ -32,19 +32,25 @@ public class ShopUIController : MonoBehaviour
     public string xpPotionIdSubstring = "xp";
 
     [Header("UI Colors")]
-    public Color panelColor = new Color(0, 0.1f, 0.1f, 0.95f);
-    public Color itemButtonColor = new Color(0.2f, 0.2f, 0.2f, 1f);
-    public Color buyButtonColor = new Color(0.2f, 0.6f, 0.2f, 1f);
-    public Color sellButtonColor = new Color(0.6f, 0.4f, 0.2f, 1f);
-    public Color closeButtonColor = new Color(0.6f, 0.2f, 0.2f, 1f);
-    public Color tooltipColor = new Color(0.1f, 0.1f, 0.1f, 0.95f);
+    public Color panelColor = new Color(0.08f, 0.04f, 0.02f, 0.95f);
+    public Color headerColor = new Color(0.35f, 0.18f, 0.08f, 1f);
+    public Color cardColor = new Color(0.45f, 0.25f, 0.12f, 1f);
+    public Color cardHighlightColor = new Color(0.65f, 0.4f, 0.2f, 1f);
+    public Color buyButtonColor = new Color(0.2f, 0.7f, 0.25f, 1f);
+    public Color sellButtonColor = new Color(0.75f, 0.55f, 0.15f, 1f);
+    public Color closeButtonColor = new Color(0.7f, 0.2f, 0.15f, 1f);
+    public Color tabColor = new Color(0.4f, 0.22f, 0.1f, 1f);
+    public Color tabActiveColor = new Color(0.7f, 0.4f, 0.15f, 1f);
+    public Color tooltipColor = new Color(0.1f, 0.08f, 0.04f, 0.95f);
+
+    [Header("UI Settings")]
+    public int cardsPerPage = 4;
+    public Vector2 screenInset = new Vector2(60, 60);
 
     [Header("UI Elements (assign manually or auto-create)")]
-    public bool fitPanelToScreenOnOpen = true;
-    public Vector2 screenInset = new Vector2(70, 70);
-    public float openFontSize = 46f;
     public GameObject shopPanel;
-    public Transform itemContainer;
+    public Transform categoryContainer;
+    public Transform cardContainer;
     public TextMeshProUGUI goldText;
     public TextMeshProUGUI itemNameText;
     public TextMeshProUGUI itemDescriptionText;
@@ -53,13 +59,22 @@ public class ShopUIController : MonoBehaviour
     public Button buyButton;
     public Button sellButton;
     public Button closeButton;
+    public Button prevButton;
+    public Button nextButton;
+    public TextMeshProUGUI pageText;
     public GameObject tooltipPanel;
     public TextMeshProUGUI tooltipText;
-    public GameObject itemButtonPrefab;
+    public GameObject cardButtonPrefab;
 
     private int selectedItemIndex = -1;
-    private List<GameObject> itemButtons = new List<GameObject>();
+    private int currentPage = 0;
+    private int currentCategory = 0;
+    private List<GameObject> cardButtons = new List<GameObject>();
+    private List<Button> tabButtons = new List<Button>();
+    private List<int> filteredIndices = new List<int>();
     private Sprite whiteSprite;
+
+    private readonly string[] categoryNames = { "All", "Weapons", "Armor", "Potions", "Misc" };
 
     void Awake()
     {
@@ -84,7 +99,8 @@ public class ShopUIController : MonoBehaviour
         }
         if (shopPanel == null) return;
 
-        itemContainer ??= FindChildByName(shopPanel.transform, "ItemContainer")?.transform;
+        categoryContainer ??= FindChildByName(shopPanel.transform, "CategoryPanel")?.transform;
+        cardContainer ??= FindChildByName(shopPanel.transform, "CardContainer")?.transform;
         goldText ??= FindChildByName(shopPanel.transform, "GoldText")?.GetComponent<TextMeshProUGUI>();
         itemNameText ??= FindChildByName(shopPanel.transform, "ItemNameText")?.GetComponent<TextMeshProUGUI>();
         itemDescriptionText ??= FindChildByName(shopPanel.transform, "ItemDescriptionText")?.GetComponent<TextMeshProUGUI>();
@@ -93,6 +109,19 @@ public class ShopUIController : MonoBehaviour
         buyButton ??= FindChildByName(shopPanel.transform, "BuyButton")?.GetComponent<Button>();
         sellButton ??= FindChildByName(shopPanel.transform, "SellButton")?.GetComponent<Button>();
         closeButton ??= FindChildByName(shopPanel.transform, "CloseButton")?.GetComponent<Button>();
+        prevButton ??= FindChildByName(shopPanel.transform, "PrevButton")?.GetComponent<Button>();
+        nextButton ??= FindChildByName(shopPanel.transform, "NextButton")?.GetComponent<Button>();
+        pageText ??= FindChildByName(shopPanel.transform, "PageText")?.GetComponent<TextMeshProUGUI>();
+
+        if (tabButtons.Count == 0 && categoryContainer != null)
+        {
+            foreach (Transform child in categoryContainer)
+            {
+                Button btn = child.GetComponent<Button>();
+                if (btn != null) tabButtons.Add(btn);
+            }
+        }
+
         if (tooltipPanel == null)
         {
             tooltipPanel = FindChildByName(shopPanel.transform, "TooltipPanel");
@@ -119,7 +148,8 @@ public class ShopUIController : MonoBehaviour
     {
         int count = 0;
         if (c.shopPanel != null) count++;
-        if (c.itemContainer != null) count++;
+        if (c.categoryContainer != null) count++;
+        if (c.cardContainer != null) count++;
         if (c.goldText != null) count++;
         if (c.itemNameText != null) count++;
         if (c.itemDescriptionText != null) count++;
@@ -146,7 +176,7 @@ public class ShopUIController : MonoBehaviour
     {
         if (shopPanel == null)
         {
-            Debug.LogError($"[{name}] ShopUIController.shopPanel is null. Run Tools/Build Shop UI or assign it manually.");
+            Debug.LogError($"[{name}] ShopUIController.shopPanel is null.");
             return;
         }
 
@@ -170,16 +200,33 @@ public class ShopUIController : MonoBehaviour
         }
 
         shopPanel.SetActive(true);
-        if (fitPanelToScreenOnOpen)
-            FitPanelToScreen();
-        ApplyOpenTextSize();
+        FitPanelToScreen();
+
         selectedItemIndex = -1;
+        currentPage = 0;
+        currentCategory = 0;
         ClearItemDetails();
+        if (categoryContainer != null)
+        {
+            int tabCount = 0;
+            foreach (Transform child in categoryContainer)
+                if (child != null && child.name.StartsWith("Tab_")) tabCount++;
+            if (tabCount == 0)
+                CreateCategoryTabs(categoryContainer);
+            else
+            {
+                tabButtons.Clear();
+                foreach (Transform child in categoryContainer)
+                {
+                    Button btn = child.GetComponent<Button>();
+                    if (btn != null) tabButtons.Add(btn);
+                }
+            }
+        }
+        RefreshCategoryTabs();
         RefreshShopItems();
         UpdateGoldText();
         UpdateSellText();
-
-        Debug.Log($"[{name}] Shop opened. Panel activeSelf={shopPanel.activeSelf}, activeInHierarchy={shopPanel.activeInHierarchy}, canvas={(canvas != null ? canvas.name : "none")}");
     }
 
     public void CloseShop()
@@ -193,7 +240,6 @@ public class ShopUIController : MonoBehaviour
     {
         RectTransform rt = shopPanel.GetComponent<RectTransform>();
         if (rt == null) return;
-
         rt.anchorMin = Vector2.zero;
         rt.anchorMax = Vector2.one;
         rt.pivot = new Vector2(0.5f, 0.5f);
@@ -203,22 +249,7 @@ public class ShopUIController : MonoBehaviour
         rt.offsetMax = -screenInset;
     }
 
-    void ApplyOpenTextSize()
-    {
-        if (shopPanel == null) return;
-
-        foreach (TextMeshProUGUI text in shopPanel.GetComponentsInChildren<TextMeshProUGUI>(true))
-        {
-            text.enableAutoSizing = false;
-            text.fontSize = openFontSize;
-
-            RectTransform rt = text.GetComponent<RectTransform>();
-            if (rt != null && rt.sizeDelta.y < openFontSize + 12f)
-                rt.sizeDelta = new Vector2(rt.sizeDelta.x, openFontSize + 12f);
-        }
-    }
-
-    void CreateShopUI()
+    public void CreateShopUI()
     {
         if (shopPanel != null)
         {
@@ -263,54 +294,62 @@ public class ShopUIController : MonoBehaviour
             scaler.matchWidthOrHeight = 0.5f;
         }
 
-        shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0.05f, 0.05f), new Vector2(0.95f, 0.95f), Vector2.zero, Vector2.zero, panelColor);
+        shopPanel = CreatePanel("ShopPanel", shopCanvasGO.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero, Vector2.zero, panelColor);
 
         // Header
-        GameObject header = CreatePanel("Header", shopPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, 70), new Color(0, 0, 0, 0.4f));
-        CreateText("TitleText", header.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(20, 0), new Vector2(300, 50), titleText, 36, TextAnchor.MiddleLeft, Color.white);
-        closeButton = CreateButton("CloseButton", header.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-50, 0), new Vector2(60, 40), closeButtonText, closeButtonColor, 22);
+        GameObject header = CreatePanel("Header", shopPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -90), new Vector2(0, 180), headerColor);
+        CreateText("TitleText", header.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(40, 25), new Vector2(500, 80), titleText, 48, TextAnchor.MiddleLeft, Color.white);
+        closeButton = CreatePillButton("CloseButton", header.transform, new Vector2(1, 1), new Vector2(1, 1), new Vector2(-70, -65), new Vector2(90, 90), closeButtonText, closeButtonColor, new Color(0.5f, 0.15f, 0.1f, 1f), new Color(0.2f, 0.05f, 0.02f, 0.8f), 36, Color.white);
         closeButton.onClick.AddListener(CloseShop);
-        goldText = CreateText("GoldText", header.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-160, 0), new Vector2(180, 50), goldPrefix + "0", 28, TextAnchor.MiddleRight, Color.yellow);
+        goldText = CreateText("GoldText", header.transform, new Vector2(1, 0.5f), new Vector2(1, 0.5f), new Vector2(-450, 25), new Vector2(360, 80), goldPrefix + "0", 40, TextAnchor.MiddleRight, Color.yellow);
 
-        // Body
-        GameObject body = CreatePanel("Body", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -35), new Vector2(0, -140), new Color(0, 0, 0, 0));
+        // Category tabs inside header
+        GameObject categoryPanel = CreatePanel("CategoryPanel", header.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 40), new Vector2(0, 70), new Color(0, 0, 0, 0));
+        categoryContainer = categoryPanel.transform;
+        CreateCategoryTabs(categoryPanel.transform);
 
-        GameObject leftPanel = CreatePanel("ItemListPanel", body.transform, new Vector2(0, 0), new Vector2(0, 1), new Vector2(180, 0), new Vector2(360, 0), new Color(0, 0, 0, 0.3f));
-        GameObject itemList = CreatePanel("ItemContainer", leftPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, -20), new Vector2(0, -40), new Color(0, 0, 0, 0));
-        VerticalLayoutGroup vlg = itemList.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 10;
-        vlg.padding = new RectOffset(10, 10, 10, 10);
-        vlg.childAlignment = TextAnchor.UpperCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-        itemList.AddComponent<ContentSizeFitter>().verticalFit = ContentSizeFitter.FitMode.PreferredSize;
-        itemContainer = itemList.transform;
+        // Card grid
+        GameObject cardPanel = CreatePanel("CardPanel", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(0, 50), new Vector2(0, -660), new Color(0, 0, 0, 0.2f));
+        GameObject cardGrid = CreatePanel("CardContainer", cardPanel.transform, new Vector2(0, 0), new Vector2(1, 1), Vector2.zero, Vector2.zero, new Color(0, 0, 0, 0));
+        GridLayoutGroup grid = cardGrid.AddComponent<GridLayoutGroup>();
+        grid.cellSize = new Vector2(240, 380);
+        grid.spacing = new Vector2(24, 24);
+        grid.padding = new RectOffset(30, 30, 20, 20);
+        grid.startAxis = GridLayoutGroup.Axis.Horizontal;
+        grid.childAlignment = TextAnchor.UpperCenter;
+        grid.constraint = GridLayoutGroup.Constraint.FixedRowCount;
+        grid.constraintCount = 1;
+        cardContainer = cardGrid.transform;
 
-        GameObject rightPanel = CreatePanel("ItemDetailPanel", body.transform, new Vector2(0, 0), new Vector2(1, 1), new Vector2(180, 0), new Vector2(-360, 0), new Color(0, 0, 0, 0.3f));
-        itemIcon = CreateImage("ItemIcon", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -80), new Vector2(100, 100));
-        itemNameText = CreateText("ItemNameText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -180), new Vector2(300, 40), "", 28, TextAnchor.MiddleCenter, Color.white);
-        itemDescriptionText = CreateText("ItemDescriptionText", rightPanel.transform, new Vector2(0.5f, 1), new Vector2(0.5f, 1), new Vector2(0, -290), new Vector2(300, 150), noItemSelectedMessage, 20, TextAnchor.UpperLeft, new Color(0.8f, 0.8f, 0.8f, 1f));
-        itemDescriptionText.overflowMode = TextOverflowModes.Overflow;
-        itemDescriptionText.textWrappingMode = TextWrappingModes.Normal;
-        itemPriceText = CreateText("ItemPriceText", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 110), new Vector2(300, 40), "", 24, TextAnchor.MiddleCenter, Color.yellow);
-        buyButton = CreateButton("BuyButton", rightPanel.transform, new Vector2(0.5f, 0), new Vector2(0.5f, 0), new Vector2(0, 50), new Vector2(180, 45), buyButtonText, buyButtonColor, 24);
+        // Details panel (bottom)
+        GameObject detailsPanel = CreatePanel("DetailsPanel", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 220), new Vector2(0, 320), new Color(0, 0, 0, 0.3f));
+        itemIcon = CreateImage("ItemIcon", detailsPanel.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(120, 0), new Vector2(150, 150));
+        itemNameText = CreateText("ItemNameText", detailsPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, -40), new Vector2(0, 60), "", 36, TextAnchor.MiddleCenter, Color.white);
+        itemDescriptionText = CreateText("ItemDescriptionText", detailsPanel.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(300, 0), new Vector2(500, 110), noItemSelectedMessage, 28, TextAnchor.MiddleCenter, new Color(0.9f, 0.9f, 0.9f, 1f));
+        itemPriceText = CreateText("ItemPriceText", detailsPanel.transform, new Vector2(0, 0.5f), new Vector2(0, 0.5f), new Vector2(120, 100), new Vector2(220, 60), "", 32, TextAnchor.MiddleLeft, Color.yellow);
+        buyButton = CreatePillButton("BuyButton", detailsPanel.transform, new Vector2(90, -90), new Vector2(300, 90), buyButtonText, buyButtonColor, new Color(0.15f, 0.5f, 0.2f, 1f), new Color(0.05f, 0.2f, 0.08f, 0.8f), 34, Color.white);
         buyButton.onClick.AddListener(BuySelectedItem);
 
-        // Footer
-        GameObject footer = CreatePanel("Footer", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 35), new Vector2(0, 70), new Color(0, 0, 0, 0.4f));
-        sellButton = CreateButton("SellButton", footer.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), new Vector2(0, 0), new Vector2(250, 50), sellButtonText, sellButtonColor, 22);
+        sellButton = CreatePillButton("SellButton", detailsPanel.transform, new Vector2(-240, -90), new Vector2(360, 90), sellButtonText, sellButtonColor, new Color(0.55f, 0.4f, 0.12f, 1f), new Color(0.2f, 0.12f, 0.03f, 0.8f), 28, Color.white);
         sellButton.onClick.AddListener(SellAllSouls);
 
-        tooltipPanel = CreatePanel("TooltipPanel", shopCanvasGO.transform, new Vector2(0, 0), new Vector2(0, 0), new Vector2(0, 0), new Vector2(250, 80), tooltipColor);
+        // Pagination
+        GameObject pagination = CreatePanel("Pagination", shopPanel.transform, new Vector2(0, 0), new Vector2(1, 0), new Vector2(0, 30), new Vector2(0, 60), new Color(0, 0, 0, 0));
+        prevButton = CreatePillButton("PrevButton", pagination.transform, new Vector2(-80, 0), new Vector2(100, 60), "<", tabColor, new Color(0.3f, 0.15f, 0.07f, 1f), new Color(0.15f, 0.07f, 0.03f, 0.8f), 36, Color.white);
+        prevButton.onClick.AddListener(PrevPage);
+        pageText = CreateText("PageText", pagination.transform, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), Vector2.zero, new Vector2(160, 60), "1 / 1", 32, TextAnchor.MiddleCenter, Color.white);
+        nextButton = CreatePillButton("NextButton", pagination.transform, new Vector2(80, 0), new Vector2(100, 60), ">", tabColor, new Color(0.3f, 0.15f, 0.07f, 1f), new Color(0.15f, 0.07f, 0.03f, 0.8f), 36, Color.white);
+        nextButton.onClick.AddListener(NextPage);
+
+        // Tooltip
+        tooltipPanel = CreatePanel("TooltipPanel", shopCanvasGO.transform, new Vector2(0, 0), new Vector2(0, 0), Vector2.zero, new Vector2(260, 0), tooltipColor);
         tooltipPanel.SetActive(false);
-        tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), new Vector2(0, 0), new Vector2(0, 0), "", 20, TextAnchor.MiddleCenter, Color.white);
+        tooltipText = CreateText("TooltipText", tooltipPanel.transform, new Vector2(0, 1), new Vector2(1, 1), Vector2.zero, new Vector2(0, 0), "", 18, TextAnchor.MiddleCenter, Color.white);
         tooltipText.overflowMode = TextOverflowModes.Overflow;
         tooltipText.textWrappingMode = TextWrappingModes.Normal;
         RectTransform tooltipTextRt = tooltipText.GetComponent<RectTransform>();
-        tooltipTextRt.offsetMin = new Vector2(10, 10);
-        tooltipTextRt.offsetMax = new Vector2(-10, -10);
+        tooltipTextRt.offsetMin = new Vector2(12, 12);
+        tooltipTextRt.offsetMax = new Vector2(-12, -12);
         ContentSizeFitter tooltipFitter = tooltipPanel.AddComponent<ContentSizeFitter>();
         tooltipFitter.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
         tooltipFitter.horizontalFit = ContentSizeFitter.FitMode.PreferredSize;
@@ -319,14 +358,78 @@ public class ShopUIController : MonoBehaviour
         shopPanel.SetActive(false);
     }
 
+    void CreateCategoryTabs(Transform parent)
+    {
+        tabButtons.Clear();
+        HorizontalLayoutGroup oldHlg = parent.GetComponent<HorizontalLayoutGroup>();
+        if (oldHlg != null) Destroy(oldHlg);
+        foreach (Transform child in parent)
+            if (child != null && child.name.StartsWith("Tab_"))
+                Destroy(child.gameObject);
+
+        float totalWidth = categoryNames.Length * 150f + (categoryNames.Length - 1) * 15f;
+        float startX = -totalWidth / 2f + 75f;
+        for (int i = 0; i < categoryNames.Length; i++)
+        {
+            int idx = i;
+            Color left = i == currentCategory ? tabActiveColor : tabColor;
+            Color right = new Color(left.r * 0.7f, left.g * 0.7f, left.b * 0.7f, 1f);
+            Button btn = CreatePillButton($"Tab_{categoryNames[i]}", parent, new Vector2(startX + i * 165f, 0), new Vector2(150, 70), categoryNames[i], left, right, new Color(0.2f, 0.1f, 0.05f, 0.8f), 32, Color.white);
+            btn.onClick.AddListener(() => SelectCategory(idx));
+            tabButtons.Add(btn);
+        }
+    }
+
+    void RefreshCategoryTabs()
+    {
+        for (int i = 0; i < tabButtons.Count; i++)
+        {
+            Image img = tabButtons[i].GetComponent<Image>();
+            if (img != null)
+            {
+                Color target = i == currentCategory ? tabActiveColor : tabColor;
+                img.color = new Color(target.r, target.g, target.b, 1f);
+            }
+        }
+    }
+
+    void SelectCategory(int index)
+    {
+        Debug.Log($"[ShopUIController] Selected category {index}: {categoryNames[index]}");
+        currentCategory = index;
+        currentPage = 0;
+        selectedItemIndex = -1;
+        ClearItemDetails();
+        RefreshCategoryTabs();
+        RefreshShopItems();
+    }
+
+    void PrevPage()
+    {
+        if (currentPage > 0)
+        {
+            currentPage--;
+            RefreshShopItems();
+        }
+    }
+
+    void NextPage()
+    {
+        int maxPage = Mathf.Max(0, Mathf.CeilToInt(filteredIndices.Count / (float)cardsPerPage) - 1);
+        if (currentPage < maxPage)
+        {
+            currentPage++;
+            RefreshShopItems();
+        }
+    }
+
     void WireUpEvents()
     {
-        if (closeButton != null)
-            closeButton.onClick.AddListener(CloseShop);
-        if (buyButton != null)
-            buyButton.onClick.AddListener(BuySelectedItem);
-        if (sellButton != null)
-            sellButton.onClick.AddListener(SellAllSouls);
+        if (closeButton != null) closeButton.onClick.AddListener(CloseShop);
+        if (buyButton != null) buyButton.onClick.AddListener(BuySelectedItem);
+        if (sellButton != null) sellButton.onClick.AddListener(SellAllSouls);
+        if (prevButton != null) prevButton.onClick.AddListener(PrevPage);
+        if (nextButton != null) nextButton.onClick.AddListener(NextPage);
     }
 
     GameObject CreatePanel(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, Color color)
@@ -417,7 +520,7 @@ public class ShopUIController : MonoBehaviour
         btn.transition = Selectable.Transition.ColorTint;
         ColorBlock colors = btn.colors;
         colors.normalColor = Color.white;
-        colors.highlightedColor = new Color(0.9f, 0.9f, 0.9f, 1f);
+        colors.highlightedColor = new Color(1.1f, 1.1f, 1.1f, 1f);
         colors.pressedColor = new Color(0.7f, 0.7f, 0.7f, 1f);
         btn.colors = colors;
 
@@ -440,6 +543,115 @@ public class ShopUIController : MonoBehaviour
         return btn;
     }
 
+    Button CreatePillButton(string name, Transform parent, Vector2 anchoredPosition, Vector2 sizeDelta, string text, Color leftColor, Color rightColor, Color shadowColor, int fontSize, Color textColor)
+    {
+        return CreatePillButton(name, parent, new Vector2(0.5f, 0.5f), new Vector2(0.5f, 0.5f), anchoredPosition, sizeDelta, text, leftColor, rightColor, shadowColor, fontSize, textColor);
+    }
+
+    Button CreatePillButton(string name, Transform parent, Vector2 anchorMin, Vector2 anchorMax, Vector2 anchoredPosition, Vector2 sizeDelta, string text, Color leftColor, Color rightColor, Color shadowColor, int fontSize, Color textColor)
+    {
+        GameObject go = new GameObject(name);
+        go.transform.SetParent(parent, false);
+        RectTransform rt = go.AddComponent<RectTransform>();
+        rt.anchorMin = anchorMin;
+        rt.anchorMax = anchorMax;
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = anchoredPosition;
+        rt.sizeDelta = sizeDelta;
+        go.AddComponent<CanvasRenderer>();
+        Image img = go.AddComponent<Image>();
+        int texW = Mathf.Max(32, (int)sizeDelta.x + 20);
+        int texH = Mathf.Max(32, (int)sizeDelta.y + 20);
+        img.sprite = CreateGradientPillSprite(texW, texH, (int)sizeDelta.x, (int)sizeDelta.y, leftColor, rightColor, shadowColor, new Vector2(4, -4), Color.black, 3);
+        img.type = Image.Type.Simple;
+        img.color = Color.white;
+        Button btn = go.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.transition = Selectable.Transition.ColorTint;
+        ColorBlock colors = btn.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1.2f, 1.2f, 1.2f, 1f);
+        colors.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
+        btn.colors = colors;
+
+        Outline outline = go.AddComponent<Outline>();
+        outline.effectColor = new Color(0.1f, 0.05f, 0.02f, 0.9f);
+        outline.effectDistance = new Vector2(3, -3);
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(go.transform, false);
+        RectTransform textRt = textGO.AddComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+        textGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI tmp = textGO.AddComponent<TextMeshProUGUI>();
+        tmp.text = text;
+        tmp.fontSize = fontSize;
+        tmp.color = textColor;
+        tmp.alignment = TextAlignmentOptions.Center;
+        tmp.fontStyle = FontStyles.Bold;
+        tmp.raycastTarget = false;
+        tmp.textWrappingMode = TextWrappingModes.NoWrap;
+
+        return btn;
+    }
+
+    Sprite CreateGradientPillSprite(int texWidth, int texHeight, int pillWidth, int pillHeight, Color leftColor, Color rightColor, Color shadowColor, Vector2 shadowOffset, Color outlineColor, int outlineThickness)
+    {
+        Texture2D tex = new Texture2D(texWidth, texHeight);
+        tex.wrapMode = TextureWrapMode.Clamp;
+        tex.filterMode = FilterMode.Bilinear;
+        Color[] pixels = new Color[texWidth * texHeight];
+        Vector2 center = new Vector2(texWidth / 2f, texHeight / 2f);
+        Vector2 shadowCenter = center + shadowOffset;
+
+        for (int y = 0; y < texHeight; y++)
+        {
+            for (int x = 0; x < texWidth; x++)
+            {
+                int i = y * texWidth + x;
+                pixels[i] = Color.clear;
+
+                if (IsInsidePill(x, y, shadowCenter.x, shadowCenter.y, pillWidth, pillHeight))
+                    pixels[i] = shadowColor;
+
+                bool insidePill = IsInsidePill(x, y, center.x, center.y, pillWidth, pillHeight);
+                bool insideOutline = IsInsidePill(x, y, center.x, center.y, pillWidth - outlineThickness * 2, pillHeight - outlineThickness * 2);
+
+                if (insidePill)
+                {
+                    if (insideOutline)
+                    {
+                        float t = Mathf.InverseLerp(center.x - pillWidth / 2f, center.x + pillWidth / 2f, x);
+                        pixels[i] = Color.Lerp(leftColor, rightColor, t);
+                    }
+                    else
+                    {
+                        pixels[i] = outlineColor;
+                    }
+                }
+            }
+        }
+
+        tex.SetPixels(pixels);
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, texWidth, texHeight), new Vector2(0.5f, 0.5f), 100);
+    }
+
+    bool IsInsidePill(int x, int y, float cx, float cy, int width, int height)
+    {
+        float halfWidth = width / 2f;
+        float halfHeight = height / 2f;
+        float radius = halfHeight;
+        float dx = Mathf.Abs(x - cx);
+        float dy = Mathf.Abs(y - cy);
+        if (dx <= halfWidth - radius) return dy <= halfHeight;
+        dx -= halfWidth - radius;
+        return dx * dx + dy * dy <= radius * radius;
+    }
+
     TextAlignmentOptions GetTextAlignmentOptions(TextAnchor anchor)
     {
         switch (anchor)
@@ -457,48 +669,81 @@ public class ShopUIController : MonoBehaviour
         }
     }
 
+    int GetItemCategory(ShopItem shopItem)
+    {
+        if (shopItem.itemData == null) return 4;
+        string lowerName = shopItem.itemData.itemName.ToLowerInvariant();
+        switch (shopItem.itemData.itemType)
+        {
+            case ItemType.Weapon: return 1;
+            case ItemType.Armor: return 2;
+            case ItemType.Consumable: return 3;
+            default:
+                if (lowerName.Contains("sword") || lowerName.Contains("axe") || lowerName.Contains("bow") || lowerName.Contains("dagger") || lowerName.Contains("mace") || lowerName.Contains("staff") || lowerName.Contains("blade"))
+                    return 1;
+                if (lowerName.Contains("armor") || lowerName.Contains("shield") || lowerName.Contains("helm") || lowerName.Contains("boot") || lowerName.Contains("chest") || lowerName.Contains("gauntlet"))
+                    return 2;
+                if (lowerName.Contains("potion") || lowerName.Contains("heal") || lowerName.Contains("elixir") || lowerName.Contains("scroll") || lowerName.Contains("spell"))
+                    return 3;
+                return 4;
+        }
+    }
+
     void RefreshShopItems()
     {
-        if (itemContainer == null || shopManager == null) return;
+        if (cardContainer == null || shopManager == null) return;
 
         if (playerStats != null)
             shopManager.RebuildDynamicShop(playerStats.level);
 
         ShopItem[] currentItems = shopManager.GetCurrentShopItems();
-
-        foreach (GameObject btn in itemButtons)
-            if (btn != null) Destroy(btn);
-        itemButtons.Clear();
-
+        filteredIndices.Clear();
         for (int i = 0; i < currentItems.Length; i++)
         {
-            ShopItem shopItem = currentItems[i];
-            if (shopItem.itemData == null) continue;
-            if (shopItem.quantity == 0) continue;
-
-            Button button = CreateItemButton(shopItem, i);
-            itemButtons.Add(button.gameObject);
+            if (currentItems[i].itemData == null) continue;
+            if (currentItems[i].quantity == 0) continue;
+            if (currentCategory != 0 && GetItemCategory(currentItems[i]) != currentCategory) continue;
+            filteredIndices.Add(i);
         }
+
+        foreach (GameObject btn in cardButtons)
+            if (btn != null) Destroy(btn);
+        cardButtons.Clear();
+
+        int maxPage = Mathf.Max(0, Mathf.CeilToInt(filteredIndices.Count / (float)cardsPerPage) - 1);
+        currentPage = Mathf.Clamp(currentPage, 0, maxPage);
+
+        int startIndex = currentPage * cardsPerPage;
+        int endIndex = Mathf.Min(startIndex + cardsPerPage, filteredIndices.Count);
+
+        for (int i = startIndex; i < endIndex; i++)
+        {
+            int realIndex = filteredIndices[i];
+            Button card = CreateItemCard(currentItems[realIndex], realIndex);
+            cardButtons.Add(card.gameObject);
+        }
+
+        if (pageText != null)
+            pageText.text = $"{currentPage + 1} / {maxPage + 1}";
+        if (prevButton != null)
+            prevButton.interactable = currentPage > 0;
+        if (nextButton != null)
+            nextButton.interactable = currentPage < maxPage;
     }
 
-    Button CreateItemButton(ShopItem shopItem, int index)
+    Button CreateItemCard(ShopItem shopItem, int index)
     {
-        GameObject go = new GameObject($"Item_{shopItem.itemData.itemName}");
-        go.transform.SetParent(itemContainer, false);
+        GameObject go = new GameObject($"Card_{shopItem.itemData.itemName}");
+        go.transform.SetParent(cardContainer, false);
         RectTransform rt = go.AddComponent<RectTransform>();
-        rt.sizeDelta = new Vector2(0, 55);
+        rt.sizeDelta = new Vector2(240, 380);
         go.AddComponent<CanvasRenderer>();
-        Image img = go.AddComponent<Image>();
-        img.sprite = GetWhiteSprite();
-        img.type = Image.Type.Simple;
-        img.color = itemButtonColor;
-        if (shopItem.itemData != null)
-        {
-            Color rarityTint = shopItem.itemData.GetRarityColor();
-            img.color = Color.Lerp(itemButtonColor, rarityTint, 0.4f);
-        }
+        Image bg = go.AddComponent<Image>();
+        bg.sprite = GetWhiteSprite();
+        bg.type = Image.Type.Simple;
+        bg.color = cardColor;
         Button btn = go.AddComponent<Button>();
-        btn.targetGraphic = img;
+        btn.targetGraphic = bg;
         btn.transition = Selectable.Transition.ColorTint;
         ColorBlock colors = btn.colors;
         colors.normalColor = Color.white;
@@ -506,35 +751,59 @@ public class ShopUIController : MonoBehaviour
         colors.pressedColor = new Color(0.8f, 0.8f, 0.8f, 1f);
         btn.colors = colors;
 
+        // Icon
         GameObject iconGO = new GameObject("Icon");
         iconGO.transform.SetParent(go.transform, false);
         RectTransform iconRt = iconGO.AddComponent<RectTransform>();
-        iconRt.anchorMin = new Vector2(0, 0.5f);
-        iconRt.anchorMax = new Vector2(0, 0.5f);
-        iconRt.pivot = new Vector2(0.5f, 0.5f);
-        iconRt.anchoredPosition = new Vector2(32, 0);
-        iconRt.sizeDelta = new Vector2(40, 40);
+        iconRt.anchorMin = new Vector2(0.5f, 1);
+        iconRt.anchorMax = new Vector2(0.5f, 1);
+        iconRt.pivot = new Vector2(0.5f, 1);
+        iconRt.anchoredPosition = new Vector2(0, -15);
+        iconRt.sizeDelta = new Vector2(120, 120);
         iconGO.AddComponent<CanvasRenderer>();
         Image icon = iconGO.AddComponent<Image>();
         icon.sprite = shopItem.itemData.icon;
         icon.color = icon.sprite == null ? shopItem.itemData.GetRarityColor() : Color.white;
 
-        GameObject textGO = new GameObject("Name");
-        textGO.transform.SetParent(go.transform, false);
-        RectTransform textRt = textGO.AddComponent<RectTransform>();
-        textRt.anchorMin = new Vector2(0, 0);
-        textRt.anchorMax = new Vector2(1, 1);
-        textRt.offsetMin = new Vector2(65, 0);
-        textRt.offsetMax = new Vector2(-8, 0);
-        textGO.AddComponent<CanvasRenderer>();
-        TextMeshProUGUI tmp = textGO.AddComponent<TextMeshProUGUI>();
-        tmp.text = $"{shopItem.itemData.itemName}\n{shopItem.price}g";
-        tmp.fontSize = 16;
-        tmp.color = shopItem.itemData.GetRarityColor();
-        tmp.alignment = TextAlignmentOptions.Left;
-        tmp.raycastTarget = false;
-        tmp.textWrappingMode = TextWrappingModes.NoWrap;
-        tmp.overflowMode = TextOverflowModes.Ellipsis;
+        // Name
+        GameObject nameGO = new GameObject("Name");
+        nameGO.transform.SetParent(go.transform, false);
+        RectTransform nameRt = nameGO.AddComponent<RectTransform>();
+        nameRt.anchorMin = new Vector2(0, 0.62f);
+        nameRt.anchorMax = new Vector2(1, 0.62f);
+        nameRt.pivot = new Vector2(0.5f, 1);
+        nameRt.anchoredPosition = new Vector2(0, 0);
+        nameRt.sizeDelta = new Vector2(220, 50);
+        nameGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI nameText = nameGO.AddComponent<TextMeshProUGUI>();
+        nameText.text = shopItem.itemData.itemName;
+        nameText.fontSize = 24;
+        nameText.color = shopItem.itemData.GetRarityColor();
+        nameText.alignment = TextAlignmentOptions.Center;
+        nameText.raycastTarget = false;
+        nameText.textWrappingMode = TextWrappingModes.NoWrap;
+        nameText.overflowMode = TextOverflowModes.Ellipsis;
+
+        // Price
+        GameObject priceGO = new GameObject("Price");
+        priceGO.transform.SetParent(go.transform, false);
+        RectTransform priceRt = priceGO.AddComponent<RectTransform>();
+        priceRt.anchorMin = new Vector2(0.5f, 0);
+        priceRt.anchorMax = new Vector2(0.5f, 0);
+        priceRt.pivot = new Vector2(0.5f, 0);
+        priceRt.anchoredPosition = new Vector2(0, 115);
+        priceRt.sizeDelta = new Vector2(200, 40);
+        priceGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI priceText = priceGO.AddComponent<TextMeshProUGUI>();
+        priceText.text = $"{shopItem.price}g";
+        priceText.fontSize = 28;
+        priceText.color = Color.yellow;
+        priceText.alignment = TextAlignmentOptions.Center;
+        priceText.raycastTarget = false;
+
+        // Buy mini button
+        Button buyMini = CreatePillButton("BuyMini", go.transform, new Vector2(0, 25), new Vector2(200, 55), buyButtonText, buyButtonColor, new Color(0.15f, 0.5f, 0.2f, 1f), new Color(0.05f, 0.2f, 0.08f, 0.8f), 26, Color.white);
+        buyMini.onClick.AddListener(() => BuyItem(index));
 
         int capturedIndex = index;
         btn.onClick.AddListener(() => SelectItem(capturedIndex));
@@ -547,12 +816,10 @@ public class ShopUIController : MonoBehaviour
     void AddTooltip(GameObject target, string description)
     {
         EventTrigger trigger = target.AddComponent<EventTrigger>();
-
         EventTrigger.Entry enterEntry = new EventTrigger.Entry();
         enterEntry.eventID = EventTriggerType.PointerEnter;
         enterEntry.callback.AddListener((eventData) => ShowTooltip(description));
         trigger.triggers.Add(enterEntry);
-
         EventTrigger.Entry exitEntry = new EventTrigger.Entry();
         exitEntry.eventID = EventTriggerType.PointerExit;
         exitEntry.callback.AddListener((eventData) => HideTooltip());
@@ -577,15 +844,13 @@ public class ShopUIController : MonoBehaviour
     void UpdateTooltipPosition()
     {
         if (tooltipPanel == null || !tooltipPanel.activeInHierarchy) return;
-
         Vector2 pointerPos = Vector2.zero;
         if (Mouse.current != null)
             pointerPos = Mouse.current.position.ReadValue();
         else if (Pointer.current != null)
             pointerPos = Pointer.current.position.ReadValue();
-
         RectTransform rt = tooltipPanel.GetComponent<RectTransform>();
-        rt.position = new Vector3(pointerPos.x + 15, pointerPos.y + 15, 0);
+        rt.position = new Vector3(pointerPos.x + 15, pointerPos.y - 15, 0);
     }
 
     void SelectItem(int index)
@@ -594,31 +859,22 @@ public class ShopUIController : MonoBehaviour
         ShopItem[] currentItems = shopManager.GetCurrentShopItems();
         if (index < 0 || index >= currentItems.Length) return;
         ShopItem shopItem = currentItems[index];
-        if (itemIcon != null)
-            itemIcon.sprite = shopItem.itemData.icon;
-        if (itemNameText != null)
-            itemNameText.text = shopItem.itemData.itemName;
-        if (itemDescriptionText != null)
-            itemDescriptionText.text = shopItem.itemData.description;
-        if (itemPriceText != null)
-            itemPriceText.text = $"{pricePrefix}{shopItem.price}{priceSuffix}";
+        if (itemIcon != null) itemIcon.sprite = shopItem.itemData.icon;
+        if (itemNameText != null) itemNameText.text = shopItem.itemData.itemName;
+        if (itemDescriptionText != null) itemDescriptionText.text = shopItem.itemData.description;
+        if (itemPriceText != null) itemPriceText.text = $"{pricePrefix}{shopItem.price}{priceSuffix}";
     }
 
-    void BuySelectedItem()
+    void BuyItem(int index)
     {
+        selectedItemIndex = index;
         ShopItem[] currentItems = shopManager.GetCurrentShopItems();
-        if (selectedItemIndex < 0 || selectedItemIndex >= currentItems.Length)
-        {
-            if (itemDescriptionText != null)
-                itemDescriptionText.text = noItemSelectedMessage;
-            return;
-        }
-
-        ShopItem shopItem = currentItems[selectedItemIndex];
+        if (index < 0 || index >= currentItems.Length) return;
+        ShopItem shopItem = currentItems[index];
         if (shopItem.itemData == null) return;
 
-        bool success = shopManager.BuyItem(selectedItemIndex, playerInventory, playerStats);
-        if (success && shopItem.itemData != null && shopItem.itemData.itemId.Contains(xpPotionIdSubstring))
+        bool success = shopManager.BuyItem(index, playerInventory, playerStats);
+        if (success && shopItem.itemData.itemId.Contains(xpPotionIdSubstring))
         {
             shopItem.price = Mathf.RoundToInt(shopItem.price * xpPotionPriceMultiplier);
         }
@@ -626,17 +882,45 @@ public class ShopUIController : MonoBehaviour
         RefreshShopItems();
         if (itemDescriptionText != null)
             itemDescriptionText.text = success ? purchasedMessage : notEnoughMessage;
+        if (success)
+            SelectItem(index);
+    }
+
+    void BuySelectedItem()
+    {
+        if (selectedItemIndex < 0)
+        {
+            if (itemDescriptionText != null)
+                itemDescriptionText.text = noItemSelectedMessage;
+            return;
+        }
+        BuyItem(selectedItemIndex);
     }
 
     void SellAllSouls()
     {
         if (shopManager == null || playerInventory == null || playerStats == null) return;
-
         int totalGold = 0;
-        foreach (ItemData soul in soulItems)
+
+        if (soulItems != null && soulItems.Count > 0)
         {
-            if (soul == null) continue;
-            totalGold += shopManager.SellItem(soul, int.MaxValue, playerInventory, playerStats);
+            foreach (ItemData soul in soulItems)
+            {
+                if (soul == null) continue;
+                totalGold += shopManager.SellItem(soul, int.MaxValue, playerInventory, playerStats);
+            }
+        }
+        else
+        {
+            // Sell all materials if no explicit soul items configured
+            List<ItemData> materialsToSell = new List<ItemData>();
+            foreach (InventoryItem invItem in playerInventory.items)
+            {
+                if (invItem.itemData != null && invItem.itemData.itemType == ItemType.Material && !materialsToSell.Contains(invItem.itemData))
+                    materialsToSell.Add(invItem.itemData);
+            }
+            foreach (ItemData material in materialsToSell)
+                totalGold += shopManager.SellItem(material, int.MaxValue, playerInventory, playerStats);
         }
 
         if (totalGold > 0)
@@ -654,14 +938,28 @@ public class ShopUIController : MonoBehaviour
         {
             int totalCount = 0;
             int totalValue = 0;
-            foreach (ItemData soul in soulItems)
+            if (soulItems != null && soulItems.Count > 0)
             {
-                if (soul == null) continue;
-                int count = playerInventory.GetItemCount(soul);
-                totalCount += count;
-                totalValue += count * (soul.price > 0 ? soul.price : 1);
+                foreach (ItemData soul in soulItems)
+                {
+                    if (soul == null) continue;
+                    int count = playerInventory.GetItemCount(soul);
+                    totalCount += count;
+                    totalValue += count * (soul.price > 0 ? soul.price : 1);
+                }
             }
-            text.text = $"{sellButtonText} ({totalCount})\n+{totalValue}g";
+            else
+            {
+                foreach (InventoryItem invItem in playerInventory.items)
+                {
+                    if (invItem.itemData != null && invItem.itemData.itemType == ItemType.Material)
+                    {
+                        totalCount += invItem.quantity;
+                        totalValue += invItem.quantity * (invItem.itemData.price > 0 ? invItem.itemData.price : 1);
+                    }
+                }
+            }
+            text.text = $"{sellButtonText}\n({totalCount}) +{totalValue}g";
         }
     }
 
@@ -674,13 +972,9 @@ public class ShopUIController : MonoBehaviour
     void ClearItemDetails()
     {
         selectedItemIndex = -1;
-        if (itemIcon != null)
-            itemIcon.sprite = null;
-        if (itemNameText != null)
-            itemNameText.text = "";
-        if (itemDescriptionText != null)
-            itemDescriptionText.text = noItemSelectedMessage;
-        if (itemPriceText != null)
-            itemPriceText.text = "";
+        if (itemIcon != null) itemIcon.sprite = null;
+        if (itemNameText != null) itemNameText.text = "";
+        if (itemDescriptionText != null) itemDescriptionText.text = noItemSelectedMessage;
+        if (itemPriceText != null) itemPriceText.text = "";
     }
 }

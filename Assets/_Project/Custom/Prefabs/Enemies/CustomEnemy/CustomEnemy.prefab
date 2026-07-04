@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 8107518946228271371}
   - component: {fileID: 7939322267234456635}
   - component: {fileID: 8652764411933334936}
-  - component: {fileID: 9500000000000000000}
+  - component: {fileID: 950000000000000000}
   - component: {fileID: 5000000000000000000}
   m_Layer: 6
   m_Name: CustomEnemy
@@ -161,7 +161,7 @@ MonoBehaviour:
   detectionRadius: 8
   moveSpeed: 2
   chaseTarget: 1
-  anim: {fileID: 9500000000000000000}
+  anim: {fileID: 950000000000000000}
   attackTrigger: Attack
   deathTrigger: Death
   hitTrigger: Hit
@@ -186,7 +186,7 @@ MonoBehaviour:
   expPerLevel: 5
   goldPerLevel: 3
   drops: []
---- !u!95 &9500000000000000000
+--- !u!95 &950000000000000000
 Animator:
   serializedVersion: 5
   m_ObjectHideFlags: 0

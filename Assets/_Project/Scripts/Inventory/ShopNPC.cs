@@ -67,7 +67,7 @@ public class ShopNPC : MonoBehaviour
     {
         int count = 0;
         if (c.shopPanel != null) count++;
-        if (c.itemContainer != null) count++;
+        if (c.cardContainer != null) count++;
         if (c.goldText != null) count++;
         if (c.itemNameText != null) count++;
         if (c.itemDescriptionText != null) count++;

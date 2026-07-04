@@ -522,14 +522,8 @@ public class AutoCombat : MonoBehaviour
             string onceKey = "DropOnce_" + drop.itemData.itemId;
             if (drop.dropOnlyOnce && PlayerPrefs.GetInt(onceKey, 0) == 1)
             {
-                if (playerInventory.GetItemCount(drop.itemData) > 0)
-                {
-                    Debug.Log($"[{name}] Drop skipped: {drop.itemData.itemName} already dropped once.");
-                    continue;
-                }
-
-                PlayerPrefs.DeleteKey(onceKey);
-                Debug.LogWarning($"[{name}] Repaired stale drop flag for {drop.itemData.itemName}: item was not in inventory.");
+                Debug.Log($"[{name}] Drop skipped: {drop.itemData.itemName} already dropped once.");
+                continue;
             }
 
             float chance = Mathf.Min(drop.baseDropChance * luckMultiplier, 1f);
