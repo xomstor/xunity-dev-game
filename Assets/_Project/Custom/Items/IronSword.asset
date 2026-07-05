@@ -17,7 +17,7 @@ MonoBehaviour:
   description: A reliable iron blade. ATK +10
   itemType: 0
   rarity: 1
-  icon: {fileID: 5210274454811303722, guid: 2728f9ada4f89934ea4c3200b963dd7e, type: 3}
+  icon: {fileID: -3455089740371052150, guid: 6cbb04848abe14a46983dc34792fd5c4, type: 3}
   price: 180
   maxStack: 1
   atkBonus: 10

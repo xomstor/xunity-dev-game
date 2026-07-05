@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Sturdy armor. DEF +5
   itemType: 1
   rarity: 0
-  icon: {fileID: 9056719247498086458, guid: 36dff5ac33d58004d921b383761eb266, type: 3}
+  icon: {fileID: -2757887451555568444, guid: fb09078f87b3b6243b732ac2a83f06c0, type: 3}
   price: 60
   maxStack: 1
   atkBonus: 0

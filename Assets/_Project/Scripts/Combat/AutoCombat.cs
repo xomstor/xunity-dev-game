@@ -18,6 +18,7 @@ public class AutoCombat : MonoBehaviour
     [Header("Stats")]
     public int maxHealth = 100;
     public int damage = 10;
+    public int def = 0;
     public float attackRange = 1.5f;
     public float attackCooldown = 1f;
     public float detectionRadius = 15f;
@@ -229,15 +230,16 @@ public class AutoCombat : MonoBehaviour
         float distance = GetDistanceToTarget();
         if (distance > attackRange) return false;
 
-        attackTimer = attackCooldown;
+        attackTimer = GetEffectiveAttackCooldown();
 
         int finalDamage = GetFinalDamage(out bool isCrit);
+        int attackerLethality = GetLethality();
         bool isPlayer = team == CombatTeam.Player;
 
         AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
-            targetCombat.TakeDamage(finalDamage);
+            targetCombat.TakeDamage(finalDamage, attackerLethality);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, isPlayer);
             return true;
         }
@@ -245,7 +247,7 @@ public class AutoCombat : MonoBehaviour
         PlayerStats targetStats = FindPlayerStats(target);
         if (targetStats != null)
         {
-            targetStats.TakeDamage(finalDamage);
+            targetStats.TakeDamage(finalDamage, attackerLethality);
             ShowDamagePopup(GetPopupPosition(targetStats.transform), finalDamage, isCrit, isPlayer);
             return true;
         }
@@ -287,6 +289,29 @@ public class AutoCombat : MonoBehaviour
     int GetFinalDamage()
     {
         return GetFinalDamage(out _);
+    }
+
+    int GetLethality()
+    {
+        PlayerStats stats = GetComponent<PlayerStats>();
+        return stats != null ? stats.GetEffectiveLethality() : 0;
+    }
+
+    float GetEffectiveAttackCooldown()
+    {
+        PlayerStats stats = GetComponent<PlayerStats>();
+        if (stats != null)
+            return attackCooldown * stats.GetAttackCooldownMultiplier();
+        return attackCooldown;
+    }
+
+    int GetMitigatedDamage(int rawDamage, int attackerLethality)
+    {
+        int pureDamage = Mathf.Min(attackerLethality, rawDamage);
+        int mitigatable = rawDamage - pureDamage;
+        float multiplier = 100f / (100f + def);
+        int mitigated = Mathf.RoundToInt(mitigatable * multiplier);
+        return Mathf.Max(1, pureDamage + mitigated);
     }
 
     AutoCombat FindAutoCombat(Transform t)
@@ -390,18 +415,21 @@ public class AutoCombat : MonoBehaviour
     {
         if (attackTimer > 0) return;
 
-        attackTimer = attackCooldown;
+        attackTimer = GetEffectiveAttackCooldown();
 
         if (anim != null && anim.runtimeAnimatorController != null && HasAnimatorParameter(attackTrigger))
         {
             anim.SetTrigger(attackTrigger);
         }
 
+        int finalDamage = GetFinalDamage(out bool isCrit);
+        int attackerLethality = GetLethality();
+
         AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
-            targetCombat.TakeDamage(damage);
-            ShowDamagePopup(GetPopupPosition(targetCombat.transform), damage, false, team == CombatTeam.Player);
+            targetCombat.TakeDamage(finalDamage, attackerLethality);
+            ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, team == CombatTeam.Player);
         }
     }
 
@@ -414,12 +442,13 @@ public class AutoCombat : MonoBehaviour
             stats.hp = currentHealth;
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int amount, int attackerLethality = 0)
     {
         if (isDead) return;
 
-        // ✅ Защита от отрицательного здоровья
-        currentHealth = Mathf.Max(0, currentHealth - amount);
+        int finalDamage = GetMitigatedDamage(amount, attackerLethality);
+
+        currentHealth = Mathf.Max(0, currentHealth - finalDamage);
 
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)

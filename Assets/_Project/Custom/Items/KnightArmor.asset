@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Heavy plate armor. DEF +18, HP +40
   itemType: 1
   rarity: 2
-  icon: {fileID: 8862412209254709342, guid: d7c9f0c29bd1bb540a52a6ec8a84e213, type: 3}
+  icon: {fileID: 1571451681195895304, guid: cd1b87b8bbf04944598918d7b2edb537, type: 3}
   price: 400
   maxStack: 1
   atkBonus: 0

@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Enchanted with dragon fire. ATK +30, LCK +3
   itemType: 0
   rarity: 3
-  icon: {fileID: 3874176810480023557, guid: 8574518b02d2f2c4c84d625ca22595a9, type: 3}
+  icon: {fileID: -7509971365656586269, guid: 4e78e9f1659bcf141a72370120d1b01b, type: 3}
   price: 1200
   maxStack: 1
   atkBonus: 30

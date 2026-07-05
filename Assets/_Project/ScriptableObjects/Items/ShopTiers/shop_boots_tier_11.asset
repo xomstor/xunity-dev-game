@@ -19,7 +19,7 @@ MonoBehaviour:
     \u0441\u043A\u043E\u0440\u043E\u0441\u0442\u044C."
   itemType: 2
   rarity: 3
-  icon: {fileID: 0}
+  icon: {fileID: -7863365582125958962, guid: 628c119fd4ae52949b9f38773e325435, type: 3}
   price: 3680
   maxStack: 1
   atkBonus: 0

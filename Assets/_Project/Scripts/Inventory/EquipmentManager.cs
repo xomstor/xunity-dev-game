@@ -131,6 +131,8 @@ public class EquipmentManager : MonoBehaviour
         playerStats.maxHp += item.hpBonus;
         playerStats.spd += item.spdBonus;
         playerStats.lck += item.lckBonus;
+        playerStats.atkSpd += item.atkSpdBonus;
+        playerStats.lethality += item.lethalityBonus;
 
         if (playerCombat != null)
         {
@@ -147,6 +149,8 @@ public class EquipmentManager : MonoBehaviour
         playerStats.maxHp -= item.hpBonus;
         playerStats.spd -= item.spdBonus;
         playerStats.lck -= item.lckBonus;
+        playerStats.atkSpd -= item.atkSpdBonus;
+        playerStats.lethality -= item.lethalityBonus;
         playerStats.hp = Mathf.Min(playerStats.hp, playerStats.maxHp);
 
         if (playerCombat != null)

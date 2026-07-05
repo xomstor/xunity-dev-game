@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Forged steel with a sharp edge. ATK +18
   itemType: 0
   rarity: 2
-  icon: {fileID: -7066590059871903476, guid: 462fa44b001d3c84aae80cef4b5e2144, type: 3}
+  icon: {fileID: -8492036531415929697, guid: b214d9a11e4f32a4298f52676c35a743, type: 3}
   price: 450
   maxStack: 1
   atkBonus: 18

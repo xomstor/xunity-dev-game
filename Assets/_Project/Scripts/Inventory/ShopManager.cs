@@ -86,6 +86,8 @@ public class ShopManager : MonoBehaviour
         if (shopItem.quantity > 0)
             shopItem.quantity--;
 
+        Debug.Log($"[Shop] Bought: {shopItem.itemData.itemName} (type={shopItem.itemData.itemType}, id={shopItem.itemData.itemId}). weaponTiers={(weaponTiers?.Length ?? -1)}, armorTiers={(armorTiers?.Length ?? -1)}, bootTiers={(bootTiers?.Length ?? -1)}, accessoryTiers={(accessoryTiers?.Length ?? -1)}");
+
         AdvanceGearTier(shopItem.itemData);
         SaveTierIndices();
         RebuildDynamicShop();
@@ -98,13 +100,29 @@ public class ShopManager : MonoBehaviour
         if (item == null) return;
 
         if (weaponTiers != null && System.Array.IndexOf(weaponTiers, item) >= 0)
+        {
             weaponTierIndex = Mathf.Min(weaponTierIndex + 1, weaponTiers.Length - 1);
+            Debug.Log($"[Shop] Advanced weapon tier -> {weaponTierIndex}");
+        }
         else if (armorTiers != null && System.Array.IndexOf(armorTiers, item) >= 0)
+        {
             armorTierIndex = Mathf.Min(armorTierIndex + 1, armorTiers.Length - 1);
+            Debug.Log($"[Shop] Advanced armor tier -> {armorTierIndex}");
+        }
         else if (bootTiers != null && System.Array.IndexOf(bootTiers, item) >= 0)
+        {
             bootTierIndex = Mathf.Min(bootTierIndex + 1, bootTiers.Length - 1);
+            Debug.Log($"[Shop] Advanced boot tier -> {bootTierIndex}");
+        }
         else if (accessoryTiers != null && System.Array.IndexOf(accessoryTiers, item) >= 0)
+        {
             accessoryTierIndex = Mathf.Min(accessoryTierIndex + 1, accessoryTiers.Length - 1);
+            Debug.Log($"[Shop] Advanced accessory tier -> {accessoryTierIndex}");
+        }
+        else
+        {
+            Debug.LogWarning($"[Shop] AdvanceGearTier: item {item.itemName} (id={item.itemId}) NOT FOUND in any tier array!");
+        }
     }
 
     void SaveTierIndices()

@@ -38,6 +38,8 @@ public class ItemData : ScriptableObject
     public int hpBonus;
     public int spdBonus;
     public int lckBonus;
+    public int atkSpdBonus;
+    public int lethalityBonus;
     public int restoreHp;
     public int experienceReward;
 

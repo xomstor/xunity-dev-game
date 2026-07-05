@@ -17,7 +17,7 @@ MonoBehaviour:
   description: Light boots. SPD +5
   itemType: 2
   rarity: 0
-  icon: {fileID: 328998392446231142, guid: 9fd2b2f9e477daa4cb171efcb6423709, type: 3}
+  icon: {fileID: 7902364575885455685, guid: e0bb839158594cf41998b511b973e092, type: 3}
   price: 40
   maxStack: 1
   atkBonus: 0

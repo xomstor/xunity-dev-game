@@ -496,9 +496,11 @@ public class PauseMenu : MonoBehaviour
                 $"Skill Points: {playerStats.skillPoints}\n\n" +
                 $"HP: {playerStats.hp} / {playerStats.maxHp}\n" +
                 $"ATK: {playerStats.atk}\n" +
-                $"DEF: {playerStats.def}\n" +
+                $"DEF: {playerStats.def} ({playerStats.GetDamageReductionPercent():F0}%)\n" +
                 $"SPD: {playerStats.spd}\n" +
-                $"LCK: {playerStats.lck}\n\n" +
+                $"LCK: {playerStats.lck}\n" +
+                $"AtkSpd: {playerStats.atkSpd} ({(1f / playerStats.GetAttackCooldownMultiplier() - 1f) * 100f:F0}%)\n" +
+                $"Lethality: {playerStats.GetEffectiveLethality()} ({playerStats.lethality} + {playerStats.GetEffectiveLethality() - playerStats.lethality} from LCK)\n\n" +
                 $"Regen: {playerStats.GetHpRegenPerSecond():F1} HP/sec\n" +
                 $"Crit: {playerStats.GetCritChance() * 100f:F0}%\n\n" +
                 $"Junk: {junkCount} items\n" +
