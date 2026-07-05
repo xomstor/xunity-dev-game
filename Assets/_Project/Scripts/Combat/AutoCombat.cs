@@ -36,7 +36,7 @@ public class AutoCombat : MonoBehaviour
     [Header("Effects")]
     public GameObject deathEffect;
     [Header("Health (Runtime)")]
-    [SerializeField] 
+    [SerializeField]
     private int currentHealth;
     private float attackTimer;
     private Transform target;
@@ -115,6 +115,15 @@ public class AutoCombat : MonoBehaviour
         }
         if (!hasNonTrigger && team == CombatTeam.Enemy)
             Debug.LogWarning($"{name}: has no non-trigger collider! Player cannot auto-target this enemy.");
+
+        // <--- ДОБАВЛЕНО: Синхронизация при старте игры ---
+        if (team == CombatTeam.Player && HealthSystem.Instance != null)
+        {
+            HealthSystem.Instance.hitPoint = currentHealth;
+            HealthSystem.Instance.maxHitPoint = maxHealth;
+            HealthSystem.Instance.UpdateGraphics();
+        }
+        // ------------------------------------------------
     }
 
     void Update()
@@ -176,6 +185,14 @@ public class AutoCombat : MonoBehaviour
             currentHealth = Mathf.Min(maxHealth, currentHealth + heal);
             stats.hp = currentHealth;
             regenAccum -= heal;
+
+            // <--- ДОБАВЛЕНО: Обновление шара при регене ---
+            if (HealthSystem.Instance != null)
+            {
+                HealthSystem.Instance.hitPoint = currentHealth;
+                HealthSystem.Instance.UpdateGraphics();
+            }
+            // -----------------------------------------------
         }
     }
 
@@ -366,6 +383,7 @@ public class AutoCombat : MonoBehaviour
                 closestDistance = distance;
                 target = collider.transform;
             }
+
         }
 
     }
@@ -440,6 +458,15 @@ public class AutoCombat : MonoBehaviour
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)
             stats.hp = currentHealth;
+
+        // <--- ДОБАВЛЕНО: Синхронизация при лечении ---
+        if (team == CombatTeam.Player && HealthSystem.Instance != null)
+        {
+            HealthSystem.Instance.hitPoint = currentHealth;
+            HealthSystem.Instance.maxHitPoint = maxHealth;
+            HealthSystem.Instance.UpdateGraphics();
+        }
+        // -----------------------------------------------
     }
 
     public void TakeDamage(int amount, int attackerLethality = 0)
@@ -468,6 +495,15 @@ public class AutoCombat : MonoBehaviour
         {
             Die();
         }
+
+        // <--- ДОБАВЛЕНО: Синхронизация при получении урона ---
+        if (team == CombatTeam.Player && HealthSystem.Instance != null)
+        {
+            HealthSystem.Instance.hitPoint = currentHealth;
+            HealthSystem.Instance.maxHitPoint = maxHealth;
+            HealthSystem.Instance.UpdateGraphics();
+        }
+        // ---------------------------------------------------
     }
 
     void Die()
