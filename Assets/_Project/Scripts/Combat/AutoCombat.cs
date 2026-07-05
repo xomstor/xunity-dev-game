@@ -93,6 +93,13 @@ public class AutoCombat : MonoBehaviour
             damage = stats.atk;
         }
 
+        if (team == CombatTeam.Enemy && WorldLevelManager.Instance != null)
+        {
+            maxHealth = Mathf.RoundToInt(maxHealth * WorldLevelManager.Instance.CurrentEnemyHealthMultiplier);
+            damage = Mathf.RoundToInt(damage * WorldLevelManager.Instance.CurrentEnemyDamageMultiplier);
+            currentHealth = maxHealth;
+        }
+
         if (team == CombatTeam.Enemy && chaseTarget && rb == null)
             Debug.LogWarning($"{name}: chaseTarget is enabled but no Rigidbody2D found. Enemy will not move!");
 
@@ -519,11 +526,18 @@ public class AutoCombat : MonoBehaviour
                 continue;
             }
 
-            string onceKey = "DropOnce_" + drop.itemData.itemId;
-            if (drop.dropOnlyOnce && PlayerPrefs.GetInt(onceKey, 0) == 1)
+            if (drop.dropOnlyOnce)
             {
-                Debug.Log($"[{name}] Drop skipped: {drop.itemData.itemName} already dropped once.");
-                continue;
+                bool hasItem = playerInventory.GetItemCount(drop.itemData) > 0;
+
+                if (!hasItem && EquipmentManager.Instance != null)
+                    hasItem = EquipmentManager.Instance.IsEquipped(drop.itemData);
+
+                if (hasItem)
+                {
+                    Debug.Log($"[{name}] Drop skipped: {drop.itemData.itemName} already in inventory/equipped.");
+                    continue;
+                }
             }
 
             float chance = Mathf.Min(drop.baseDropChance * luckMultiplier, 1f);
@@ -536,11 +550,6 @@ public class AutoCombat : MonoBehaviour
                 if (added)
                 {
                     Debug.Log($"Dropped: {drop.itemData.itemName} x{drop.quantity}");
-                    if (drop.dropOnlyOnce)
-                    {
-                        PlayerPrefs.SetInt(onceKey, 1);
-                        PlayerPrefs.Save();
-                    }
                 }
                 else
                 {

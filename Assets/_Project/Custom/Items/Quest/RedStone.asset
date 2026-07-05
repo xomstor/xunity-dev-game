@@ -18,9 +18,9 @@ MonoBehaviour:
   description: "\u041A\u0432\u0435\u0441\u0442\u043E\u0432\u044B\u0439 \u043F\u0440\u0435\u0434\u043C\u0435\u0442.
     \u041B\u0438\u0440\u0430 \u0412\u0435\u0439\u043D \u043F\u0440\u043E\u0441\u0438\u043B\u0430
     \u043F\u0440\u0438\u043D\u0435\u0441\u0442\u0438 \u0435\u0433\u043E."
-  itemType: 4
+  itemType: 6
   rarity: 4
-  icon: {fileID: 0}
+  icon: {fileID: -1269964685249338135, guid: c0ed5351aacb0c2418d831199829d6ae, type: 3}
   price: 0
   maxStack: 1
   atkBonus: 0

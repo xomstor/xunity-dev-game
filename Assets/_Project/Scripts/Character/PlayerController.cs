@@ -173,12 +173,18 @@ public class PlayerController : MonoBehaviour
 
     public void Roll()
     {
+        int direction = moveInput != 0 ? (int)Mathf.Sign(moveInput) : (int)Mathf.Sign(transform.localScale.x);
+        Roll(direction);
+    }
+
+    public void Roll(int direction)
+    {
         if (isRolling || rollCooldownTimer > 0 || !isGrounded) return;
 
         isRolling = true;
         rollTimer = rollDuration;
         rollCooldownTimer = rollCooldown;
-        rollDirection = moveInput != 0 ? (int)Mathf.Sign(moveInput) : (int)Mathf.Sign(transform.localScale.x);
+        rollDirection = direction;
 
         if (anim != null)
             anim.SetTrigger("Roll");

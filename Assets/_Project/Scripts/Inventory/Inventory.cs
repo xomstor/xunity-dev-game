@@ -13,6 +13,8 @@ public class Inventory : MonoBehaviour
     public List<InventoryItem> items = new List<InventoryItem>();
     public int maxSlots = 20;
 
+    public static event System.Action OnInventoryChanged;
+
     public bool AddItem(ItemData item, int quantity = 1)
     {
         if (item == null) return false;
@@ -98,10 +100,16 @@ public class Inventory : MonoBehaviour
     void NotifyPickup(ItemData item, int qty)
     {
         ItemNotification.EnsureInstance().ShowPickup(item.itemName, qty);
+        OnInventoryChanged?.Invoke();
     }
 
     void NotifySpend(ItemData item, int qty)
     {
         ItemNotification.EnsureInstance().ShowSpend(item.itemName, qty);
+
+        PlayerAudio playerAudio = FindAnyObjectByType<PlayerAudio>();
+        if (playerAudio != null)
+            playerAudio.PlaySpend();
+        OnInventoryChanged?.Invoke();
     }
 }

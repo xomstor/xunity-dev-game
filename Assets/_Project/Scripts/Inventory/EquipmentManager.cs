@@ -13,6 +13,12 @@ public class EquipmentManager : MonoBehaviour
     private PlayerStats playerStats;
     private AutoCombat playerCombat;
 
+    public struct EquipResult
+    {
+        public bool success;
+        public ItemData replacedItem;
+    }
+
     void Awake()
     {
         if (Instance != null)
@@ -39,6 +45,8 @@ public class EquipmentManager : MonoBehaviour
         {
             ItemType.Weapon => weapon,
             ItemType.Armor => armor,
+            ItemType.Boots => boots,
+            ItemType.Accessory => accessory,
             _ => null
         };
     }
@@ -48,23 +56,30 @@ public class EquipmentManager : MonoBehaviour
         if (item == null) return false;
         return item.itemType == ItemType.Weapon ||
                item.itemType == ItemType.Armor ||
-               item.itemType == ItemType.Misc;
+               item.itemType == ItemType.Boots ||
+               item.itemType == ItemType.Accessory;
     }
 
-    public bool Equip(ItemData item, Inventory inventory)
+    public EquipResult Equip(ItemData item, Inventory inventory)
     {
-        if (item == null || inventory == null) return false;
-        if (!CanEquip(item)) return false;
-        if (IsEquipped(item)) return false;
-        if (inventory.GetItemCount(item) <= 0) return false;
+        EquipResult result = new EquipResult { success = false, replacedItem = null };
 
-        ItemData slot = GetSlotForItem(item);
-        if (slot != null)
-            Unequip(slot, inventory);
+        if (item == null || inventory == null) return result;
+        if (!CanEquip(item)) return result;
+        if (IsEquipped(item)) return result;
+        if (inventory.GetItemCount(item) <= 0) return result;
+
+        ItemData previous = GetSlotForItem(item);
+        if (previous != null)
+        {
+            Unequip(previous, inventory);
+            result.replacedItem = previous;
+        }
 
         SetSlotForItem(item);
         ApplyStats(item);
-        return true;
+        result.success = true;
+        return result;
     }
 
     public bool Unequip(ItemData item, Inventory inventory)
@@ -79,24 +94,25 @@ public class EquipmentManager : MonoBehaviour
 
     ItemData GetSlotForItem(ItemData item)
     {
-        if (item.itemType == ItemType.Weapon) return weapon;
-        if (IsBoots(item)) return boots;
-        if (item.itemType == ItemType.Armor) return armor;
-        if (item.itemType == ItemType.Misc) return accessory;
-        return null;
+        return item.itemType switch
+        {
+            ItemType.Weapon => weapon,
+            ItemType.Armor => armor,
+            ItemType.Boots => boots,
+            ItemType.Accessory => accessory,
+            _ => null
+        };
     }
 
     void SetSlotForItem(ItemData item)
     {
-        if (item.itemType == ItemType.Weapon) weapon = item;
-        else if (IsBoots(item)) boots = item;
-        else if (item.itemType == ItemType.Armor) armor = item;
-        else if (item.itemType == ItemType.Misc) accessory = item;
-    }
-
-    bool IsBoots(ItemData item)
-    {
-        return item != null && item.spdBonus > 0 && item.atkBonus == 0 && item.defBonus == 0;
+        switch (item.itemType)
+        {
+            case ItemType.Weapon: weapon = item; break;
+            case ItemType.Armor: armor = item; break;
+            case ItemType.Boots: boots = item; break;
+            case ItemType.Accessory: accessory = item; break;
+        }
     }
 
     void ClearSlotForItem(ItemData item)

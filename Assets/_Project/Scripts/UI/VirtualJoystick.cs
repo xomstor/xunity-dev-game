@@ -20,11 +20,21 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     [Tooltip("If true, joystick appears at touch position. If false, stays fixed.")]
     public bool isFloating = false;
 
+    [Header("Roll on Over-Pull")]
+    [Tooltip("Насколько нужно оттянуть джойстик (0 = не работает, 1 = до края). 0.2 = чуть от центра.")]
+    [Range(0f, 1f)] public float rollInputThreshold = 0.2f;
+    [Tooltip("Кулдаун переката в секундах")]
+    public float rollCooldown = 0f;
+
     private Vector2 input = Vector2.zero;
     private Camera uiCamera;
     private bool isHolding = false;
     private bool jumpTriggered = false;
     private bool wasCrouching = false;
+    private bool rollCharged = false;
+    private Vector2 rollDirection = Vector2.zero;
+    private float rollCooldownTimer = 0f;
+    private float maxDragMagnitude = 0f;
     private Vector2 originalBackgroundPos;
     private Vector2 originalBackgroundSize;
     private Vector2 originalAnchorMin;
@@ -97,6 +107,9 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     // <-- Добавляем Update для непрерывной отправки ввода
     void Update()
     {
+        if (rollCooldownTimer > 0)
+            rollCooldownTimer -= Time.deltaTime;
+
         if (isHolding && player != null)
         {
             ApplyInputActions();
@@ -105,11 +118,18 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
 
     public void OnPointerDown(PointerEventData eventData)
     {
-        if (isHolding) return;
+        if (isHolding)
+        {
+            Debug.Log($"Joystick pointer down ignored: already holding pointer {activePointerId}, new pointer {eventData.pointerId}");
+            return;
+        }
 
         isHolding = true;
         activePointerId = eventData.pointerId;
         input = Vector2.zero;
+        rollCharged = false;
+        rollDirection = Vector2.zero;
+        maxDragMagnitude = 0f;
         if (handle != null)
             handle.anchoredPosition = Vector2.zero;
 
@@ -159,6 +179,14 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         Vector2 delta = Vector2.ClampMagnitude(localPoint, handleRange);
         handle.anchoredPosition = delta;
         input = delta / handleRange;
+        maxDragMagnitude = Mathf.Max(maxDragMagnitude, input.magnitude);
+
+        float effectiveThreshold = Mathf.Max(rollInputThreshold, 0.01f);
+        if (input.magnitude >= effectiveThreshold)
+        {
+            rollCharged = true;
+            rollDirection = input.normalized;
+        }
 
         ApplyInputActions();
     }
@@ -167,9 +195,22 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     {
         if (!isHolding || eventData.pointerId != activePointerId) return;
 
+        if (rollCharged && player != null)
+        {
+            int direction = rollDirection.x >= 0 ? 1 : -1;
+            player.SetMoveInput(direction);
+            player.Roll(direction);
+        }
+        else if (rollCharged)
+        {
+            Debug.Log("Joystick over-pull detected but player is null");
+        }
+
         isHolding = false;
         activePointerId = int.MinValue;
         input = Vector2.zero;
+        rollCharged = false;
+        rollDirection = Vector2.zero;
         handle.anchoredPosition = Vector2.zero;
         SetVisualAlpha(isFloating ? 0f : joystickAlpha);
 
@@ -186,6 +227,19 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     public Vector2 GetInput() => input;
 
     public bool IsUsable => enabled && gameObject.activeInHierarchy && background != null && handle != null;
+
+    public void ForceReset()
+    {
+        isHolding = false;
+        activePointerId = int.MinValue;
+        input = Vector2.zero;
+        rollCharged = false;
+        rollDirection = Vector2.zero;
+        if (handle != null)
+            handle.anchoredPosition = Vector2.zero;
+        SetVisualAlpha(isFloating ? 0f : joystickAlpha);
+        if (player != null) player.SetMoveInput(0f);
+    }
 
     void ApplyInputActions()
     {

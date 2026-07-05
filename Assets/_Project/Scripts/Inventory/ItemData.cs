@@ -4,6 +4,8 @@ public enum ItemType
 {
     Weapon,
     Armor,
+    Boots,
+    Accessory,
     Consumable,
     Material,
     Misc

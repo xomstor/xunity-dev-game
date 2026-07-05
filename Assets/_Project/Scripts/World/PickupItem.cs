@@ -11,8 +11,13 @@ public class PickupItem : MonoBehaviour
     public GameObject interactPrompt;
     public bool pickUpOnce = true;
 
+    [Header("Audio")]
+    public AudioClip pickupSound;
+    public float pickupSoundVolume = 1f;
+
     private bool isPlayerNearby;
     private bool alreadyPickedUp;
+    private PlayerAudio playerAudio;
 
     void Start()
     {
@@ -25,6 +30,7 @@ public class PickupItem : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerNearby = true;
+            playerAudio = other.GetComponent<PlayerAudio>();
             if (interactPrompt != null && !alreadyPickedUp)
                 interactPrompt.SetActive(true);
         }
@@ -74,6 +80,11 @@ public class PickupItem : MonoBehaviour
 
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
+
+            if (playerAudio != null)
+                playerAudio.PlayPickup();
+            else if (pickupSound != null)
+                AudioSource.PlayClipAtPoint(pickupSound, transform.position, pickupSoundVolume);
 
             Destroy(gameObject);
         }

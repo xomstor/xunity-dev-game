@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: boots
   itemName: Boots
   description: Light boots. SPD +5
-  itemType: 1
+  itemType: 2
   rarity: 0
   icon: {fileID: 328998392446231142, guid: 9fd2b2f9e477daa4cb171efcb6423709, type: 3}
   price: 40

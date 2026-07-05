@@ -15,9 +15,9 @@ MonoBehaviour:
   itemId: tigga_fur
   itemName: Tigga Fur
   description: Coarse fur from a Tigga. A merchant might want this.
-  itemType: 3
+  itemType: 5
   rarity: 1
-  icon: {fileID: 0}
+  icon: {fileID: 5188995364525647808, guid: e2604de8c2d8cfd47a6ba748742496bd, type: 3}
   price: 5
   maxStack: 99
   atkBonus: 0

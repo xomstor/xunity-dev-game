@@ -69,8 +69,7 @@ public class SwipeRollInput : MonoBehaviour
         if (Mathf.Abs(delta.x) > Mathf.Abs(delta.y))
         {
             int direction = delta.x > 0 ? 1 : -1;
-            player.SetMoveInput(direction);
-            player.Roll();
+            player.Roll(direction);
         }
         else if (delta.y > 0)
         {

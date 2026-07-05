@@ -15,9 +15,9 @@ MonoBehaviour:
   itemId: maiden_ribbon
   itemName: Maiden Ribbon
   description: A silk ribbon dropped by Maiden. Valuable to collectors.
-  itemType: 3
+  itemType: 5
   rarity: 2
-  icon: {fileID: 0}
+  icon: {fileID: 995077162742162273, guid: 0ef6e19d74f4aeb48b25d4a5a169af16, type: 3}
   price: 8
   maxStack: 99
   atkBonus: 0

@@ -25,13 +25,33 @@ public class EnemyReward : MonoBehaviour
     [Header("Drops")]
     public DropItem[] drops;
 
-    public int Experience => useLevelScaling
-        ? Mathf.RoundToInt(experienceReward + expPerLevel * enemyLevel)
-        : experienceReward;
+    public int Experience
+    {
+        get
+        {
+            float baseExp = useLevelScaling
+                ? experienceReward + expPerLevel * enemyLevel
+                : experienceReward;
+            float multiplier = WorldLevelManager.Instance != null
+                ? WorldLevelManager.Instance.CurrentRewardMultiplier
+                : 1f;
+            return Mathf.RoundToInt(baseExp * multiplier);
+        }
+    }
 
-    public int Gold => useLevelScaling
-        ? Mathf.RoundToInt(goldReward + goldPerLevel * enemyLevel)
-        : goldReward;
+    public int Gold
+    {
+        get
+        {
+            float baseGold = useLevelScaling
+                ? goldReward + goldPerLevel * enemyLevel
+                : goldReward;
+            float multiplier = WorldLevelManager.Instance != null
+                ? WorldLevelManager.Instance.CurrentRewardMultiplier
+                : 1f;
+            return Mathf.RoundToInt(baseGold * multiplier);
+        }
+    }
 
     public DropItem[] Drops => drops;
 }

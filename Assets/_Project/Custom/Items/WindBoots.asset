@@ -15,7 +15,7 @@ MonoBehaviour:
   itemId: wind_boots
   itemName: Wind Boots
   description: Powered by the wind. SPD +18, LCK +2
-  itemType: 1
+  itemType: 2
   rarity: 2
   icon: {fileID: 5413877843316761998, guid: 08c96548cc1f8f744a031fa8969d9b95, type: 3}
   price: 350

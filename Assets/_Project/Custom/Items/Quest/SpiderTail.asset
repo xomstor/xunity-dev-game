@@ -17,7 +17,7 @@ MonoBehaviour:
   description: A poisonous spider tail. Can be sold.
   itemType: 3
   rarity: 0
-  icon: {fileID: -4458642131138810303, guid: aa540e4da6496a241852f6257578bc7c, type: 3}
+  icon: {fileID: -6031528812525389340, guid: 31bb6c1f72a56954dabb043d741ba862, type: 3}
   price: 3
   maxStack: 99
   atkBonus: 0

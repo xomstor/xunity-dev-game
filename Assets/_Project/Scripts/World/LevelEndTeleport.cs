@@ -11,6 +11,10 @@ public class LevelEndTeleport : MonoBehaviour
     public float enterGracePeriod = 1f;
     public bool respawnEnemiesOnTeleport = true;
 
+    [Header("Level Index")]
+    [Tooltip("Номер этого уровня (1, 2, 3...). После 4 уровня будет предложение повысить мировой уровень.")]
+    public int levelIndex = 1;
+
     [Header("Dialogue")]
     public string[] dialogueLines = new string[]
     {
@@ -74,6 +78,8 @@ public class LevelEndTeleport : MonoBehaviour
             DialogueSystem.Instance.ShowDialogueWithChoices(dialogueLines, choiceTexts, responses, npcName, npcFace, OnChoiceMade);
     }
 
+    private string pendingTeleportTarget;
+
     void OnChoiceMade(int choiceIndex, DialogueChoice selected)
     {
         if (choiceIndex == 0)
@@ -82,12 +88,64 @@ public class LevelEndTeleport : MonoBehaviour
         }
         else if (choiceIndex == 1)
         {
-            TeleportToSpawnPoint(nextLevelSpawnPointName);
+            if (WorldLevelManager.Instance != null && WorldLevelManager.Instance.ShouldOfferWorldLevelIncrease(levelIndex))
+            {
+                pendingTeleportTarget = nextLevelSpawnPointName;
+                ShowWorldLevelOfferDialogue();
+            }
+            else
+            {
+                TeleportToSpawnPoint(nextLevelSpawnPointName);
+            }
         }
+    }
+
+    void ShowWorldLevelOfferDialogue()
+    {
+        if (DialogueSystem.Instance == null) return;
+
+        int nextLevel = WorldLevelManager.Instance.currentWorldLevel + 1;
+        string[] lines = new string[]
+        {
+            "Вы прошли 4 уровня. Хотите повысить мировой уровень?",
+            $"Мировой уровень станет {nextLevel}. Враги станут сильнее, но награды и опыт вырастут."
+        };
+
+        string[] choiceTexts = new string[] { "Повысить", "Оставить как есть" };
+        string[][] responses = new string[][]
+        {
+            new string[] { "Мировой уровень повышен! Готовьтесь к большему испытанию." },
+            new string[] { "Мировой уровень оставлен без изменений." }
+        };
+
+        if (npcFaceFrames != null && npcFaceFrames.Length > 0)
+            DialogueSystem.Instance.ShowDialogueWithChoices(lines, choiceTexts, responses, npcName, npcFaceFrames, OnWorldLevelChoiceMade);
+        else
+            DialogueSystem.Instance.ShowDialogueWithChoices(lines, choiceTexts, responses, npcName, npcFace, OnWorldLevelChoiceMade);
+    }
+
+    void OnWorldLevelChoiceMade(int choiceIndex, DialogueChoice selected)
+    {
+        if (WorldLevelManager.Instance != null)
+        {
+            if (choiceIndex == 0)
+            {
+                WorldLevelManager.Instance.IncreaseWorldLevel();
+                WorldLevelManager.Instance.CompleteLevel(levelIndex);
+                TeleportToSpawnPoint(hubSpawnPointName);
+                return;
+            }
+            WorldLevelManager.Instance.CompleteLevel(levelIndex);
+        }
+
+        TeleportToSpawnPoint(pendingTeleportTarget);
     }
 
     void TeleportToSpawnPoint(string spawnPointName)
     {
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
+
         GameObject spawnPoint = GameObject.Find(spawnPointName);
         if (spawnPoint == null)
         {

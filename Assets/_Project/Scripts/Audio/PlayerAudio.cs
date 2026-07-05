@@ -11,6 +11,8 @@ public class PlayerAudio : MonoBehaviour
     public AudioClip attack3Clip;
     public AudioClip hurtClip;
     public AudioClip rollClip;
+    public AudioClip pickupClip;
+    public AudioClip spendClip;
 
     [Header("Settings")]
     public AudioSource audioSource;
@@ -88,6 +90,29 @@ public class PlayerAudio : MonoBehaviour
     public void PlayRoll()
     {
         PlayOneShot(rollClip);
+    }
+
+    public void PlayPickup()
+    {
+        PlayOneShot(pickupClip);
+    }
+
+    public void PlaySpend()
+    {
+        if (spendClip != null)
+        {
+            PlayOneShot(spendClip);
+            return;
+        }
+
+        if (pickupClip == null || audioSource == null) return;
+
+        float[] samples = new float[pickupClip.samples * pickupClip.channels];
+        pickupClip.GetData(samples, 0);
+        System.Array.Reverse(samples);
+        AudioClip reversed = AudioClip.Create("pickup_reversed", pickupClip.samples, pickupClip.channels, pickupClip.frequency, false);
+        reversed.SetData(samples, 0);
+        audioSource.PlayOneShot(reversed);
     }
 
     void PlayOneShot(AudioClip clip)

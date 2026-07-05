@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d0ea4c9c2912d524d9c66afb3fa758a3, type: 3}
+  m_Name: enemy_wolf_rocker
+  m_EditorClassIdentifier: Assembly-CSharp::EnemyData
+  enemyId: enemy_wolf_rocker
+  enemyName: "\u0412\u043E\u043B\u043A-\u0440\u043E\u043A\u0435\u0440"
+  description: "\u0421\u0435\u0440\u044B\u0439 \u0432\u043E\u043B\u043A \u0441 \u0438\u0440\u043E\u043A\u0435\u0437\u043E\u043C
+    \u0438\u0437 \u0433\u0440\u0438\u0432\u044B. \u0417\u0430\u0432\u044B\u0432\u0430\u0435\u0442
+    \u043D\u0435 \u043D\u0430 \u043B\u0443\u043D\u0443, \u0430 \u043D\u0430 \u0431\u0438\u0442."
+  level: 6
+  maxHealth: 95
+  damage: 18
+  defense: 2
+  experienceReward: 35
+  goldReward: 10
+  uniqueDrop: {fileID: 11400000, guid: d84b34dbcc38b2d46a25f688225b34b4, type: 2}
+  dropChance: 0.25

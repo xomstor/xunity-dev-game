@@ -25,6 +25,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Inventory Panel (auto-created if null)")]
     public Transform inventoryContainer;
     public TextMeshProUGUI equippedText;
+    public Sprite discardButtonIcon;
 
     [Header("Settings Panel (auto-created)")]
     private GameObject settingsPanel;
@@ -66,6 +67,19 @@ public class PauseMenu : MonoBehaviour
         CreateSettingsButton();
 
         AddStartingItems();
+
+        Inventory.OnInventoryChanged += OnInventoryChangedHandler;
+    }
+
+    void OnDestroy()
+    {
+        Inventory.OnInventoryChanged -= OnInventoryChangedHandler;
+    }
+
+    void OnInventoryChangedHandler()
+    {
+        if (isPaused)
+            RefreshInventory();
     }
 
     void AddStartingItems()
@@ -564,8 +578,17 @@ public class PauseMenu : MonoBehaviour
         nav.childForceExpandHeight = false;
 
         CreateSmallButton(navGO.transform, "←", new Vector2(90, 60), () => SelectInventoryOffset(-1));
-        CreateSmallButton(navGO.transform, "Применить", new Vector2(260, 60), () => OnItemAction(selectedInvIndex));
+        CreateSmallButton(navGO.transform, "Применить", new Vector2(220, 60), () => OnItemAction(selectedInvIndex));
         CreateSmallButton(navGO.transform, "→", new Vector2(90, 60), () => SelectInventoryOffset(1));
+
+        Button discardBtn = CreateSmallButton(navGO.transform, "Мусор", new Vector2(160, 60), () => DiscardSelectedItem());
+        discardBtn.GetComponent<Image>().color = new Color(0.65f, 0.2f, 0.2f, 0.95f);
+        if (discardButtonIcon != null)
+        {
+            discardBtn.GetComponent<Image>().sprite = discardButtonIcon;
+            var txt = discardBtn.GetComponentInChildren<TextMeshProUGUI>();
+            if (txt != null) txt.text = "";
+        }
 
         inventoryVisible = true;
     }
@@ -722,7 +745,12 @@ public class PauseMenu : MonoBehaviour
         }
         else if (equipmentManager.CanEquip(invItem.itemData))
         {
-            equipmentManager.Equip(invItem.itemData, playerInventory);
+            var result = equipmentManager.Equip(invItem.itemData, playerInventory);
+            if (result.success && result.replacedItem != null)
+            {
+                playerInventory.RemoveItem(result.replacedItem, 1);
+                Debug.Log($"Auto-discarded replaced item: {result.replacedItem.itemName}");
+            }
         }
         else if (invItem.itemData.restoreHp > 0)
         {
@@ -734,6 +762,24 @@ public class PauseMenu : MonoBehaviour
             playerStats?.AddReward(invItem.itemData.experienceReward, 0);
             playerInventory.RemoveItem(invItem.itemData, 1);
         }
+
+        UpdateStatsDisplay();
+        RefreshInventory();
+    }
+
+    public void DiscardSelectedItem()
+    {
+        if (playerInventory == null || playerInventory.items.Count == 0) return;
+        if (selectedInvIndex < 0 || selectedInvIndex >= playerInventory.items.Count) return;
+
+        InventoryItem invItem = playerInventory.items[selectedInvIndex];
+        if (invItem.itemData == null) return;
+
+        if (equipmentManager != null && equipmentManager.IsEquipped(invItem.itemData))
+            equipmentManager.Unequip(invItem.itemData, playerInventory);
+
+        playerInventory.RemoveItem(invItem.itemData, invItem.quantity);
+        Debug.Log($"Discarded: {invItem.itemData.itemName} x{invItem.quantity}");
 
         UpdateStatsDisplay();
         RefreshInventory();

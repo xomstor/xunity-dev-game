@@ -693,8 +693,7 @@ public class ShopUIController : MonoBehaviour
     {
         if (cardContainer == null || shopManager == null) return;
 
-        if (playerStats != null)
-            shopManager.RebuildDynamicShop(playerStats.level);
+        shopManager.RebuildDynamicShop();
 
         ShopItem[] currentItems = shopManager.GetCurrentShopItems();
         filteredIndices.Clear();
