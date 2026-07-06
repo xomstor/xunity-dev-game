@@ -34,6 +34,7 @@ public class PauseMenu : MonoBehaviour
     [Header("Settings Panel (auto-created)")]
     private GameObject settingsPanel;
     private Toggle floatingJoystickToggle;
+    private Toggle heartStyleToggle;
 
     [Header("Save Panel (auto-created)")]
     private GameObject savePanel;
@@ -182,6 +183,8 @@ public class PauseMenu : MonoBehaviour
             settingsPanel.SetActive(true);
             if (floatingJoystickToggle != null)
                 floatingJoystickToggle.isOn = PlayerPrefs.GetInt("FloatingJoystick", 0) == 1;
+            if (heartStyleToggle != null)
+                heartStyleToggle.isOn = PlayerPrefs.GetInt(HealthBarUI.HealthBarStyleKey, 0) == 1;
         }
     }
 
@@ -246,6 +249,12 @@ public class PauseMenu : MonoBehaviour
             skillTreePanel.SetActive(false);
     }
 
+    public void OnHeartStyleToggle(bool value)
+    {
+        PlayerPrefs.SetInt(HealthBarUI.HealthBarStyleKey, value ? 1 : 0);
+        PlayerPrefs.Save();
+    }
+
     public void OnFloatingJoystickToggle(bool value)
     {
         Debug.Log($"[PauseMenu] OnFloatingJoystickToggle called with value={value}");
@@ -281,7 +290,7 @@ public class PauseMenu : MonoBehaviour
         srt.anchorMax = new Vector2(0.5f, 0.5f);
         srt.pivot = new Vector2(0.5f, 0.5f);
         srt.anchoredPosition = Vector2.zero;
-        srt.sizeDelta = new Vector2(500, 300);
+        srt.sizeDelta = new Vector2(500, 380);
 
         Image bg = settingsPanel.AddComponent<Image>();
         bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
@@ -347,6 +356,48 @@ public class PauseMenu : MonoBehaviour
         labelRt.offsetMax = new Vector2(-10, 35);
 
         toggle.onValueChanged.AddListener(OnFloatingJoystickToggle);
+
+        GameObject heartToggleGO = new GameObject("HeartStyleToggle");
+        heartToggleGO.transform.SetParent(settingsPanel.transform, false);
+        heartToggleGO.AddComponent<CanvasRenderer>();
+        Image heartToggleBg = heartToggleGO.AddComponent<Image>();
+        heartToggleBg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Toggle heartToggle = heartToggleGO.AddComponent<Toggle>();
+        heartToggle.targetGraphic = heartToggleBg;
+        RectTransform heartToggleRt = heartToggleGO.GetComponent<RectTransform>();
+        heartToggleRt.sizeDelta = new Vector2(0, 70);
+
+        GameObject heartCheckGO = new GameObject("Checkmark");
+        heartCheckGO.transform.SetParent(heartToggleGO.transform, false);
+        heartCheckGO.AddComponent<CanvasRenderer>();
+        Image heartCheckImg = heartCheckGO.AddComponent<Image>();
+        heartCheckImg.color = new Color(0f, 1f, 0.5f, 1f);
+        RectTransform heartCheckRt = heartCheckGO.GetComponent<RectTransform>();
+        heartCheckRt.anchorMin = new Vector2(0, 0.5f);
+        heartCheckRt.anchorMax = new Vector2(0, 0.5f);
+        heartCheckRt.pivot = new Vector2(0.5f, 0.5f);
+        heartCheckRt.anchoredPosition = new Vector2(35, 0);
+        heartCheckRt.sizeDelta = new Vector2(40, 40);
+        heartToggle.graphic = heartCheckImg;
+        heartToggle.isOn = false;
+        heartStyleToggle = heartToggle;
+
+        GameObject heartLabelGO = new GameObject("Label");
+        heartLabelGO.transform.SetParent(heartToggleGO.transform, false);
+        heartLabelGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI heartLabel = heartLabelGO.AddComponent<TextMeshProUGUI>();
+        heartLabel.text = "Сердечки вместо полосок";
+        heartLabel.fontSize = 36;
+        heartLabel.alignment = TextAlignmentOptions.Left;
+        heartLabel.color = Color.white;
+        RectTransform heartLabelRt = heartLabelGO.GetComponent<RectTransform>();
+        heartLabelRt.anchorMin = new Vector2(0, 0.5f);
+        heartLabelRt.anchorMax = new Vector2(1, 0.5f);
+        heartLabelRt.pivot = new Vector2(0, 0.5f);
+        heartLabelRt.offsetMin = new Vector2(80, -35);
+        heartLabelRt.offsetMax = new Vector2(-10, 35);
+
+        heartToggle.onValueChanged.AddListener(OnHeartStyleToggle);
 
         CreateSmallButton(settingsPanel.transform, "Закрыть", new Vector2(300, 60), CloseSettings);
 

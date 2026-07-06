@@ -26,6 +26,20 @@ public class AutoCombat : MonoBehaviour
     [Header("Movement")]
     public float moveSpeed = 2f;
     public bool chaseTarget = true;
+    public float minChaseDuration = 90f;
+    public float returnSpeed = 2f;
+    public float returnArriveDistance = 0.2f;
+    public GameObject questionMarkPrefab;
+    public bool checkEdges = true;
+    public float edgeCheckForwardOffset = 0.1f;
+    public float edgeCheckDownDistance = 0.5f;
+
+    [Header("Jump Attack")]
+    public bool canJumpAttack = true;
+    [Range(0f, 1f)] public float jumpAttackChance = 0.05f;
+    public float jumpForce = 5f;
+    public LayerMask groundLayer;
+    public float groundCheckDistance = 0.1f;
 
     [Header("Animation")]
     public Animator anim;
@@ -45,6 +59,11 @@ public class AutoCombat : MonoBehaviour
     private Rigidbody2D rb;
     private float regenAccum;
     private int lastAnimState = -1;
+    private Vector3 startPosition;
+    private Vector2 lastKnownTargetDirection;
+    private float chaseTimer;
+    private bool isReturning;
+    private GameObject questionMarkInstance;
 
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
@@ -54,6 +73,9 @@ public class AutoCombat : MonoBehaviour
         isDead = false;
         currentHealth = maxHealth;
         lastAnimState = -1;
+        chaseTimer = 0f;
+        isReturning = false;
+        ShowQuestionMark(false);
         CancelInvoke(nameof(HideAfterDeath));
         Collider2D col = GetComponent<Collider2D>();
         if (col != null)
@@ -77,7 +99,11 @@ public class AutoCombat : MonoBehaviour
     void Awake()
     {
         currentHealth = maxHealth;
+        startPosition = transform.position;
+        lastKnownTargetDirection = Vector2.right;
         rb = GetComponent<Rigidbody2D>();
+        if (groundLayer == 0)
+            groundLayer = LayerMask.GetMask("Ground");
         if (rb == null)
             rb = GetComponentInParent<Rigidbody2D>();
         if (anim == null)
@@ -149,8 +175,12 @@ public class AutoCombat : MonoBehaviour
 
         if (target != null)
         {
-            float distance = GetDistanceToTarget();
+            lastKnownTargetDirection = (target.position - transform.position).normalized;
+            chaseTimer = 0f;
+            isReturning = false;
+            ShowQuestionMark(false);
 
+            float distance = GetDistanceToTarget();
             if (distance <= attackRange)
             {
                 if (attackTimer <= 0)
@@ -172,7 +202,29 @@ public class AutoCombat : MonoBehaviour
         }
         else if (playerController == null)
         {
-            SetAnimState(0);
+            if (isReturning)
+            {
+                ReturnToStart();
+            }
+            else if (chaseTarget && chaseTimer < minChaseDuration)
+            {
+                chaseTimer += Time.deltaTime;
+                if (rb != null)
+                {
+                    Vector3 farPoint = transform.position + new Vector3(lastKnownTargetDirection.x, 0f, 0f) * 100f;
+                    MoveTowards(farPoint, moveSpeed);
+                    SetAnimState(1);
+                }
+            }
+            else if (chaseTarget && chaseTimer >= minChaseDuration)
+            {
+                isReturning = true;
+                ShowQuestionMark(true);
+            }
+            else
+            {
+                SetAnimState(0);
+            }
         }
     }
 
@@ -447,9 +499,21 @@ public class AutoCombat : MonoBehaviour
 
     void ChaseTarget()
     {
-        Vector2 direction = (target.position - transform.position).normalized;
+        if (target == null) return;
+        MoveTowards(target.position, moveSpeed);
+    }
 
-        rb.linearVelocity = new Vector2(direction.x * moveSpeed, rb.linearVelocity.y);
+    void MoveTowards(Vector3 destination, float speed)
+    {
+        Vector2 direction = (destination - transform.position).normalized;
+
+        if (Mathf.Abs(direction.x) > 0.01f && !HasGroundAhead(direction.x))
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            return;
+        }
+
+        rb.linearVelocity = new Vector2(direction.x * speed, rb.linearVelocity.y);
 
         float absX = Mathf.Abs(transform.localScale.x);
         if (faceRightByDefault)
@@ -468,6 +532,80 @@ public class AutoCombat : MonoBehaviour
         }
     }
 
+    void ReturnToStart()
+    {
+        if (Vector3.Distance(transform.position, startPosition) <= returnArriveDistance)
+        {
+            rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
+            isReturning = false;
+            chaseTimer = 0f;
+            ShowQuestionMark(false);
+            SetAnimState(0);
+            return;
+        }
+
+        MoveTowards(startPosition, returnSpeed);
+        SetAnimState(1);
+    }
+
+    void ShowQuestionMark(bool show)
+    {
+        if (team != CombatTeam.Enemy) return;
+
+        if (show)
+        {
+            if (questionMarkInstance == null)
+            {
+                if (questionMarkPrefab != null)
+                {
+                    questionMarkInstance = Instantiate(questionMarkPrefab, transform.position + Vector3.up * 1.5f, Quaternion.identity, transform);
+                }
+                else
+                {
+                    GameObject qm = new GameObject("QuestionMark");
+                    qm.transform.SetParent(transform, false);
+                    qm.transform.localPosition = new Vector3(0, 1.5f, 0);
+                    TextMesh tm = qm.AddComponent<TextMesh>();
+                    tm.text = "?";
+                    tm.characterSize = 0.3f;
+                    tm.fontSize = 64;
+                    tm.anchor = TextAnchor.MiddleCenter;
+                    tm.alignment = TextAlignment.Center;
+                    tm.color = Color.yellow;
+                    questionMarkInstance = qm;
+                }
+            }
+            questionMarkInstance.SetActive(true);
+        }
+        else if (questionMarkInstance != null)
+        {
+            questionMarkInstance.SetActive(false);
+        }
+    }
+
+    bool IsGrounded()
+    {
+        if (groundLayer == 0) return true;
+        Collider2D col = GetComponent<Collider2D>();
+        if (col == null) return false;
+        Vector2 origin = new Vector2(col.bounds.center.x, col.bounds.min.y);
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, groundCheckDistance, groundLayer);
+        return hit.collider != null;
+    }
+
+    bool HasGroundAhead(float directionX)
+    {
+        if (!checkEdges || groundLayer == 0) return true;
+        Collider2D col = GetComponent<Collider2D>();
+        if (col == null) return true;
+
+        float sign = Mathf.Sign(directionX);
+        float x = sign > 0 ? col.bounds.max.x : col.bounds.min.x;
+        Vector2 origin = new Vector2(x + sign * edgeCheckForwardOffset, col.bounds.min.y);
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, edgeCheckDownDistance, groundLayer);
+        return hit.collider != null;
+    }
+
     void Attack()
     {
         if (attackTimer > 0) return;
@@ -477,6 +615,11 @@ public class AutoCombat : MonoBehaviour
         if (anim != null && anim.runtimeAnimatorController != null && HasAnimatorParameter(attackTrigger))
         {
             anim.SetTrigger(attackTrigger);
+        }
+
+        if (canJumpAttack && Random.value < jumpAttackChance && IsGrounded())
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
         }
 
         int finalDamage = GetFinalDamage(out bool isCrit);
@@ -557,6 +700,7 @@ public class AutoCombat : MonoBehaviour
     void Die()
     {
         isDead = true;
+        ShowQuestionMark(false);
 
         if (team == CombatTeam.Player)
         {
