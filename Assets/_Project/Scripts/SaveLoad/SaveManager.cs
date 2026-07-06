@@ -102,12 +102,14 @@ public class SaveManager : MonoBehaviour
     public static SaveManager Instance { get; private set; }
 
     public const int SlotCount = 3;
-    public static int AutoSaveSlot = 0;
+    public const int AutoSaveSlot = 0;
 
     public int lastUsedSlot = 1;
     public bool autoLoadOnStart = false;
 
     string SaveFolder => Application.persistentDataPath;
+
+    public string GetSlotLabel(int slot) => slot == AutoSaveSlot ? "Автосохранение" : $"Слот {slot}";
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     static void AutoCreate()
@@ -152,6 +154,8 @@ public class SaveManager : MonoBehaviour
 
     public string GetSlotPath(int slot)
     {
+        if (slot == AutoSaveSlot)
+            return Path.Combine(SaveFolder, "autosave.json");
         return Path.Combine(SaveFolder, $"slot{slot}.json");
     }
 
@@ -385,10 +389,17 @@ public class SaveManager : MonoBehaviour
             ApplyGameData(pendingLoadData);
             pendingLoadData = null;
         }
+        else
+        {
+            AutoSave();
+        }
     }
 
     void ApplyGameData(GameData data)
     {
+        if (FindAnyObjectByType<PlayerStats>() == null)
+            PlayerSpawner.Instance?.EnsurePlayerExists();
+
         PlayerStats stats = FindAnyObjectByType<PlayerStats>();
         if (stats != null && data.playerStats != null)
         {

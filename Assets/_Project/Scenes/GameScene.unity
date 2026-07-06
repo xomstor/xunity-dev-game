@@ -283,6 +283,22 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 828578706}
     m_Modifications:
+    - target: {fileID: 182994075815050364, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: m_Size.x
+      value: 8.740437
+      objectReference: {fileID: 0}
+    - target: {fileID: 182994075815050364, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: m_Size.y
+      value: 11.072903
+      objectReference: {fileID: 0}
+    - target: {fileID: 182994075815050364, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: m_Offset.x
+      value: 0.14697075
+      objectReference: {fileID: 0}
+    - target: {fileID: 182994075815050364, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
+      propertyPath: m_Offset.y
+      value: -1.4433753
+      objectReference: {fileID: 0}
     - target: {fileID: 2028786056995819852, guid: d5d60e1489bb09b4c954c63702313867, type: 3}
       propertyPath: damage
       value: 5
@@ -2955,6 +2971,8 @@ MonoBehaviour:
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 0
+  continueSceneName: BossGameScene
   levelIndex: 1
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430
@@ -5668,6 +5686,8 @@ MonoBehaviour:
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 0
+  continueSceneName: BossGameScene
   levelIndex: 4
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430
@@ -14775,7 +14795,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -17803,7 +17823,7 @@ MonoBehaviour:
   runDelay: 0.3
   jumpForce: 12
   maxJumps: 2
-  attackComboResetTime: 1
+  attackComboResetTime: 1.5
   maxAttackAnimSpeed: 25
   rollSpeed: 8
   rollDuration: 0.5
@@ -17911,7 +17931,7 @@ Transform:
   m_GameObject: {fileID: 981941156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -29.7, y: -13.5, z: 0}
+  m_LocalPosition: {x: 68.19, y: -49.9, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -17975,7 +17995,10 @@ MonoBehaviour:
   def: 0
   attackRange: 3
   attackCooldown: 1
+  playerMeleeHitboxRange: 3
+  playerMeleeVerticalTolerance: 0.8
   detectionRadius: 8
+  requireLineOfSight: 1
   moveSpeed: 3
   chaseTarget: 0
   minChaseDuration: 90
@@ -18875,7 +18898,10 @@ MonoBehaviour:
   def: 0
   attackRange: 1.5
   attackCooldown: 1
+  playerMeleeHitboxRange: 0.7
+  playerMeleeVerticalTolerance: 0.8
   detectionRadius: 8
+  requireLineOfSight: 1
   moveSpeed: 2
   chaseTarget: 0
   minChaseDuration: 90
@@ -21758,7 +21784,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -22436,6 +22462,8 @@ MonoBehaviour:
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 0
+  continueSceneName: BossGameScene
   levelIndex: 1
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430
@@ -26900,10 +26928,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelEndTeleport
   hubSpawnPointName: SpawnPoint_Hub
-  nextLevelSpawnPointName: SpawnPoint_Level6
+  nextLevelSpawnPointName: Boss1SpawnPoint
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 1
+  continueSceneName: BossGameScene
   levelIndex: 1
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430
@@ -31872,6 +31902,8 @@ MonoBehaviour:
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 0
+  continueSceneName: BossGameScene
   levelIndex: 1
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430
@@ -32762,6 +32794,8 @@ MonoBehaviour:
   targetTag: Player
   enterGracePeriod: 1
   respawnEnemiesOnTeleport: 1
+  loadSceneOnContinue: 0
+  continueSceneName: BossGameScene
   levelIndex: 1
   dialogueLines:
   - "\u0412\u044B \u0434\u043E\u0441\u0442\u0438\u0433\u043B\u0438 \u043A\u043E\u043D\u0446\u0430

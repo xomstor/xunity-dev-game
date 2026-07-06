@@ -293,6 +293,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = null;
         activeFaceFrames = null;
         IsDialogueActive = false;
+        SaveManager.Instance?.AutoSave();
     }
 
     IEnumerator ShowChoices(string[] choiceTexts, string[][] choiceResponses)

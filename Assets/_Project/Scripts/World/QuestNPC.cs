@@ -93,10 +93,11 @@ public class QuestNPC : MonoBehaviour
         if (inventory != null && stats != null && requiredItem != null)
         {
             int count = inventory.GetItemCount(requiredItem);
+            string progressStatus = $"Принесено: {count}/{requiredAmount} {requiredItem.itemName}";
 
             if (count >= requiredAmount)
             {
-                string[] rewardLines = AppendLine(completeLines, $"+{rewardGold} gold\n+{rewardExperience} XP");
+                string[] rewardLines = AppendLine(completeLines, $"+{rewardGold} золота, +{rewardExperience} опыта");
 
                 inventory.RemoveItem(requiredItem, requiredAmount);
                 stats.gold += rewardGold;
@@ -110,11 +111,13 @@ public class QuestNPC : MonoBehaviour
 
             if (count > 0)
             {
-                string[] progressStateLines = AppendLine(progressLines, $"You have: {count}/{requiredAmount} {requiredItem.itemName}");
-
+                string[] progressStateLines = AppendLine(progressLines, progressStatus);
                 ShowNPCDialogue(CombineLines(introLines, progressStateLines));
                 return;
             }
+
+            ShowNPCDialogue(AppendLine(introLines, progressStatus));
+            return;
         }
 
         ShowNPCDialogue(introLines);

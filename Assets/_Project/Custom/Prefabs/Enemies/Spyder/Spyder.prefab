@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8107518946228271371}
   - component: {fileID: 7939322267234456635}
   - component: {fileID: -765218467695331665}
+  - component: {fileID: 1111111111111111111}
   m_Layer: 0
   m_Name: Spyder
   m_TagString: Untagged
@@ -161,7 +162,8 @@ MonoBehaviour:
   detectionRadius: 8
   moveSpeed: 2
   chaseTarget: 1
-  anim: {fileID: 0}
+  checkEdges: 0
+  anim: {fileID: 1111111111111111111}
   attackTrigger: Attack
   deathTrigger: Death
   hitTrigger: Hit
@@ -194,3 +196,24 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!95 &1111111111111111111
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4736337183442238658}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 118cba2d9c4206d488fde0ee24411bf1, type: 3}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0

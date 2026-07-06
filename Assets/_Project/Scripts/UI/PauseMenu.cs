@@ -38,7 +38,7 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Save Panel (auto-created)")]
     private GameObject savePanel;
-    private readonly GameObject[] slotButtons = new GameObject[SaveManager.SlotCount];
+    private readonly GameObject[] slotButtons = new GameObject[SaveManager.SlotCount + 1];
     private int selectedSlot = -1;
 
     [Header("Skill Tree Panel (auto-created)")]
@@ -219,21 +219,24 @@ public class PauseMenu : MonoBehaviour
     public void SaveSelectedSlot()
     {
         if (selectedSlot < 0) return;
-        SaveManager.Instance?.SaveGame(selectedSlot + 1);
+        if (selectedSlot == 0) return;
+        SaveManager.Instance?.SaveGame(selectedSlot);
         RefreshSlotButtons();
     }
 
     public void LoadSelectedSlot()
     {
         if (selectedSlot < 0) return;
-        SaveManager.Instance?.LoadGame(selectedSlot + 1);
+        int realSlot = (selectedSlot == 0) ? SaveManager.AutoSaveSlot : selectedSlot;
+        SaveManager.Instance?.LoadGame(realSlot);
         CloseSavePanel();
     }
 
     public void DeleteSelectedSlot()
     {
         if (selectedSlot < 0) return;
-        SaveManager.Instance?.DeleteSlot(selectedSlot + 1);
+        if (selectedSlot == 0) return;
+        SaveManager.Instance?.DeleteSlot(selectedSlot);
         RefreshSlotButtons();
     }
 
@@ -494,14 +497,15 @@ public class PauseMenu : MonoBehaviour
         RectTransform titleRt = titleGO.GetComponent<RectTransform>();
         titleRt.sizeDelta = new Vector2(0, 60);
 
-        for (int i = 0; i < SaveManager.SlotCount; i++)
+        for (int i = 0; i <= SaveManager.SlotCount; i++)
         {
             int slotIndex = i;
-            GameObject slotGO = new GameObject($"Slot{i + 1}Button");
+            bool isAuto = (i == 0);
+            GameObject slotGO = new GameObject(isAuto ? "AutoSaveButton" : $"Slot{i}Button");
             slotGO.transform.SetParent(savePanel.transform, false);
             slotGO.AddComponent<CanvasRenderer>();
             Image slotImg = slotGO.AddComponent<Image>();
-            slotImg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+            slotImg.color = isAuto ? new Color(0.1f, 0.25f, 0.35f, 0.9f) : new Color(0.15f, 0.15f, 0.2f, 0.9f);
             Button slotBtn = slotGO.AddComponent<Button>();
             slotBtn.targetGraphic = slotImg;
             slotBtn.onClick.AddListener(() => SelectSlot(slotIndex));
@@ -512,10 +516,10 @@ public class PauseMenu : MonoBehaviour
             textGO.transform.SetParent(slotGO.transform, false);
             textGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-            text.text = $"Слот {i + 1}";
+            text.text = isAuto ? "Автосохранение" : $"Слот {i}";
             text.fontSize = 30;
             text.alignment = TextAlignmentOptions.Center;
-            text.color = Color.white;
+            text.color = isAuto ? new Color(0.6f, 0.9f, 1f) : Color.white;
             RectTransform textRt = textGO.GetComponent<RectTransform>();
             textRt.anchorMin = Vector2.zero;
             textRt.anchorMax = Vector2.one;
@@ -554,19 +558,30 @@ public class PauseMenu : MonoBehaviour
         {
             if (slotButtons[i] == null) continue;
             TextMeshProUGUI text = slotButtons[i].GetComponentInChildren<TextMeshProUGUI>();
-            bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(i + 1);
+            bool isAuto = (i == 0);
+            int realSlot = isAuto ? SaveManager.AutoSaveSlot : i;
+            bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(realSlot);
             bool isSelected = selectedSlot == i;
-            text.text = $"Слот {i + 1} {(hasSave ? "[есть]" : "[пусто]")}{(isSelected ? " <<" : "")}";
+            string label = isAuto ? "Автосохранение" : $"Слот {i}";
+            text.text = $"{label} {(hasSave ? "[есть]" : "[пусто]")}{(isSelected ? " <<" : "")}";
             Image img = slotButtons[i].GetComponent<Image>();
-            img.color = isSelected ? new Color(0.2f, 0.5f, 0.4f, 0.9f) : new Color(0.15f, 0.15f, 0.2f, 0.9f);
+            if (isSelected)
+                img.color = new Color(0.2f, 0.5f, 0.4f, 0.9f);
+            else if (isAuto)
+                img.color = new Color(0.1f, 0.25f, 0.35f, 0.9f);
+            else
+                img.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
         }
 
         if (infoText != null)
         {
             if (selectedSlot >= 0)
             {
-                bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(selectedSlot + 1);
-                infoText.text = $"Слот {selectedSlot + 1}: {(hasSave ? "занят" : "пусто")}";
+                bool isAuto = (selectedSlot == 0);
+                int realSlot = isAuto ? SaveManager.AutoSaveSlot : selectedSlot;
+                bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(realSlot);
+                string label = isAuto ? "Автосохранение" : $"Слот {selectedSlot}";
+                infoText.text = $"{label}: {(hasSave ? "занят" : "пусто")}";
             }
             else
             {

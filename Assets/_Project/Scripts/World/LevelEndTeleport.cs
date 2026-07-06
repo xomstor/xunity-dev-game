@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class LevelEndTeleport : MonoBehaviour
 {
@@ -10,6 +11,10 @@ public class LevelEndTeleport : MonoBehaviour
     public string targetTag = "Player";
     public float enterGracePeriod = 1f;
     public bool respawnEnemiesOnTeleport = true;
+
+    [Header("Scene Transition")]
+    public bool loadSceneOnContinue;
+    public string continueSceneName = "BossGameScene";
 
     [Header("Level Index")]
     [Tooltip("Номер этого уровня (1, 2, 3...). После 4 уровня будет предложение повысить мировой уровень.")]
@@ -95,7 +100,7 @@ public class LevelEndTeleport : MonoBehaviour
             }
             else
             {
-                TeleportToSpawnPoint(nextLevelSpawnPointName);
+                TeleportContinue();
             }
         }
     }
@@ -138,7 +143,65 @@ public class LevelEndTeleport : MonoBehaviour
             WorldLevelManager.Instance.CompleteLevel(levelIndex);
         }
 
-        TeleportToSpawnPoint(pendingTeleportTarget);
+        if (pendingTeleportTarget == nextLevelSpawnPointName)
+            TeleportContinue();
+        else
+            TeleportToSpawnPoint(pendingTeleportTarget);
+    }
+
+    void TeleportContinue()
+    {
+        if (loadSceneOnContinue && !string.IsNullOrEmpty(continueSceneName))
+            TeleportToScene(continueSceneName, nextLevelSpawnPointName);
+        else
+            TeleportToSpawnPoint(nextLevelSpawnPointName);
+    }
+
+    void TeleportToScene(string sceneName, string spawnPointName)
+    {
+        SaveManager.Instance?.AutoSave();
+
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
+
+        pendingSceneSpawnPoint = spawnPointName;
+        SceneManager.sceneLoaded += OnTargetSceneLoaded;
+        SceneManager.LoadScene(sceneName);
+    }
+
+    private static string pendingSceneSpawnPoint;
+
+    static void OnTargetSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        SceneManager.sceneLoaded -= OnTargetSceneLoaded;
+
+        string spawnPointName = string.IsNullOrEmpty(pendingSceneSpawnPoint) ? "SpawnPoint" : pendingSceneSpawnPoint;
+        GameObject spawnPoint = FindSpawnPointObject(spawnPointName);
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+
+        if (spawnPoint != null && player != null)
+            player.transform.position = spawnPoint.transform.position;
+        else
+            Debug.LogError($"LevelEndTeleport: scene spawn failed. SpawnPoint='{spawnPointName}' found={spawnPoint != null}, player found={player != null}");
+
+        EnemyRespawnManager.Instance?.RespawnAllEnemies();
+        pendingSceneSpawnPoint = null;
+    }
+
+    static GameObject FindSpawnPointObject(string spawnPointName)
+    {
+        GameObject byName = GameObject.Find(spawnPointName);
+        if (byName != null)
+            return byName;
+
+        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>();
+        foreach (SpawnPoint sp in spawnPoints)
+        {
+            if (sp != null && sp.spawnPointName == spawnPointName)
+                return sp.gameObject;
+        }
+
+        return null;
     }
 
     void TeleportToSpawnPoint(string spawnPointName)
@@ -148,7 +211,7 @@ public class LevelEndTeleport : MonoBehaviour
         VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
         joystick?.ForceReset();
 
-        GameObject spawnPoint = GameObject.Find(spawnPointName);
+        GameObject spawnPoint = FindSpawnPointObject(spawnPointName);
         if (spawnPoint == null)
         {
             Debug.LogError($"LevelEndTeleport: SpawnPoint '{spawnPointName}' not found in scene!");

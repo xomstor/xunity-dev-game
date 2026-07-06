@@ -21,8 +21,10 @@ public class AutoCombat : MonoBehaviour
     public int def = 0;
     [Range(0.1f, 10f)] public float attackRange = 1.5f;
     public float attackCooldown = 1f;
+    [Range(0.1f, 3f)] public float playerMeleeHitboxRange = 0.7f;
+    [Range(0.1f, 3f)] public float playerMeleeVerticalTolerance = 0.8f;
     [Range(0.5f, 30f)] public float detectionRadius = 15f;
-    public bool requireLineOfSight = true;
+    public bool requireLineOfSight = false;
 
     [Header("Movement")]
     public float moveSpeed = 2f;
@@ -109,7 +111,7 @@ public class AutoCombat : MonoBehaviour
             groundLayer = LayerMask.GetMask("Ground");
         if (rb == null)
             rb = GetComponentInParent<Rigidbody2D>();
-        if (anim == null)
+        if (anim == null || anim.runtimeAnimatorController == null)
             anim = GetComponent<Animator>();
         if (anim == null || anim.runtimeAnimatorController == null)
         {
@@ -123,6 +125,8 @@ public class AutoCombat : MonoBehaviour
                 }
             }
         }
+        if (anim == null || anim.runtimeAnimatorController == null)
+            anim = GetComponentInParent<Animator>();
 
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)
@@ -175,6 +179,12 @@ public class AutoCombat : MonoBehaviour
         FindTarget();
 
         PlayerController playerController = GetComponent<PlayerController>();
+        if (playerController != null)
+        {
+            if (attackTimer <= 0 && HasAttackTargetInRange())
+                playerController.AutoAttack();
+            return;
+        }
 
         if (target != null)
         {
@@ -189,22 +199,17 @@ public class AutoCombat : MonoBehaviour
             {
                 if (attackTimer <= 0)
                 {
-                    if (playerController != null)
-                        playerController.Attack();
-                    else
-                    {
-                        Attack();
-                        SetAnimState(0);
-                    }
+                    Attack();
+                    SetAnimState(0);
                 }
             }
-            else if (playerController == null && chaseTarget && rb != null)
+            else if (chaseTarget && rb != null)
             {
                 ChaseTarget();
                 SetAnimState(1);
             }
         }
-        else if (playerController == null)
+        else
         {
             if (isReturning)
             {
@@ -264,8 +269,19 @@ public class AutoCombat : MonoBehaviour
     float GetDistanceToTarget()
     {
         if (target == null) return float.MaxValue;
-        Collider2D targetCollider = target.GetComponent<Collider2D>();
+
         Collider2D myCollider = GetComponent<Collider2D>();
+
+        Collider2D targetCollider = target.GetComponent<Collider2D>();
+        if (targetCollider == null)
+        {
+            Collider2D[] cols = target.GetComponentsInChildren<Collider2D>();
+            foreach (var c in cols)
+                if (!c.isTrigger) { targetCollider = c; break; }
+            if (targetCollider == null && cols.Length > 0)
+                targetCollider = cols[0];
+        }
+
         if (targetCollider != null && myCollider != null)
         {
             ColliderDistance2D dist = myCollider.Distance(targetCollider);
@@ -286,11 +302,19 @@ public class AutoCombat : MonoBehaviour
         {
             anim.SetInteger("AnimState", state);
         }
-        else
+        else if (HasAnimatorParameter("isMoving"))
         {
-            if (state == 1)
-                anim.Play("Move", 0, 0f);
+            anim.SetBool("isMoving", state == 1);
         }
+        else if (HasAnimatorParameter("Speed"))
+        {
+            anim.SetFloat("Speed", state == 1 ? 1f : 0f);
+        }
+        else if (HasAnimatorParameter("Moving"))
+        {
+            anim.SetBool("Moving", state == 1);
+        }
+        
     }
 
     bool HasAnimatorParameter(string paramName)
@@ -304,20 +328,22 @@ public class AutoCombat : MonoBehaviour
         return false;
     }
 
-    public bool TryAttack()
+    public bool TryAttack(int comboHit = 0)
     {
         if (attackTimer > 0) return false;
+
+        if (team == CombatTeam.Player)
+        {
+            attackTimer = GetEffectiveAttackCooldown();
+            return TryMultiAttack(comboHit);
+        }
+
         if (target == null) return false;
 
         float distance = GetDistanceToTarget();
         if (distance > attackRange) return false;
 
         attackTimer = GetEffectiveAttackCooldown();
-
-        if (team == CombatTeam.Player)
-        {
-            return TryMultiAttack();
-        }
 
         int finalDamage = GetFinalDamage(out bool isCrit);
         int attackerLethality = GetLethality();
@@ -343,21 +369,87 @@ public class AutoCombat : MonoBehaviour
         return false;
     }
 
-    bool TryMultiAttack()
+    bool HasAttackTargetInRange()
+    {
+        AutoCombat[] combats = FindObjectsByType<AutoCombat>();
+        foreach (AutoCombat other in combats)
+        {
+            if (!IsValidAttackTarget(other)) continue;
+            if (CanReachCombatColliders(other)) return true;
+        }
+
+        return false;
+    }
+
+    Collider2D[] GetAttackColliders()
+    {
+        return Physics2D.OverlapCircleAll(transform.position, team == CombatTeam.Player ? playerMeleeHitboxRange : attackRange);
+    }
+
+    bool IsValidAttackTarget(AutoCombat other)
+    {
+        return other != null && other != this && !other.isDead && other.canBeTargeted && IsValidTarget(other.team) && !HasIgnoreTag(other.transform);
+    }
+
+    bool CanReachCombatColliders(AutoCombat other)
+    {
+        Collider2D[] colliders = other.GetComponentsInChildren<Collider2D>();
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider == null || collider.isTrigger) continue;
+            if (IsColliderInAttackHitbox(collider)) return true;
+        }
+        return false;
+    }
+
+    bool IsColliderInAttackHitbox(Collider2D targetCollider)
+    {
+        if (targetCollider == null) return false;
+
+        Collider2D myCollider = GetComponent<Collider2D>();
+        float range = team == CombatTeam.Player ? playerMeleeHitboxRange : attackRange;
+        float facing = Mathf.Sign(transform.localScale.x);
+        float horizontalToTarget = targetCollider.bounds.center.x - transform.position.x;
+        if (Mathf.Abs(horizontalToTarget) > 0.01f && Mathf.Sign(horizontalToTarget) != facing)
+            return false;
+
+        if (team == CombatTeam.Player && myCollider != null)
+        {
+            float verticalGap = Mathf.Max(0f, Mathf.Max(myCollider.bounds.min.y - targetCollider.bounds.max.y, targetCollider.bounds.min.y - myCollider.bounds.max.y));
+            if (verticalGap > playerMeleeVerticalTolerance)
+                return false;
+        }
+
+        if (myCollider != null)
+        {
+            ColliderDistance2D dist = myCollider.Distance(targetCollider);
+            return dist.distance <= range;
+        }
+
+        return Vector2.Distance(transform.position, targetCollider.ClosestPoint(transform.position)) <= range;
+    }
+
+    bool TryMultiAttack(int comboHit = 0)
     {
         int finalDamage = GetFinalDamage(out bool isCrit);
+
+        if (comboHit == 3)
+        {
+            PlayerStats ps = GetComponent<PlayerStats>();
+            int lck = ps != null ? ps.lck : 0;
+            int bonus = Mathf.Max(1, Mathf.RoundToInt(finalDamage * lck * 0.005f));
+            finalDamage += bonus;
+        }
+
         int attackerLethality = GetLethality();
         bool isPlayer = team == CombatTeam.Player;
         bool hitAny = false;
 
-        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, attackRange);
-        foreach (Collider2D collider in colliders)
+        AutoCombat[] combats = FindObjectsByType<AutoCombat>();
+        foreach (AutoCombat other in combats)
         {
-            if (collider.transform.root == transform.root) continue;
-
-            AutoCombat other = FindAutoCombat(collider.transform);
-            if (other == null || other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))
-                continue;
+            if (!IsValidAttackTarget(other)) continue;
+            if (!CanReachCombatColliders(other)) continue;
 
             other.TakeDamage(finalDamage, attackerLethality);
             ShowDamagePopup(GetPopupPosition(other.transform), finalDamage, isCrit, isPlayer);
@@ -460,7 +552,7 @@ public class AutoCombat : MonoBehaviour
             Transform root = collider.transform.root;
             if (root == transform.root) continue;
 
-            float distance = Vector2.Distance(transform.position, collider.transform.position);
+            float distance = Vector2.Distance(transform.position, root.position);
 
             AutoCombat other = FindAutoCombat(collider.transform);
             PlayerController playerController = collider.GetComponent<PlayerController>();
@@ -477,9 +569,8 @@ public class AutoCombat : MonoBehaviour
             if (distance < closestDistance)
             {
                 closestDistance = distance;
-                target = collider.transform;
+                target = root;
             }
-
         }
 
     }
@@ -614,15 +705,19 @@ public class AutoCombat : MonoBehaviour
 
     bool HasLineOfSight(Transform t)
     {
-        if (!requireLineOfSight || groundLayer == 0) return true;
+        if (!requireLineOfSight) return true;
         if (t == null) return false;
+
+        int losLayer = groundLayer != 0 ? (int)groundLayer : LayerMask.GetMask("Ground");
+        if (losLayer == 0) return true;
 
         Vector2 origin = transform.position;
         Vector2 targetPos = t.position;
         float distance = Vector2.Distance(origin, targetPos);
+        if (distance < 0.01f) return true;
         Vector2 direction = (targetPos - origin).normalized;
 
-        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, groundLayer);
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, losLayer);
         return hit.collider == null;
     }
 

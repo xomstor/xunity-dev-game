@@ -13,7 +13,7 @@ public class PlayerController : MonoBehaviour
     public int maxJumps = 2;
 
     [Header("Attack")]
-    public float attackComboResetTime = 1f;
+    public float attackComboResetTime = 1.5f;
     [Tooltip("Максимальный визуальный ускоритель анимации атаки (без капа самого AtkSpd)")]
     public float maxAttackAnimSpeed = 3f;
 
@@ -159,6 +159,13 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    public void AutoAttack()
+    {
+        if (anim == null || isRolling) return;
+        if (isAttacking) return;
+        Attack();
+    }
+
     public void Attack()
     {
         if (anim == null || isAttacking || isRolling) return;
@@ -178,13 +185,18 @@ public class PlayerController : MonoBehaviour
         };
 
         ApplyAttackAnimationSpeed();
+        anim.ResetTrigger("Attack1");
+        anim.ResetTrigger("Attack2");
+        anim.ResetTrigger("Attack3");
         anim.SetTrigger(triggerName);
         playerAudio?.PlayAttack(attackCombo);
 
         AutoCombat combat = GetComponent<AutoCombat>();
-        combat?.TryAttack();
+        combat?.TryAttack(attackCombo);
 
-        Invoke(nameof(ResetAttack), 0.5f);
+        float resetDelay = combat != null ? Mathf.Max(0.4f, combat.attackCooldown - 0.1f) : 0.5f;
+        CancelInvoke(nameof(ResetAttack));
+        Invoke(nameof(ResetAttack), resetDelay);
     }
 
     void ApplyAttackAnimationSpeed()
