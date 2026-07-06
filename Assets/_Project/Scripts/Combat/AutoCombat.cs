@@ -19,9 +19,9 @@ public class AutoCombat : MonoBehaviour
     public int maxHealth = 100;
     public int damage = 10;
     public int def = 0;
-    public float attackRange = 1.5f;
+    [Range(0.1f, 10f)] public float attackRange = 1.5f;
     public float attackCooldown = 1f;
-    public float detectionRadius = 15f;
+    [Range(0.5f, 30f)] public float detectionRadius = 15f;
 
     [Header("Movement")]
     public float moveSpeed = 2f;
@@ -40,6 +40,7 @@ public class AutoCombat : MonoBehaviour
     private int currentHealth;
     private float attackTimer;
     private Transform target;
+    public Transform Target => target;
     private bool isDead;
     private Rigidbody2D rb;
     private float regenAccum;
@@ -62,6 +63,14 @@ public class AutoCombat : MonoBehaviour
         {
             anim.Rebind();
             anim.Update(0f);
+        }
+
+        if (team == CombatTeam.Player)
+        {
+            PlayerController pc = GetComponentInChildren<PlayerController>();
+            if (pc == null) pc = GetComponent<PlayerController>();
+            if (pc != null)
+                pc.enabled = true;
         }
     }
 
@@ -249,6 +258,11 @@ public class AutoCombat : MonoBehaviour
 
         attackTimer = GetEffectiveAttackCooldown();
 
+        if (team == CombatTeam.Player)
+        {
+            return TryMultiAttack();
+        }
+
         int finalDamage = GetFinalDamage(out bool isCrit);
         int attackerLethality = GetLethality();
         bool isPlayer = team == CombatTeam.Player;
@@ -271,6 +285,30 @@ public class AutoCombat : MonoBehaviour
 
         Debug.LogWarning($"{name}: target {target.name} has no AutoCombat or PlayerStats!");
         return false;
+    }
+
+    bool TryMultiAttack()
+    {
+        int finalDamage = GetFinalDamage(out bool isCrit);
+        int attackerLethality = GetLethality();
+        bool isPlayer = team == CombatTeam.Player;
+        bool hitAny = false;
+
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, attackRange);
+        foreach (Collider2D collider in colliders)
+        {
+            if (collider.transform.root == transform.root) continue;
+
+            AutoCombat other = FindAutoCombat(collider.transform);
+            if (other == null || other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))
+                continue;
+
+            other.TakeDamage(finalDamage, attackerLethality);
+            ShowDamagePopup(GetPopupPosition(other.transform), finalDamage, isCrit, isPlayer);
+            hitAny = true;
+        }
+
+        return hitAny;
     }
 
     Vector3 GetPopupPosition(Transform t)
@@ -326,8 +364,9 @@ public class AutoCombat : MonoBehaviour
     {
         int pureDamage = Mathf.Min(attackerLethality, rawDamage);
         int mitigatable = rawDamage - pureDamage;
-        float multiplier = 100f / (100f + def);
-        int mitigated = Mathf.RoundToInt(mitigatable * multiplier);
+        float effectiveDef = Mathf.Clamp(def, 0, 34221);
+        float multiplier = Mathf.Pow(100f / (100f + effectiveDef), 0.774f);
+        int mitigated = Mathf.RoundToInt(mitigatable * Mathf.Clamp01(multiplier));
         return Mathf.Max(1, pureDamage + mitigated);
     }
 
@@ -473,6 +512,15 @@ public class AutoCombat : MonoBehaviour
     {
         if (isDead) return;
 
+        if (team == CombatTeam.Player)
+        {
+            PlayerController pc = GetComponentInChildren<PlayerController>();
+            if (pc == null) pc = GetComponentInParent<PlayerController>();
+            if (pc == null) pc = GetComponent<PlayerController>();
+            if (pc != null && pc.isInvulnerable)
+                return;
+        }
+
         int finalDamage = GetMitigatedDamage(amount, attackerLethality);
 
         currentHealth = Mathf.Max(0, currentHealth - finalDamage);
@@ -509,6 +557,12 @@ public class AutoCombat : MonoBehaviour
     void Die()
     {
         isDead = true;
+
+        if (team == CombatTeam.Player)
+        {
+            PlayerStats stats = GetComponent<PlayerStats>();
+            stats?.ApplyDeathPenalty();
+        }
 
         GiveRewards();
         GiveDrops();

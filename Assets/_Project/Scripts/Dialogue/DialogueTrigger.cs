@@ -260,4 +260,20 @@ public class DialogueTrigger : MonoBehaviour
             shopNPC.OpenShop();
         }
     }
+
+    public bool GetQuestStarted() => questStarted;
+    public bool GetQuestCompleted() => questCompleted;
+
+    public void SetQuestStarted(bool value)
+    {
+        questStarted = value;
+    }
+
+    public void SetQuestCompleted(bool value)
+    {
+        if (questCompleted == value) return;
+        questCompleted = value;
+        if (questCompleted)
+            SwapToPostQuestAppearance();
+    }
 }

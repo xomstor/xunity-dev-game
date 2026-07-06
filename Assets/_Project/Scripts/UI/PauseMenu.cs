@@ -27,9 +27,21 @@ public class PauseMenu : MonoBehaviour
     public TextMeshProUGUI equippedText;
     public Sprite discardButtonIcon;
 
+    [Header("Pause Buttons Icons")]
+    public Sprite saveButtonIcon;
+    public Sprite skillTreeButtonIcon;
+
     [Header("Settings Panel (auto-created)")]
     private GameObject settingsPanel;
     private Toggle floatingJoystickToggle;
+
+    [Header("Save Panel (auto-created)")]
+    private GameObject savePanel;
+    private readonly GameObject[] slotButtons = new GameObject[SaveManager.SlotCount];
+    private int selectedSlot = -1;
+
+    [Header("Skill Tree Panel (auto-created)")]
+    private GameObject skillTreePanel;
 
     private bool isPaused;
     private bool inventoryVisible;
@@ -65,6 +77,12 @@ public class PauseMenu : MonoBehaviour
 
         CreateSettingsPanel();
         CreateSettingsButton();
+
+        CreateSavePanel();
+        CreateSaveButton();
+
+        CreateSkillTreePanel();
+        CreateSkillTreeButton();
 
         AddStartingItems();
 
@@ -171,6 +189,61 @@ public class PauseMenu : MonoBehaviour
     {
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+    }
+
+    public void OpenSavePanel()
+    {
+        if (savePanel != null)
+        {
+            savePanel.SetActive(true);
+            RefreshSlotButtons();
+        }
+    }
+
+    public void CloseSavePanel()
+    {
+        if (savePanel != null)
+            savePanel.SetActive(false);
+        selectedSlot = -1;
+    }
+
+    public void SelectSlot(int slot)
+    {
+        selectedSlot = slot;
+        RefreshSlotButtons();
+    }
+
+    public void SaveSelectedSlot()
+    {
+        if (selectedSlot < 0) return;
+        SaveManager.Instance?.SaveGame(selectedSlot + 1);
+        RefreshSlotButtons();
+    }
+
+    public void LoadSelectedSlot()
+    {
+        if (selectedSlot < 0) return;
+        SaveManager.Instance?.LoadGame(selectedSlot + 1);
+        CloseSavePanel();
+    }
+
+    public void DeleteSelectedSlot()
+    {
+        if (selectedSlot < 0) return;
+        SaveManager.Instance?.DeleteSlot(selectedSlot + 1);
+        RefreshSlotButtons();
+    }
+
+    public void OpenSkillTree()
+    {
+        if (skillTreePanel != null)
+            skillTreePanel.SetActive(true);
+    }
+
+    public void CloseSkillTree()
+    {
+        if (skillTreePanel != null)
+            skillTreePanel.SetActive(false);
     }
 
     public void OnFloatingJoystickToggle(bool value)
@@ -310,6 +383,219 @@ public class PauseMenu : MonoBehaviour
         rt.pivot = new Vector2(1, 1);
         rt.anchoredPosition = new Vector2(-180, -20);
         rt.sizeDelta = new Vector2(80, 80);
+    }
+
+    void CreateSaveButton()
+    {
+        if (pausePanel == null) return;
+
+        GameObject btnGO = new GameObject("SaveButton");
+        btnGO.transform.SetParent(pausePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.sprite = saveButtonIcon;
+        img.color = saveButtonIcon != null ? Color.white : new Color(0.25f, 0.65f, 0.45f, 0.76f);
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(OpenSavePanel);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(1, 1);
+        rt.anchoredPosition = new Vector2(-280, -20);
+        rt.sizeDelta = new Vector2(80, 80);
+    }
+
+    void CreateSavePanel()
+    {
+        if (pausePanel == null) return;
+
+        savePanel = new GameObject("SavePanel");
+        savePanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = savePanel.AddComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.5f, 0.5f);
+        srt.anchorMax = new Vector2(0.5f, 0.5f);
+        srt.pivot = new Vector2(0.5f, 0.5f);
+        srt.anchoredPosition = Vector2.zero;
+        srt.sizeDelta = new Vector2(560, 520);
+
+        Image bg = savePanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = savePanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 16;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(savePanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "Сохранение / Загрузка";
+        title.fontSize = 44;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = Color.white;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        for (int i = 0; i < SaveManager.SlotCount; i++)
+        {
+            int slotIndex = i;
+            GameObject slotGO = new GameObject($"Slot{i + 1}Button");
+            slotGO.transform.SetParent(savePanel.transform, false);
+            slotGO.AddComponent<CanvasRenderer>();
+            Image slotImg = slotGO.AddComponent<Image>();
+            slotImg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+            Button slotBtn = slotGO.AddComponent<Button>();
+            slotBtn.targetGraphic = slotImg;
+            slotBtn.onClick.AddListener(() => SelectSlot(slotIndex));
+            RectTransform slotRt = slotGO.GetComponent<RectTransform>();
+            slotRt.sizeDelta = new Vector2(0, 70);
+
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(slotGO.transform, false);
+            textGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+            text.text = $"Слот {i + 1}";
+            text.fontSize = 30;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = Color.white;
+            RectTransform textRt = textGO.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = Vector2.zero;
+            textRt.offsetMax = Vector2.zero;
+
+            slotButtons[i] = slotGO;
+        }
+
+        GameObject infoGO = new GameObject("InfoText");
+        infoGO.transform.SetParent(savePanel.transform, false);
+        infoGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI infoText = infoGO.AddComponent<TextMeshProUGUI>();
+        infoText.name = "SaveInfoText";
+        infoText.text = "Выберите слот";
+        infoText.fontSize = 24;
+        infoText.alignment = TextAlignmentOptions.Center;
+        infoText.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        RectTransform infoRt = infoGO.GetComponent<RectTransform>();
+        infoRt.sizeDelta = new Vector2(0, 40);
+
+        CreateSmallButton(savePanel.transform, "Сохранить", new Vector2(220, 55), SaveSelectedSlot);
+        CreateSmallButton(savePanel.transform, "Загрузить", new Vector2(220, 55), LoadSelectedSlot);
+        CreateSmallButton(savePanel.transform, "Удалить", new Vector2(220, 55), DeleteSelectedSlot);
+        CreateSmallButton(savePanel.transform, "Закрыть", new Vector2(220, 55), CloseSavePanel);
+
+        savePanel.SetActive(false);
+    }
+
+    void RefreshSlotButtons()
+    {
+        if (savePanel == null) return;
+        TextMeshProUGUI infoText = savePanel.transform.Find("SaveInfoText")?.GetComponent<TextMeshProUGUI>();
+
+        for (int i = 0; i < slotButtons.Length; i++)
+        {
+            if (slotButtons[i] == null) continue;
+            TextMeshProUGUI text = slotButtons[i].GetComponentInChildren<TextMeshProUGUI>();
+            bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(i + 1);
+            bool isSelected = selectedSlot == i;
+            text.text = $"Слот {i + 1} {(hasSave ? "[есть]" : "[пусто]")}{(isSelected ? " <<" : "")}";
+            Image img = slotButtons[i].GetComponent<Image>();
+            img.color = isSelected ? new Color(0.2f, 0.5f, 0.4f, 0.9f) : new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        }
+
+        if (infoText != null)
+        {
+            if (selectedSlot >= 0)
+            {
+                bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(selectedSlot + 1);
+                infoText.text = $"Слот {selectedSlot + 1}: {(hasSave ? "занят" : "пусто")}";
+            }
+            else
+            {
+                infoText.text = "Выберите слот";
+            }
+        }
+    }
+
+    void CreateSkillTreeButton()
+    {
+        if (pausePanel == null) return;
+
+        GameObject btnGO = new GameObject("SkillTreeButton");
+        btnGO.transform.SetParent(pausePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.sprite = skillTreeButtonIcon;
+        img.color = skillTreeButtonIcon != null ? Color.white : new Color(0.65f, 0.45f, 0.25f, 0.76f);
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(OpenSkillTree);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(1, 1);
+        rt.anchoredPosition = new Vector2(-80, -20);
+        rt.sizeDelta = new Vector2(80, 80);
+    }
+
+    void CreateSkillTreePanel()
+    {
+        if (pausePanel == null) return;
+
+        skillTreePanel = new GameObject("SkillTreePanel");
+        skillTreePanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = skillTreePanel.AddComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.5f, 0.5f);
+        srt.anchorMax = new Vector2(0.5f, 0.5f);
+        srt.pivot = new Vector2(0.5f, 0.5f);
+        srt.anchoredPosition = Vector2.zero;
+        srt.sizeDelta = new Vector2(700, 500);
+
+        Image bg = skillTreePanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = skillTreePanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 20;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(skillTreePanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "Дерево скиллов";
+        title.fontSize = 48;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = Color.white;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        GameObject hintGO = new GameObject("Hint");
+        hintGO.transform.SetParent(skillTreePanel.transform, false);
+        hintGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI hint = hintGO.AddComponent<TextMeshProUGUI>();
+        hint.text = "Здесь будет дерево скиллов. Заполним позже.";
+        hint.fontSize = 28;
+        hint.alignment = TextAlignmentOptions.Center;
+        hint.color = new Color(0.8f, 0.8f, 0.8f, 1f);
+        RectTransform hintRt = hintGO.GetComponent<RectTransform>();
+        hintRt.sizeDelta = new Vector2(0, 60);
+
+        CreateSmallButton(skillTreePanel.transform, "Закрыть", new Vector2(300, 60), CloseSkillTree);
+
+        skillTreePanel.SetActive(false);
     }
 
     void CreateStatButtons()
@@ -466,6 +752,11 @@ public class PauseMenu : MonoBehaviour
         }
 
         playerStats.skillPoints--;
+        UpdateStatsDisplay();
+    }
+
+    public void RefreshStats()
+    {
         UpdateStatsDisplay();
     }
 
@@ -779,6 +1070,9 @@ public class PauseMenu : MonoBehaviour
 
         if (equipmentManager != null && equipmentManager.IsEquipped(invItem.itemData))
             equipmentManager.Unequip(invItem.itemData, playerInventory);
+
+        Inventory.NotifyItemTrashed(invItem);
+        TrashEmanator.Instance?.AddItem(invItem.itemData, invItem.quantity);
 
         playerInventory.RemoveItem(invItem.itemData, invItem.quantity);
         Debug.Log($"Discarded: {invItem.itemData.itemName} x{invItem.quantity}");

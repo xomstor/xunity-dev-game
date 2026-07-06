@@ -913,7 +913,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -1939,7 +1939,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -3665,7 +3665,7 @@ GameObject:
   - component: {fileID: 231053149}
   - component: {fileID: 231053150}
   - component: {fileID: 231053151}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01535-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -3732,8 +3732,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 4927371700622087557, guid: 058aeaf5a70f9af40aa0eb4706ca121b, type: 3}
@@ -4064,7 +4064,7 @@ GameObject:
   - component: {fileID: 251451484}
   - component: {fileID: 251451485}
   - component: {fileID: 251451486}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01536-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4131,8 +4131,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 2611522685358444449, guid: 30908dc94e275f7429da0936fade145d, type: 3}
@@ -7537,7 +7537,7 @@ GameObject:
   - component: {fileID: 357314981}
   - component: {fileID: 357314982}
   - component: {fileID: 357314983}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01538-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -7604,8 +7604,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6271240802227488873, guid: c0753a0dee15a244ebbdd0a26eb68ee4, type: 3}
@@ -13908,7 +13908,7 @@ GameObject:
   - component: {fileID: 756425483}
   - component: {fileID: 756425485}
   - component: {fileID: 756425484}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BOSS_ZONE
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14021,8 +14021,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
+  m_SortingLayerID: 660997177
+  m_SortingLayer: 2
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1316098724}
@@ -14768,7 +14768,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -17607,7 +17607,7 @@ GameObject:
   - component: {fileID: 960054688}
   - component: {fileID: 960054689}
   - component: {fileID: 960054690}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01533-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17674,8 +17674,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6917309970397776040, guid: 9607ee32285fa114d97c34492ea87783, type: 3}
@@ -17797,9 +17797,11 @@ MonoBehaviour:
   jumpForce: 12
   maxJumps: 2
   attackComboResetTime: 1
+  maxAttackAnimSpeed: 25
   rollSpeed: 8
   rollDuration: 0.5
   rollCooldown: 1
+  rollInvulnerabilityDuration: 0.5
   groundLayer:
     serializedVersion: 2
     m_Bits: 8
@@ -17902,7 +17904,7 @@ Transform:
   m_GameObject: {fileID: 981941156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -22.13, y: -5.14, z: 0}
+  m_LocalPosition: {x: 66.2, y: -49, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -18001,8 +18003,16 @@ MonoBehaviour:
   experienceToNextLevel: 100
   skillPoints: 1
   baseLck: 0
+  defCurvePower: 0.774
+  defCapPercent: 0.99
+  defCapValue: 34221
   baseCritChance: 0.05
   critDamageMultiplier: 3
+  baseXp: 100
+  earlyXpIncrement: 20
+  earlyXpCurve: 5
+  easyLevelCap: 30
+  lateXpPower: 2.5
 --- !u!82 &981941167
 AudioSource:
   m_ObjectHideFlags: 0
@@ -21713,7 +21723,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 3136
+    settingsRaw: 64
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -23011,7 +23021,7 @@ GameObject:
   - component: {fileID: 1366256868}
   - component: {fileID: 1366256869}
   - component: {fileID: 1366256870}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01523-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -23078,8 +23088,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: -6216631550033633024, guid: 3f9b31cdab350f749a5bccf200a5cf07, type: 3}
@@ -25033,7 +25043,7 @@ GameObject:
   - component: {fileID: 1432534374}
   - component: {fileID: 1432534375}
   - component: {fileID: 1432534376}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01537-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25100,8 +25110,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5734382496684228004, guid: edf6e2e7e4368f84fb5db87764035674, type: 3}
@@ -26709,7 +26719,7 @@ GameObject:
   - component: {fileID: 1536885821}
   - component: {fileID: 1536885822}
   - component: {fileID: 1536885823}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01539-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26776,8 +26786,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1934284553239198221, guid: 19cffb1997bf9984eb533821f72f57b4, type: 3}
@@ -26820,7 +26830,7 @@ GameObject:
   - component: {fileID: 1541533479}
   - component: {fileID: 1541533478}
   - component: {fileID: 1541533477}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Exit_EnterLevel_6
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -26965,9 +26975,9 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 0
-  m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingLayerID: 660997177
+  m_SortingLayer: 2
+  m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 814385035}
   m_Color: {r: 0, g: 1, b: 0.4, a: 0}
@@ -28670,6 +28680,13 @@ MonoBehaviour:
   showDuration: 3
   fadeDuration: 1
   startDelay: 0.2
+  useCurtains: 1
+  leftCurtain: {fileID: 0}
+  rightCurtain: {fileID: 0}
+  curtainColor: {r: 0, g: 0, b: 0, a: 1}
+  curtainDuration: 0.8
+  curtainMidPause: 0.4
+  curtainClosedOffset: 0
 --- !u!114 &1621748945
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -29731,6 +29748,8 @@ MonoBehaviour:
   inventoryContainer: {fileID: 0}
   equippedText: {fileID: 0}
   discardButtonIcon: {fileID: 0}
+  saveButtonIcon: {fileID: 1061801751286890457, guid: 7a78ab168fa11be4a8551ed92c1d930c, type: 3}
+  skillTreeButtonIcon: {fileID: 1623481048343612374, guid: 1f218be123f5faf43be20d09fe35fe6c, type: 3}
 --- !u!4 &1716972747
 Transform:
   m_ObjectHideFlags: 0
@@ -31316,7 +31335,7 @@ GameObject:
   - component: {fileID: 1882291942}
   - component: {fileID: 1882291943}
   - component: {fileID: 1882291944}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01522-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31383,8 +31402,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 1822407859220844037, guid: a5f01d218ec5cc544a8846f6d363994b, type: 3}
@@ -35239,7 +35258,7 @@ GameObject:
   - component: {fileID: 2045789778}
   - component: {fileID: 2045789779}
   - component: {fileID: 2045789780}
-  m_Layer: 9
+  m_Layer: 7
   m_Name: 01534-2026-07-01-superPixelartXLMV20_superPixelartXLMV20_0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -35306,8 +35325,8 @@ SpriteRenderer:
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
   m_GlobalIlluminationMeshLod: 0
-  m_SortingLayerID: 651363231
-  m_SortingLayer: 3
+  m_SortingLayerID: -2016979213
+  m_SortingLayer: 1
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {fileID: 5800269335627159884, guid: 32955c6361890e14d913d6289631bd4f, type: 3}

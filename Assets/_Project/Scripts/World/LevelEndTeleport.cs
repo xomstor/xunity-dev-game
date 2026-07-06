@@ -143,6 +143,8 @@ public class LevelEndTeleport : MonoBehaviour
 
     void TeleportToSpawnPoint(string spawnPointName)
     {
+        SaveManager.Instance?.AutoSave();
+
         VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
         joystick?.ForceReset();
 

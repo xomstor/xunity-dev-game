@@ -14,11 +14,16 @@ public class PlayerController : MonoBehaviour
 
     [Header("Attack")]
     public float attackComboResetTime = 1f;
+    [Tooltip("Максимальный визуальный ускоритель анимации атаки (без капа самого AtkSpd)")]
+    public float maxAttackAnimSpeed = 3f;
 
     [Header("Roll")]
     public float rollSpeed = 8f;
     public float rollDuration = 0.5f;
     public float rollCooldown = 1f;
+    [Header("Invulnerability")]
+    public float rollInvulnerabilityDuration = 0.5f;
+    public bool isInvulnerable { get; private set; }
 
     [Header("Ground Check")]
     public LayerMask groundLayer;
@@ -68,8 +73,23 @@ public class PlayerController : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
+    public bool IsInputBlocked => DialogueSystem.IsDialogueActive;
+
     void Update()
     {
+        if (DialogueSystem.IsDialogueActive)
+        {
+            keyboardMoveInput = 0f;
+            externalMoveInput = 0f;
+            moveInput = 0f;
+            rawMoveInput = 0f;
+            currentMoveSpeed = 0f;
+            if (rb != null && isGrounded)
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            UpdateAnimator();
+            return;
+        }
+
         var keyboard = Keyboard.current;
         if (keyboard != null)
         {
@@ -157,6 +177,7 @@ public class PlayerController : MonoBehaviour
             _ => "Attack1",
         };
 
+        ApplyAttackAnimationSpeed();
         anim.SetTrigger(triggerName);
         playerAudio?.PlayAttack(attackCombo);
 
@@ -166,9 +187,21 @@ public class PlayerController : MonoBehaviour
         Invoke(nameof(ResetAttack), 0.5f);
     }
 
+    void ApplyAttackAnimationSpeed()
+    {
+        if (anim == null) return;
+        float multiplier = 1f;
+        if (playerStats != null)
+            multiplier = playerStats.GetAttackCooldownMultiplier();
+        float desiredSpeed = multiplier > 0.0001f ? Mathf.Min(1f / multiplier, maxAttackAnimSpeed) : maxAttackAnimSpeed;
+        anim.speed = desiredSpeed;
+    }
+
     void ResetAttack()
     {
         isAttacking = false;
+        if (anim != null)
+            anim.speed = 1f;
     }
 
     public void Roll()
@@ -185,11 +218,19 @@ public class PlayerController : MonoBehaviour
         rollTimer = rollDuration;
         rollCooldownTimer = rollCooldown;
         rollDirection = direction;
+        isInvulnerable = true;
+        CancelInvoke(nameof(EndRollInvulnerability));
+        Invoke(nameof(EndRollInvulnerability), rollInvulnerabilityDuration);
 
         if (anim != null)
             anim.SetTrigger("Roll");
 
         playerAudio?.PlayRoll();
+    }
+
+    void EndRollInvulnerability()
+    {
+        isInvulnerable = false;
     }
 
     void UpdateRoll()

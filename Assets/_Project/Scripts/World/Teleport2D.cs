@@ -20,6 +20,8 @@ public class Teleport2D : MonoBehaviour
     {
         if (other.CompareTag(targetTag))
         {
+            SaveManager.Instance?.AutoSave();
+
             // 1. Телепортируем игрока
             other.transform.position = teleportTarget.position;
             Debug.Log($"✨ {other.name} телепортирован в {teleportTarget.name}");

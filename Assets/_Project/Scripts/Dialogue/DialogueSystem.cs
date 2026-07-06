@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 public class DialogueSystem : MonoBehaviour
 {
     public static DialogueSystem Instance { get; private set; }
+    public static bool IsDialogueActive { get; private set; }
 
     [Header("UI References")]
     public GameObject dialoguePanel;
@@ -148,6 +149,7 @@ public class DialogueSystem : MonoBehaviour
 
     IEnumerator DisplayDialogue(string[] lines)
     {
+        IsDialogueActive = true;
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -165,6 +167,7 @@ public class DialogueSystem : MonoBehaviour
 
     IEnumerator DisplayDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses)
     {
+        IsDialogueActive = true;
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -182,6 +185,7 @@ public class DialogueSystem : MonoBehaviour
 
     IEnumerator DisplayDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices)
     {
+        IsDialogueActive = true;
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -288,6 +292,7 @@ public class DialogueSystem : MonoBehaviour
             dialoguePanel.SetActive(false);
         currentDialogue = null;
         activeFaceFrames = null;
+        IsDialogueActive = false;
     }
 
     IEnumerator ShowChoices(string[] choiceTexts, string[][] choiceResponses)
