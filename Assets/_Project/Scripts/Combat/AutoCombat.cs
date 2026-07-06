@@ -22,6 +22,7 @@ public class AutoCombat : MonoBehaviour
     [Range(0.1f, 10f)] public float attackRange = 1.5f;
     public float attackCooldown = 1f;
     [Range(0.5f, 30f)] public float detectionRadius = 15f;
+    public bool requireLineOfSight = true;
 
     [Header("Movement")]
     public float moveSpeed = 2f;
@@ -63,6 +64,7 @@ public class AutoCombat : MonoBehaviour
     private Vector2 lastKnownTargetDirection;
     private float chaseTimer;
     private bool isReturning;
+    private bool hasSeenTarget;
     private GameObject questionMarkInstance;
 
     public int CurrentHealth => currentHealth;
@@ -75,6 +77,7 @@ public class AutoCombat : MonoBehaviour
         lastAnimState = -1;
         chaseTimer = 0f;
         isReturning = false;
+        hasSeenTarget = false;
         ShowQuestionMark(false);
         CancelInvoke(nameof(HideAfterDeath));
         Collider2D col = GetComponent<Collider2D>();
@@ -176,6 +179,7 @@ public class AutoCombat : MonoBehaviour
         if (target != null)
         {
             lastKnownTargetDirection = (target.position - transform.position).normalized;
+            hasSeenTarget = true;
             chaseTimer = 0f;
             isReturning = false;
             ShowQuestionMark(false);
@@ -206,7 +210,7 @@ public class AutoCombat : MonoBehaviour
             {
                 ReturnToStart();
             }
-            else if (chaseTarget && chaseTimer < minChaseDuration)
+            else if (chaseTarget && hasSeenTarget && chaseTimer < minChaseDuration)
             {
                 chaseTimer += Time.deltaTime;
                 if (rb != null)
@@ -216,7 +220,7 @@ public class AutoCombat : MonoBehaviour
                     SetAnimState(1);
                 }
             }
-            else if (chaseTarget && chaseTimer >= minChaseDuration)
+            else if (chaseTarget && hasSeenTarget && chaseTimer >= minChaseDuration)
             {
                 isReturning = true;
                 ShowQuestionMark(true);
@@ -468,6 +472,7 @@ public class AutoCombat : MonoBehaviour
             if (other == null && playerController == null) continue;
             if (other != null && (other == this || other.isDead || !other.canBeTargeted || !IsValidTarget(other.team) || HasIgnoreTag(other.transform))) continue;
             if (playerController != null && HasIgnoreTag(playerController.transform)) continue;
+            if (team == CombatTeam.Enemy && !HasLineOfSight(collider.transform)) continue;
 
             if (distance < closestDistance)
             {
@@ -539,6 +544,7 @@ public class AutoCombat : MonoBehaviour
             rb.linearVelocity = new Vector2(0, rb.linearVelocity.y);
             isReturning = false;
             chaseTimer = 0f;
+            hasSeenTarget = false;
             ShowQuestionMark(false);
             SetAnimState(0);
             return;
@@ -604,6 +610,20 @@ public class AutoCombat : MonoBehaviour
         Vector2 origin = new Vector2(x + sign * edgeCheckForwardOffset, col.bounds.min.y);
         RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.down, edgeCheckDownDistance, groundLayer);
         return hit.collider != null;
+    }
+
+    bool HasLineOfSight(Transform t)
+    {
+        if (!requireLineOfSight || groundLayer == 0) return true;
+        if (t == null) return false;
+
+        Vector2 origin = transform.position;
+        Vector2 targetPos = t.position;
+        float distance = Vector2.Distance(origin, targetPos);
+        Vector2 direction = (targetPos - origin).normalized;
+
+        RaycastHit2D hit = Physics2D.Raycast(origin, direction, distance, groundLayer);
+        return hit.collider == null;
     }
 
     void Attack()
