@@ -161,12 +161,28 @@ public class ShopManager : MonoBehaviour
         if (sellQuantity <= 0) return 0;
 
         int basePrice = item.price > 0 ? item.price : 1;
-        int pricePerUnit = Mathf.Max(1, Mathf.RoundToInt(basePrice * sellMultiplier));
+        float rarityMult = GetRarityMultiplier(item);
+        float worldMult = WorldLevelManager.Instance != null ? WorldLevelManager.Instance.CurrentRewardMultiplier : 1f;
+        int pricePerUnit = Mathf.Max(1, Mathf.RoundToInt(basePrice * sellMultiplier * rarityMult * worldMult));
         int total = sellQuantity * pricePerUnit;
 
         playerInventory.RemoveItem(item, sellQuantity);
         playerStats.gold += total;
 
         return total;
+    }
+
+    static float GetRarityMultiplier(ItemData item)
+    {
+        if (item.itemType != ItemType.Material) return 1f;
+        return item.rarity switch
+        {
+            ItemRarity.Common    => 1f,
+            ItemRarity.Uncommon  => 2f,
+            ItemRarity.Rare      => 4f,
+            ItemRarity.Epic      => 8f,
+            ItemRarity.Legendary => 16f,
+            _                    => 1f
+        };
     }
 }

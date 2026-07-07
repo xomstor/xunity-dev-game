@@ -431,7 +431,7 @@ public class AutoCombat : MonoBehaviour
 
     bool TryMultiAttack(int comboHit = 0)
     {
-        int finalDamage = GetFinalDamage(out bool isCrit);
+        int finalDamage = GetFinalDamage(out bool isCrit, comboHit);
 
         if (comboHit == 3)
         {
@@ -477,21 +477,21 @@ public class AutoCombat : MonoBehaviour
         catch { }
     }
 
-    int GetFinalDamage(out bool isCrit)
+    int GetFinalDamage(out bool isCrit, int comboHit = 0)
     {
         isCrit = false;
         PlayerStats stats = GetComponent<PlayerStats>();
         if (stats != null)
         {
             isCrit = Random.value < stats.GetCritChance();
-            return isCrit ? Mathf.RoundToInt(stats.atk * stats.critDamageMultiplier) : stats.atk;
+            return isCrit ? Mathf.RoundToInt(stats.atk * stats.GetCritDamageMultiplier(comboHit)) : stats.atk;
         }
         return damage;
     }
 
     int GetFinalDamage()
     {
-        return GetFinalDamage(out _);
+        return GetFinalDamage(out _, 0);
     }
 
     int GetLethality()

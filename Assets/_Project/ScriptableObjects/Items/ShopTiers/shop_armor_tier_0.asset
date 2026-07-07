@@ -20,7 +20,7 @@ MonoBehaviour:
   itemType: 1
   rarity: 0
   icon: {fileID: -2757887451555568444, guid: fb09078f87b3b6243b732ac2a83f06c0, type: 3}
-  price: 50
+  price: 100
   maxStack: 1
   atkBonus: 0
   defBonus: 2

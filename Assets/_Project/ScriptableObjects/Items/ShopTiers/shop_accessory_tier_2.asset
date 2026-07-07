@@ -19,12 +19,12 @@ MonoBehaviour:
   itemType: 3
   rarity: 1
   icon: {fileID: -6399442597095714066, guid: 8664edb2547efae45a3049fe0a8e530f, type: 3}
-  price: 170
+  price: 625
   maxStack: 1
   atkBonus: 0
   defBonus: 0
-  hpBonus: 4
+  hpBonus: 13
   spdBonus: 0
-  lckBonus: 2
+  lckBonus: 3
   restoreHp: 0
   experienceReward: 0

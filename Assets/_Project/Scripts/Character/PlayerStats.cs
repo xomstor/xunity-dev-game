@@ -108,12 +108,20 @@ public class PlayerStats : MonoBehaviour
         return Mathf.Max(0f, (lck - baseLck) * 0.1f);
     }
 
-    public int GetDamage(out bool isCrit)
+    public float GetCritDamageMultiplier(int comboHit = 0)
+    {
+        float mult = critDamageMultiplier;
+        if ((comboHit == 2 || comboHit == 3) && lck > 300)
+            mult += (lck - 300) * 0.106f;
+        return mult;
+    }
+
+    public int GetDamage(out bool isCrit, int comboHit = 0)
     {
         isCrit = Random.value < GetCritChance();
         int damage = atk;
         if (isCrit)
-            damage = Mathf.RoundToInt(damage * critDamageMultiplier);
+            damage = Mathf.RoundToInt(damage * GetCritDamageMultiplier(comboHit));
         return damage;
     }
 
@@ -177,6 +185,6 @@ public class PlayerStats : MonoBehaviour
 
     public int GetDamage()
     {
-        return GetDamage(out _);
+        return GetDamage(out _, 0);
     }
 }
