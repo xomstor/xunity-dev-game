@@ -383,11 +383,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1872728228780167711, guid: c0406489e5824d040958ff865003365b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -6.495162
+      value: -22.2
       objectReference: {fileID: 0}
     - target: {fileID: 1872728228780167711, guid: c0406489e5824d040958ff865003365b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.22414029
+      value: -0.8
       objectReference: {fileID: 0}
     - target: {fileID: 1872728228780167711, guid: c0406489e5824d040958ff865003365b, type: 3}
       propertyPath: m_LocalPosition.z
@@ -421,6 +421,10 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 2068702010085759554, guid: c0406489e5824d040958ff865003365b, type: 3}
+      propertyPath: slideDustPrefab
+      value: 
+      objectReference: {fileID: 1399700508894817354, guid: eba7cf3733a848941a5a576923bc6f66, type: 3}
     - target: {fileID: 7124672787170046886, guid: c0406489e5824d040958ff865003365b, type: 3}
       propertyPath: m_Name
       value: Player

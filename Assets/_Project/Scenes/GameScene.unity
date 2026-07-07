@@ -14795,7 +14795,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:
@@ -17833,6 +17833,12 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   groundCheckDistance: 0.1
+  enableWallSlide: 1
+  wallSlideSpeed: 0.5
+  wallJumpForceX: 6
+  wallJumpForceY: 10
+  wallCheckDistance: 0.1
+  slideDustPrefab: {fileID: 1399700508894817354, guid: eba7cf3733a848941a5a576923bc6f66, type: 3}
   playerStats: {fileID: 0}
   playerAudio: {fileID: 0}
 --- !u!50 &981941160
@@ -21784,7 +21790,7 @@ Sprite:
       height: 1
     textureRectOffset: {x: 0, y: 0}
     atlasRectOffset: {x: -1, y: -1}
-    settingsRaw: 64
+    settingsRaw: 3136
     uvTransform: {x: 1, y: 0.5, z: 1, w: 0.5}
     downscaleMultiplier: 1
   m_AtlasRD:

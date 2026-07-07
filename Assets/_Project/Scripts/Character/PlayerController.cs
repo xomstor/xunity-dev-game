@@ -29,6 +29,14 @@ public class PlayerController : MonoBehaviour
     public LayerMask groundLayer;
     public float groundCheckDistance = 0.1f;
 
+    [Header("Wall Slide")]
+    public bool enableWallSlide = true;
+    public float wallSlideSpeed = 0.5f;
+    public float wallJumpForceX = 6f;
+    public float wallJumpForceY = 10f;
+    public float wallCheckDistance = 0.1f;
+    public GameObject slideDustPrefab;
+
     [Header("Stats")]
     public PlayerStats playerStats;
 
@@ -57,6 +65,8 @@ public class PlayerController : MonoBehaviour
     private Collider2D currentGroundCollider;
     private float dropThroughTimer;
     private Collider2D ignoredPlatform;
+    private bool isWallSliding;
+    private int wallDirection;
 
     void Awake()
     {
@@ -124,6 +134,7 @@ public class PlayerController : MonoBehaviour
         UpdateRoll();
         UpdateMoveSpeed();
         UpdateAttackComboTimer();
+        UpdateWallSlide();
 
         if (rawMoveInput > 0)
             transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
@@ -261,6 +272,7 @@ public class PlayerController : MonoBehaviour
     void FixedUpdate()
     {
         CheckGround();
+        CheckWall();
 
         if (dropThroughTimer > 0)
         {
@@ -276,11 +288,14 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rollDirection * rollSpeed, rb.linearVelocity.y);
         }
+        else if (isWallSliding)
+        {
+            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed));
+        }
         else
         {
             rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
         }
-
     }
 
     void UpdateAnimator()
@@ -291,6 +306,7 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("AnimState", animState);
         anim.SetBool("Grounded", isGrounded);
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);
+        anim.SetBool("WallSlide", isWallSliding);
 
         playerAudio?.SetMovement(isMoving, currentMoveSpeed);
     }
@@ -303,6 +319,44 @@ public class PlayerController : MonoBehaviour
         isGrounded = hit.collider != null;
         currentGroundCollider = hit.collider;
         if (isGrounded) jumpCount = maxJumps;
+    }
+
+    void CheckWall()
+    {
+        if (!enableWallSlide || isGrounded) { isWallSliding = false; return; }
+
+        Bounds bounds = col.bounds;
+        float facing = Mathf.Sign(transform.localScale.x);
+        Vector2 origin = new Vector2(facing > 0 ? bounds.max.x : bounds.min.x, bounds.center.y);
+        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * facing, wallCheckDistance, groundLayer);
+
+        bool touchingWall = hit.collider != null;
+        bool pushingIntoWall = Mathf.Sign(rawMoveInput) == facing && rawMoveInput != 0;
+        bool falling = rb.linearVelocity.y < 0;
+
+        bool wasSliding = isWallSliding;
+        isWallSliding = touchingWall && pushingIntoWall && falling;
+        wallDirection = (int)facing;
+
+        if (isWallSliding && !wasSliding && slideDustPrefab != null)
+            Instantiate(slideDustPrefab, new Vector3(bounds.center.x + facing * bounds.extents.x, bounds.min.y, 0), Quaternion.identity);
+    }
+
+    void UpdateWallSlide()
+    {
+        if (!isWallSliding) return;
+
+        var keyboard = Keyboard.current;
+        if (keyboard != null && (keyboard.wKey.wasPressedThisFrame || keyboard.spaceKey.wasPressedThisFrame || keyboard.upArrowKey.wasPressedThisFrame))
+            WallJump();
+    }
+
+    void WallJump()
+    {
+        isWallSliding = false;
+        jumpCount = Mathf.Max(jumpCount, 1);
+        rb.linearVelocity = new Vector2(-wallDirection * wallJumpForceX, wallJumpForceY);
+        playerAudio?.PlayJump();
     }
 
     public bool TryDropThrough()
@@ -347,6 +401,12 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
+        if (isWallSliding)
+        {
+            WallJump();
+            return;
+        }
+
         if (jumpCount > 0)
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
