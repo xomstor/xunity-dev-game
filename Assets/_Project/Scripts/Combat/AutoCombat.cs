@@ -106,6 +106,7 @@ public class AutoCombat : MonoBehaviour
         currentHealth = maxHealth;
         startPosition = transform.position;
         lastKnownTargetDirection = Vector2.right;
+        attackTimer = attackCooldown * 0.5f;
         rb = GetComponent<Rigidbody2D>();
         if (groundLayer == 0)
             groundLayer = LayerMask.GetMask("Ground");
@@ -141,6 +142,13 @@ public class AutoCombat : MonoBehaviour
             maxHealth = Mathf.RoundToInt(maxHealth * WorldLevelManager.Instance.CurrentEnemyHealthMultiplier);
             damage = Mathf.RoundToInt(damage * WorldLevelManager.Instance.CurrentEnemyDamageMultiplier);
             currentHealth = maxHealth;
+        }
+
+        if (anim != null && anim.runtimeAnimatorController != null)
+        {
+            if (HasAnimatorParameter(attackTrigger)) anim.ResetTrigger(attackTrigger);
+            if (HasAnimatorParameter(deathTrigger))  anim.ResetTrigger(deathTrigger);
+            if (HasAnimatorParameter(hitTrigger))    anim.ResetTrigger(hitTrigger);
         }
 
         if (team == CombatTeam.Enemy && chaseTarget && rb == null)
@@ -198,10 +206,7 @@ public class AutoCombat : MonoBehaviour
             if (distance <= attackRange)
             {
                 if (attackTimer <= 0)
-                {
                     Attack();
-                    SetAnimState(0);
-                }
             }
             else if (chaseTarget && rb != null)
             {
@@ -833,6 +838,9 @@ public class AutoCombat : MonoBehaviour
         PlayerController pc = GetComponentInChildren<PlayerController>();
         if (pc != null)
             pc.enabled = false;
+
+        PlayerAudio playerAudio = GetComponentInChildren<PlayerAudio>();
+        playerAudio?.StopAll();
 
         // Останавливаем все Rigidbody2D в иерархии
         Rigidbody2D[] bodies = GetComponentsInChildren<Rigidbody2D>();

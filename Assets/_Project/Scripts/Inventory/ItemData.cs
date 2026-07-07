@@ -43,6 +43,12 @@ public class ItemData : ScriptableObject
     public int restoreHp;
     public int experienceReward;
 
+    void OnValidate()
+    {
+        if (itemType == ItemType.Material && maxStack <= 1)
+            maxStack = 9999;
+    }
+
     public Color GetRarityColor()
     {
         return rarity switch

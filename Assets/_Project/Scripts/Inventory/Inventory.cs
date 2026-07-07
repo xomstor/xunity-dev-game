@@ -11,7 +11,7 @@ public class InventoryItem
 public class Inventory : MonoBehaviour
 {
     public List<InventoryItem> items = new List<InventoryItem>();
-    public int maxSlots = 20;
+    public int maxSlots = 100;
 
     public static event System.Action OnInventoryChanged;
     public static event System.Action<InventoryItem> OnItemTrashed;

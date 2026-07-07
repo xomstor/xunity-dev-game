@@ -60,6 +60,13 @@ public class PlayerAudio : MonoBehaviour
         currentMoveSpeed = speed;
     }
 
+    public void StopAll()
+    {
+        isMoving = false;
+        currentMoveSpeed = 0f;
+        stepTimer = 0f;
+    }
+
     void PlayStep()
     {
         AudioClip clip = currentMoveSpeed > 4f ? runClip : walkClip;

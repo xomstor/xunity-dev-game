@@ -19,7 +19,7 @@ MonoBehaviour:
   rarity: 2
   icon: {fileID: 6877953696435093823, guid: 3e5afa93f99087d48b1c269b92232ff1, type: 3}
   price: 8
-  maxStack: 99
+  maxStack: 9999
   atkBonus: 0
   defBonus: 0
   hpBonus: 0
