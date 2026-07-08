@@ -16,6 +16,7 @@ public class DialogueChoiceDrawer : PropertyDrawer
         height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("responseLines"), true) + Spacing;
         height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("subChoices"), true) + Spacing;
         height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("startsQuest"), true) + Spacing;
+        height += EditorGUI.GetPropertyHeight(property.FindPropertyRelative("opensTrashEmanator"), true) + Spacing;
         return height;
     }
 
@@ -35,6 +36,7 @@ public class DialogueChoiceDrawer : PropertyDrawer
             DrawProperty(ref y, position, property.FindPropertyRelative("responseLines"));
             DrawProperty(ref y, position, property.FindPropertyRelative("subChoices"));
             DrawProperty(ref y, position, property.FindPropertyRelative("startsQuest"));
+            DrawProperty(ref y, position, property.FindPropertyRelative("opensTrashEmanator"));
 
             EditorGUI.indentLevel--;
         }

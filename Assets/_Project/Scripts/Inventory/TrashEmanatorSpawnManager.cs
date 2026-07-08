@@ -81,6 +81,17 @@ public class TrashEmanatorSpawnManager : MonoBehaviour
     public void TrySpawn()
     {
         if (IsSpawned) return;
+
+        // Если Эманатор уже размещён в сцене вручную — используем его
+        if (TrashEmanator.Instance != null)
+        {
+            CurrentEmanator = TrashEmanator.Instance;
+            IsSpawned = true;
+            FlushPendingItems();
+            Debug.Log("[TrashEmanatorSpawnManager] Используется размещённый вручную Эманатор.");
+            return;
+        }
+
         if (string.IsNullOrEmpty(hubSceneName))
         {
             hubSceneName = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;

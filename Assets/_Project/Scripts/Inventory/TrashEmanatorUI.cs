@@ -93,6 +93,7 @@ public class TrashEmanatorUI : MonoBehaviour
         if (itemPrefab == null) return null;
 
         GameObject go = Instantiate(itemPrefab, contentParent, false);
+        go.SetActive(true);
         TextMeshProUGUI[] texts = go.GetComponentsInChildren<TextMeshProUGUI>();
         Button btn = go.GetComponentInChildren<Button>();
 
@@ -131,18 +132,97 @@ public class TrashEmanatorUI : MonoBehaviour
 
     void CreateFallbackUI()
     {
+        Transform canvasT = transform.root.Find("TrashEmanatorCanvas");
+        Canvas canvas = canvasT != null ? canvasT.GetComponent<Canvas>() : null;
+        if (canvas == null)
+        {
+            GameObject canvasGO = new GameObject("TrashEmanatorCanvas");
+            canvas = canvasGO.AddComponent<Canvas>();
+            canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 100;
+            canvasGO.AddComponent<GraphicRaycaster>();
+            CanvasScaler scaler = canvasGO.AddComponent<CanvasScaler>();
+            scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+            scaler.referenceResolution = new Vector2(1920, 1080);
+            scaler.matchWidthOrHeight = 0.5f;
+        }
+
         if (panel == null)
         {
             panel = new GameObject("TrashEmanatorPanel");
-            panel.transform.SetParent(transform, false);
+            panel.transform.SetParent(canvas.transform, false);
             RectTransform rt = panel.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = Vector2.zero;
-            rt.sizeDelta = new Vector2(600, 500);
+            rt.anchorMin = Vector2.zero;
+            rt.anchorMax = Vector2.one;
+            rt.offsetMin = new Vector2(200, 150);
+            rt.offsetMax = new Vector2(-200, -150);
             Image bg = panel.AddComponent<Image>();
             bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+            // Header
+            GameObject header = new GameObject("Header");
+            header.transform.SetParent(panel.transform, false);
+            RectTransform headerRt = header.AddComponent<RectTransform>();
+            headerRt.anchorMin = new Vector2(0, 1);
+            headerRt.anchorMax = new Vector2(1, 1);
+            headerRt.pivot = new Vector2(0.5f, 1);
+            headerRt.anchoredPosition = Vector2.zero;
+            headerRt.sizeDelta = new Vector2(0, 60);
+            header.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.18f, 1f);
+
+            GameObject titleGO = new GameObject("Title");
+            titleGO.transform.SetParent(header.transform, false);
+            RectTransform titleRt = titleGO.AddComponent<RectTransform>();
+            titleRt.anchorMin = new Vector2(0, 0);
+            titleRt.anchorMax = new Vector2(1, 1);
+            titleRt.offsetMin = new Vector2(20, 0);
+            titleRt.offsetMax = new Vector2(-70, 0);
+            TextMeshProUGUI titleText = titleGO.AddComponent<TextMeshProUGUI>();
+            titleText.text = "Выкинутые вещи";
+            titleText.fontSize = 28;
+            titleText.alignment = TextAlignmentOptions.Left;
+            titleText.color = Color.white;
+
+            GameObject closeBtnGO = new GameObject("CloseButton");
+            closeBtnGO.transform.SetParent(header.transform, false);
+            RectTransform closeRt = closeBtnGO.AddComponent<RectTransform>();
+            closeRt.anchorMin = new Vector2(1, 0.5f);
+            closeRt.anchorMax = new Vector2(1, 0.5f);
+            closeRt.pivot = new Vector2(1, 0.5f);
+            closeRt.anchoredPosition = new Vector2(-10, 0);
+            closeRt.sizeDelta = new Vector2(50, 50);
+            Image closeImg = closeBtnGO.AddComponent<Image>();
+            closeImg.color = new Color(0.5f, 0.15f, 0.1f, 1f);
+            closeButton = closeBtnGO.AddComponent<Button>();
+            closeButton.targetGraphic = closeImg;
+            closeButton.onClick.AddListener(Close);
+
+            GameObject closeTextGO = new GameObject("Text");
+            closeTextGO.transform.SetParent(closeBtnGO.transform, false);
+            RectTransform closeTextRt = closeTextGO.AddComponent<RectTransform>();
+            closeTextRt.anchorMin = Vector2.zero;
+            closeTextRt.anchorMax = Vector2.one;
+            closeTextRt.offsetMin = Vector2.zero;
+            closeTextRt.offsetMax = Vector2.zero;
+            TextMeshProUGUI closeTxt = closeTextGO.AddComponent<TextMeshProUGUI>();
+            closeTxt.text = "X";
+            closeTxt.fontSize = 24;
+            closeTxt.alignment = TextAlignmentOptions.Center;
+            closeTxt.color = Color.white;
+
+            // Info text
+            GameObject infoGO = new GameObject("InfoText");
+            infoGO.transform.SetParent(panel.transform, false);
+            RectTransform infoRt = infoGO.AddComponent<RectTransform>();
+            infoRt.anchorMin = new Vector2(0, 0);
+            infoRt.anchorMax = new Vector2(1, 0);
+            infoRt.pivot = new Vector2(0.5f, 0);
+            infoRt.anchoredPosition = new Vector2(0, 10);
+            infoRt.sizeDelta = new Vector2(0, 40);
+            infoText = infoGO.AddComponent<TextMeshProUGUI>();
+            infoText.fontSize = 22;
+            infoText.alignment = TextAlignmentOptions.Center;
+            infoText.color = new Color(0.8f, 0.8f, 0.8f, 1f);
         }
 
         if (contentParent == null)
@@ -150,10 +230,10 @@ public class TrashEmanatorUI : MonoBehaviour
             GameObject scrollGO = new GameObject("ScrollView");
             scrollGO.transform.SetParent(panel.transform, false);
             RectTransform scrollRt = scrollGO.AddComponent<RectTransform>();
-            scrollRt.anchorMin = new Vector2(0.1f, 0.15f);
-            scrollRt.anchorMax = new Vector2(0.9f, 0.85f);
-            scrollRt.offsetMin = Vector2.zero;
-            scrollRt.offsetMax = Vector2.zero;
+            scrollRt.anchorMin = Vector2.zero;
+            scrollRt.anchorMax = Vector2.one;
+            scrollRt.offsetMin = new Vector2(20f, 50f);
+            scrollRt.offsetMax = new Vector2(-20f, -70f);
             ScrollRect scroll = scrollGO.AddComponent<ScrollRect>();
 
             GameObject viewport = new GameObject("Viewport");

@@ -11,6 +11,9 @@ public class DialogueChoice
     [Header("Quest")]
     [Tooltip("If true, selecting this choice starts the associated quest")]
     public bool startsQuest;
+    [Header("Trash Emanator")]
+    [Tooltip("If true, selecting this choice opens the Trash Emanator UI")]
+    public bool opensTrashEmanator;
 }
 
 public class DialogueTrigger : MonoBehaviour
@@ -40,6 +43,7 @@ public class DialogueTrigger : MonoBehaviour
     public GameObject interactPrompt;
     public ShopNPC shopNPC;
     public bool openShopOnChoice0 = true;
+    public TrashEmanatorUI trashEmanatorUI;
 
     [Header("Quest (optional)")]
     public ItemData requiredItem;
@@ -268,6 +272,17 @@ public class DialogueTrigger : MonoBehaviour
         if (choiceIndex == 0 && openShopOnChoice0 && shopNPC != null)
         {
             shopNPC.OpenShop();
+        }
+
+        if (selected != null && selected.opensTrashEmanator)
+        {
+            DialogueSystem.Instance?.CloseDialogue();
+            if (trashEmanatorUI == null)
+                trashEmanatorUI = FindAnyObjectByType<TrashEmanatorUI>();
+            if (trashEmanatorUI != null)
+                trashEmanatorUI.Open();
+            else
+                Debug.LogWarning($"[{name}] opensTrashEmanator selected but trashEmanatorUI is not found.");
         }
     }
 
