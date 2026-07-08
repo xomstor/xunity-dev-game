@@ -184,6 +184,9 @@ public class PlayerController : MonoBehaviour
         isAttacking = true;
         attackComboTimer = attackComboResetTime;
         attackCombo++;
+        
+        // Отслеживаем атаку в статистике
+        GameStatistics.Instance?.RecordAttack();
 
         if (attackCombo > 3)
             attackCombo = 1;
@@ -411,6 +414,9 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount--;
+            
+            // Отслеживаем прыжок в статистике
+            GameStatistics.Instance?.RecordJump();
             playerAudio?.PlayJump();
         }
     }

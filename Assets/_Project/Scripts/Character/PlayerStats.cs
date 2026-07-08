@@ -54,6 +54,8 @@ public class PlayerStats : MonoBehaviour
         if (IsInvulnerable()) return;
         int finalDamage = GetMitigatedDamage(amount, 0);
         hp = Mathf.Max(0, hp - finalDamage);
+        
+        Debug.Log($"[PlayerStats] TakeDamage: amount={amount}, finalDamage={finalDamage}, hp={hp}");
     }
 
     public void TakeDamage(int amount, int attackerLethality)
@@ -61,6 +63,8 @@ public class PlayerStats : MonoBehaviour
         if (IsInvulnerable()) return;
         int finalDamage = GetMitigatedDamage(amount, attackerLethality);
         hp = Mathf.Max(0, hp - finalDamage);
+        
+        Debug.Log($"[PlayerStats] TakeDamage: amount={amount}, lethality={attackerLethality}, finalDamage={finalDamage}, hp={hp}");
     }
 
     bool IsInvulnerable()
@@ -156,6 +160,9 @@ public class PlayerStats : MonoBehaviour
         int loss = Mathf.RoundToInt(lossable * 0.05f);
         gold -= loss;
         Debug.Log($"[PlayerStats] Death penalty: lost {loss} gold. Safe amount: {safeGold}. Remaining: {gold}.");
+        
+        // Отслеживаем смерть в статистике
+        GameStatistics.Instance?.RecordDeath();
     }
 
     void CheckLevelUp()

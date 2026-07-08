@@ -30,6 +30,8 @@ public class PauseMenu : MonoBehaviour
     [Header("Pause Buttons Icons")]
     public Sprite saveButtonIcon;
     public Sprite skillTreeButtonIcon;
+    public Sprite statisticsButtonIcon;
+    public Sprite bestiaryButtonIcon;
 
     [Header("Resume/Quit Buttons (optional - will find if null)")]
     public Button resumeButton;
@@ -48,10 +50,29 @@ public class PauseMenu : MonoBehaviour
     [Header("Skill Tree Panel (auto-created)")]
     private GameObject skillTreePanel;
 
+    [Header("Pause Menu Audio")]
+    public AudioClip pauseMenuMusic;
+    public float pauseMusicVolume = 0.7f;
+    public float levelMusicDuckVolume = 0.3f;
+    
+    private AudioSource pauseMusicSource;
+    private AudioSource levelMusicSource;
+    private float originalLevelMusicVolume;
+
     [Header("Bestiary Panel (auto-created)")]
     private GameObject bestiaryPanel;
     private Transform bestiaryContainer;
     private readonly List<GameObject> bestiaryButtons = new List<GameObject>();
+
+    [Header("Statistics Panel (auto-created)")]
+    private GameObject statisticsPanel;
+    private TextMeshProUGUI statisticsText;
+
+    [Header("Bestiary Description Panel (auto-created)")]
+    private GameObject bestiaryDescriptionPanel;
+    private TextMeshProUGUI descriptionText;
+    private Image descriptionIcon;
+    private TextMeshProUGUI descriptionTitle;
 
     private static PauseMenu instance;
 
@@ -244,10 +265,12 @@ public class PauseMenu : MonoBehaviour
         {
             UpdateStatsDisplay();
             RefreshInventory();
+            PlayPauseMusic();
         }
         else
         {
             CloseAllSubPanels();
+            StopPauseMusic();
         }
     }
 
@@ -257,6 +280,62 @@ public class PauseMenu : MonoBehaviour
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
         CloseAllSubPanels();
+        StopPauseMusic();
+    }
+
+    void PlayPauseMusic()
+    {
+        if (pauseMenuMusic == null) return;
+
+        // Находим основную музыку уровня
+        if (levelMusicSource == null)
+        {
+            AudioSource[] allAudioSources = FindObjectsByType<AudioSource>();
+            foreach (AudioSource source in allAudioSources)
+            {
+                if (source.clip != null && source.isPlaying && source.loop)
+                {
+                    levelMusicSource = source;
+                    originalLevelMusicVolume = source.volume;
+                    break;
+                }
+            }
+        }
+
+        // Приглушаем основную музыку
+        if (levelMusicSource != null)
+        {
+            levelMusicSource.volume = levelMusicDuckVolume;
+        }
+
+        // Создаём AudioSource для музыки паузы если его нет
+        if (pauseMusicSource == null)
+        {
+            GameObject audioGO = new GameObject("PauseMenuAudio");
+            audioGO.transform.SetParent(transform);
+            pauseMusicSource = audioGO.AddComponent<AudioSource>();
+            pauseMusicSource.clip = pauseMenuMusic;
+            pauseMusicSource.volume = pauseMusicVolume;
+            pauseMusicSource.loop = true;
+        }
+
+        pauseMusicSource.Play();
+        Debug.Log("[PauseMenu] Pause music started");
+    }
+
+    void StopPauseMusic()
+    {
+        if (pauseMusicSource != null)
+        {
+            pauseMusicSource.Stop();
+            Debug.Log("[PauseMenu] Pause music stopped");
+        }
+
+        // Восстанавливаем громкость основной музыки
+        if (levelMusicSource != null)
+        {
+            levelMusicSource.volume = originalLevelMusicVolume;
+        }
     }
 
     void CloseAllSubPanels()
@@ -981,31 +1060,45 @@ public class PauseMenu : MonoBehaviour
         btnGO.transform.SetParent(pausePanel.transform, false);
         btnGO.AddComponent<CanvasRenderer>();
         Image img = btnGO.AddComponent<Image>();
-        img.color = new Color(0.8f, 0.4f, 0.2f, 0.8f);
+        
+        // Если есть иконка, используем её, иначе используем цвет
+        if (bestiaryButtonIcon != null)
+        {
+            img.sprite = bestiaryButtonIcon;
+            img.color = Color.white;
+        }
+        else
+        {
+            img.color = new Color(0.8f, 0.4f, 0.2f, 0.8f);
+        }
 
         Button btn = btnGO.AddComponent<Button>();
         btn.targetGraphic = img;
         btn.onClick.AddListener(OpenBestiary);
         RectTransform rt = btnGO.GetComponent<RectTransform>();
-        rt.anchorMin = new Vector2(1, 1);
-        rt.anchorMax = new Vector2(1, 1);
-        rt.pivot = new Vector2(1, 1);
-        rt.anchoredPosition = new Vector2(-380, -20);
+        rt.anchorMin = new Vector2(0, 1);  // Левый верхний угол
+        rt.anchorMax = new Vector2(0, 1);  // Левый верхний угол
+        rt.pivot = new Vector2(0, 1);      // Левый верхний угол
+        rt.anchoredPosition = new Vector2(20, -20);  // Отступ 20 пикселей слева и сверху
         rt.sizeDelta = new Vector2(80, 80);
 
-        GameObject textGO = new GameObject("Text");
-        textGO.transform.SetParent(btnGO.transform, false);
-        textGO.AddComponent<CanvasRenderer>();
-        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-        text.text = "B";
-        text.fontSize = 40;
-        text.alignment = TextAlignmentOptions.Center;
-        text.color = Color.white;
-        RectTransform textRt = textGO.GetComponent<RectTransform>();
-        textRt.anchorMin = Vector2.zero;
-        textRt.anchorMax = Vector2.one;
-        textRt.offsetMin = Vector2.zero;
-        textRt.offsetMax = Vector2.zero;
+        // Если нет иконки, добавляем текст
+        if (bestiaryButtonIcon == null)
+        {
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(btnGO.transform, false);
+            textGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+            text.text = "B";
+            text.fontSize = 40;
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = Color.white;
+            RectTransform textRt = textGO.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = Vector2.zero;
+            textRt.offsetMax = Vector2.zero;
+        }
     }
 
     public void OpenBestiary()
@@ -1058,21 +1151,78 @@ public class PauseMenu : MonoBehaviour
             Image entryBg = entryGO.AddComponent<Image>();
             entryBg.color = new Color(0.12f, 0.12f, 0.18f, 0.9f);
             RectTransform entryRt = entryGO.GetComponent<RectTransform>();
-            entryRt.sizeDelta = new Vector2(0, 50);
+            entryRt.sizeDelta = new Vector2(0, 120);
 
+            // Очищаем имя врага от цифр в скобках
+            string cleanEnemyName = System.Text.RegularExpressions.Regex.Replace(kv.Key, @"\s*\(\d+\)\s*", "").Trim();
+            
+            // Получаем данные врага
+            BestiaryData enemyData = BestiaryData.GetByName(cleanEnemyName);
+
+            // Иконка врага (левая сторона, 1/5 экрана)
+            GameObject iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(entryGO.transform, false);
+            iconGO.AddComponent<CanvasRenderer>();
+            Image iconImage = iconGO.AddComponent<Image>();
+            if (enemyData != null && enemyData.enemyIcon != null)
+                iconImage.sprite = enemyData.enemyIcon;
+            else
+                iconImage.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+            RectTransform iconRt = iconGO.GetComponent<RectTransform>();
+            iconRt.anchorMin = new Vector2(0, 0.5f);
+            iconRt.anchorMax = new Vector2(0, 0.5f);
+            iconRt.pivot = new Vector2(0, 0.5f);
+            iconRt.sizeDelta = new Vector2(100, 100);
+            iconRt.anchoredPosition = new Vector2(10, 0);
+
+            // Текст с информацией (рядом с иконкой)
             GameObject textGO = new GameObject("Text");
             textGO.transform.SetParent(entryGO.transform, false);
             textGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-            text.text = $"{kv.Key}: {kv.Value} убито";
-            text.fontSize = 28;
+            text.text = $"{cleanEnemyName}\n{kv.Value} убито";
+            text.fontSize = 26;
             text.alignment = TextAlignmentOptions.Left;
             text.color = Color.white;
             RectTransform textRt = textGO.GetComponent<RectTransform>();
-            textRt.anchorMin = Vector2.zero;
-            textRt.anchorMax = Vector2.one;
-            textRt.offsetMin = new Vector2(15, 0);
-            textRt.offsetMax = new Vector2(-10, 0);
+            textRt.anchorMin = new Vector2(0, 0.5f);
+            textRt.anchorMax = new Vector2(1, 0.5f);
+            textRt.pivot = new Vector2(0, 0.5f);
+            textRt.offsetMin = new Vector2(120, -30);
+            textRt.offsetMax = new Vector2(-110, 30);
+
+            // Кнопка "Описание"
+            GameObject descBtnGO = new GameObject("DescriptionButton");
+            descBtnGO.transform.SetParent(entryGO.transform, false);
+            descBtnGO.AddComponent<CanvasRenderer>();
+            Image descBtnImg = descBtnGO.AddComponent<Image>();
+            descBtnImg.color = new Color(0.2f, 0.6f, 1f, 1f);
+            Button descBtn = descBtnGO.AddComponent<Button>();
+            descBtn.targetGraphic = descBtnImg;
+            RectTransform descBtnRt = descBtnGO.GetComponent<RectTransform>();
+            descBtnRt.anchorMin = new Vector2(1, 0.5f);
+            descBtnRt.anchorMax = new Vector2(1, 0.5f);
+            descBtnRt.pivot = new Vector2(1, 0.5f);
+            descBtnRt.sizeDelta = new Vector2(100, 50);
+            descBtnRt.anchoredPosition = new Vector2(-10, 0);
+
+            GameObject descBtnTextGO = new GameObject("Text");
+            descBtnTextGO.transform.SetParent(descBtnGO.transform, false);
+            descBtnTextGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI descBtnText = descBtnTextGO.AddComponent<TextMeshProUGUI>();
+            descBtnText.text = "Описание";
+            descBtnText.fontSize = 20;
+            descBtnText.alignment = TextAlignmentOptions.Center;
+            descBtnText.color = Color.black;
+            RectTransform descBtnTextRt = descBtnTextGO.GetComponent<RectTransform>();
+            descBtnTextRt.anchorMin = Vector2.zero;
+            descBtnTextRt.anchorMax = Vector2.one;
+            descBtnTextRt.offsetMin = Vector2.zero;
+            descBtnTextRt.offsetMax = Vector2.zero;
+
+            // Привязываем кнопку к методу открытия описания
+            string capturedEnemyName = cleanEnemyName;
+            descBtn.onClick.AddListener(() => OpenBestiaryDescription(capturedEnemyName, enemyData));
 
             bestiaryButtons.Add(entryGO);
         }
@@ -1196,6 +1346,9 @@ public class PauseMenu : MonoBehaviour
 
         for (int i = 0; i < statNames.Length; i++)
             CreateStatButton(statNames[i], i);
+
+        // Добавляем кнопку статистики
+        CreateStatisticsButton();
 
         UpdateButtonsVisibility();
     }
@@ -1663,6 +1816,266 @@ public class PauseMenu : MonoBehaviour
         string ac = equipmentManager.accessory != null ? equipmentManager.accessory.itemName : "-";
 
         equippedText.text = $"Equipped:\n  Weapon: {w}\n  Armor: {a}\n  Boots: {b}\n  Accessory: {ac}";
+    }
+
+    void CreateStatisticsButton()
+    {
+        if (buttonsParent == null) return;
+
+        GameObject btnGO = new GameObject("StatisticsButton");
+        btnGO.transform.SetParent(buttonsParent, false);
+
+        Image img = btnGO.AddComponent<Image>();
+        
+        // Если есть иконка, используем её, иначе создаём градиентный спрайт
+        if (statisticsButtonIcon != null)
+        {
+            img.sprite = statisticsButtonIcon;
+        }
+        else
+        {
+            Color leftColor = new Color(1f, 0.5f, 0f, 1f);
+            Color rightColor = new Color(1f, 0.84f, 0f, 1f);
+            Color shadowColor = new Color(0.5f, 0.3f, 0f, 0.75f);
+            img.sprite = CreateGradientPillSprite(165, 75, 150, 60, leftColor, rightColor, shadowColor, new Vector2(5, -5));
+        }
+        img.color = Color.white;
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+
+        // Если нет иконки, добавляем текст
+        if (statisticsButtonIcon == null)
+        {
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(btnGO.transform, false);
+            TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+            text.text = "СТАТИСТИКА";
+            text.alignment = TextAlignmentOptions.Center;
+            text.color = Color.black;
+            text.fontSize = 28;
+            text.fontStyle = FontStyles.Bold;
+
+            RectTransform textRt = text.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = Vector2.zero;
+            textRt.offsetMax = Vector2.zero;
+        }
+
+        RectTransform btnRt = btnGO.GetComponent<RectTransform>();
+        btnRt.sizeDelta = new Vector2(200, 60);
+
+        btn.onClick.AddListener(OpenStatistics);
+    }
+
+    public void OpenStatistics()
+    {
+        HideInventory();
+        if (statisticsPanel == null)
+            CreateStatisticsPanel();
+        
+        if (statisticsPanel != null)
+        {
+            statisticsPanel.SetActive(true);
+            RefreshStatistics();
+        }
+    }
+
+    public void CloseStatistics()
+    {
+        if (statisticsPanel != null)
+            statisticsPanel.SetActive(false);
+        ShowInventory();
+    }
+
+    void CreateStatisticsPanel()
+    {
+        if (pausePanel == null) return;
+
+        statisticsPanel = new GameObject("StatisticsPanel");
+        statisticsPanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = statisticsPanel.AddComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.5f, 0.5f);
+        srt.anchorMax = new Vector2(0.5f, 0.5f);
+        srt.pivot = new Vector2(0.5f, 0.5f);
+        srt.anchoredPosition = Vector2.zero;
+        srt.sizeDelta = new Vector2(600, 700);
+
+        Image bg = statisticsPanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = statisticsPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 15;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        // Заголовок
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(statisticsPanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "СТАТИСТИКА";
+        title.fontSize = 48;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = new Color(1f, 0.84f, 0f, 1f);
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        // Текст статистики
+        GameObject statsGO = new GameObject("StatsText");
+        statsGO.transform.SetParent(statisticsPanel.transform, false);
+        statsGO.AddComponent<CanvasRenderer>();
+        statisticsText = statsGO.AddComponent<TextMeshProUGUI>();
+        statisticsText.text = "Загрузка...";
+        statisticsText.fontSize = 32;
+        statisticsText.alignment = TextAlignmentOptions.TopLeft;
+        statisticsText.color = Color.white;
+        RectTransform statsRt = statsGO.GetComponent<RectTransform>();
+        statsRt.sizeDelta = new Vector2(0, 400);
+
+        // Кнопка закрытия
+        CreateSmallButton(statisticsPanel.transform, "Закрыть", new Vector2(300, 60), CloseStatistics);
+
+        statisticsPanel.SetActive(false);
+    }
+
+    void RefreshStatistics()
+    {
+        if (statisticsText == null) return;
+
+        GameStatistics stats = GameStatistics.Instance;
+        if (stats != null)
+        {
+            statisticsText.text = stats.GetStatisticsText();
+        }
+        else
+        {
+            statisticsText.text = "Статистика недоступна";
+        }
+    }
+
+    public void OpenBestiaryDescription(string enemyName, BestiaryData enemyData)
+    {
+        HideInventory();
+        if (bestiaryDescriptionPanel == null)
+            CreateBestiaryDescriptionPanel();
+        
+        if (bestiaryDescriptionPanel != null)
+        {
+            bestiaryDescriptionPanel.SetActive(true);
+            RefreshBestiaryDescription(enemyName, enemyData);
+        }
+    }
+
+    public void CloseBestiaryDescription()
+    {
+        if (bestiaryDescriptionPanel != null)
+            bestiaryDescriptionPanel.SetActive(false);
+        ShowInventory();
+    }
+
+    void CreateBestiaryDescriptionPanel()
+    {
+        if (pausePanel == null) return;
+
+        bestiaryDescriptionPanel = new GameObject("BestiaryDescriptionPanel");
+        bestiaryDescriptionPanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform prt = bestiaryDescriptionPanel.AddComponent<RectTransform>();
+        prt.anchorMin = new Vector2(0.5f, 0.5f);
+        prt.anchorMax = new Vector2(0.5f, 0.5f);
+        prt.pivot = new Vector2(0.5f, 0.5f);
+        prt.anchoredPosition = Vector2.zero;
+        prt.sizeDelta = new Vector2(700, 600);
+
+        Image bg = bestiaryDescriptionPanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = bestiaryDescriptionPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 15;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        // Заголовок с иконкой
+        GameObject headerGO = new GameObject("Header");
+        headerGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
+        headerGO.AddComponent<CanvasRenderer>();
+        HorizontalLayoutGroup hlg = headerGO.AddComponent<HorizontalLayoutGroup>();
+        hlg.spacing = 15;
+        hlg.childControlWidth = false;
+        hlg.childControlHeight = false;
+        RectTransform headerRt = headerGO.GetComponent<RectTransform>();
+        headerRt.sizeDelta = new Vector2(0, 120);
+
+        // Иконка
+        GameObject iconGO = new GameObject("Icon");
+        iconGO.transform.SetParent(headerGO.transform, false);
+        iconGO.AddComponent<CanvasRenderer>();
+        descriptionIcon = iconGO.AddComponent<Image>();
+        RectTransform iconRt = iconGO.GetComponent<RectTransform>();
+        iconRt.sizeDelta = new Vector2(100, 100);
+
+        // Заголовок
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(headerGO.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        descriptionTitle = titleGO.AddComponent<TextMeshProUGUI>();
+        descriptionTitle.text = "Враг";
+        descriptionTitle.fontSize = 40;
+        descriptionTitle.alignment = TextAlignmentOptions.Left;
+        descriptionTitle.color = new Color(1f, 0.84f, 0f, 1f);
+        descriptionTitle.enableAutoSizing = false;
+        descriptionTitle.textWrappingMode = TextWrappingModes.NoWrap;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(500, 100);
+
+        // Текст описания
+        GameObject descGO = new GameObject("Description");
+        descGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
+        descGO.AddComponent<CanvasRenderer>();
+        descriptionText = descGO.AddComponent<TextMeshProUGUI>();
+        descriptionText.text = "Описание отсутствует";
+        descriptionText.fontSize = 28;
+        descriptionText.alignment = TextAlignmentOptions.TopLeft;
+        descriptionText.color = Color.white;
+        descriptionText.textWrappingMode = TextWrappingModes.Normal;
+        RectTransform descRt = descGO.GetComponent<RectTransform>();
+        descRt.sizeDelta = new Vector2(0, 300);
+
+        // Кнопка закрытия
+        CreateSmallButton(bestiaryDescriptionPanel.transform, "Закрыть", new Vector2(300, 60), CloseBestiaryDescription);
+
+        bestiaryDescriptionPanel.SetActive(false);
+    }
+
+    void RefreshBestiaryDescription(string enemyName, BestiaryData enemyData)
+    {
+        if (descriptionTitle != null)
+            descriptionTitle.text = enemyName;
+        
+        if (descriptionIcon != null)
+        {
+            if (enemyData != null && enemyData.enemyIcon != null)
+                descriptionIcon.sprite = enemyData.enemyIcon;
+            else
+                descriptionIcon.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+        }
+        
+        if (descriptionText != null)
+        {
+            if (enemyData != null && !string.IsNullOrEmpty(enemyData.description))
+                descriptionText.text = enemyData.description;
+            else
+                descriptionText.text = "Описание отсутствует";
+        }
     }
 
     void OnValidate()

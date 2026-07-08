@@ -51,6 +51,13 @@ public class DamagePopup : MonoBehaviour
         if (isCrit)
             textMesh.text += "!";
 
+        // Записываем урон в статистику
+        if (damage > 0)
+        {
+            GameStatistics.Instance?.RecordDamageReceived(damage);
+            Debug.Log($"[DamagePopup] Recorded damage: {damage}");
+        }
+
         startPosition = rectTransform.anchoredPosition;
         Vector2 randomPos = new Vector2(
             Random.Range(-randomOffset.x, randomOffset.x),

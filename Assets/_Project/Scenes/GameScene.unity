@@ -3265,7 +3265,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
-      value: Spyder Pi (2)
+      value: Spyder Pi
       objectReference: {fileID: 0}
     - target: {fileID: 7892910521141178416, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_LocalPosition.x
@@ -17752,7 +17752,7 @@ Transform:
   m_GameObject: {fileID: 981941156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 69.26, y: -49.61, z: 0}
+  m_LocalPosition: {x: -27.4, y: -13.6, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -29873,8 +29873,13 @@ MonoBehaviour:
   discardButtonIcon: {fileID: 0}
   saveButtonIcon: {fileID: 1061801751286890457, guid: 7a78ab168fa11be4a8551ed92c1d930c, type: 3}
   skillTreeButtonIcon: {fileID: 1623481048343612374, guid: 1f218be123f5faf43be20d09fe35fe6c, type: 3}
+  statisticsButtonIcon: {fileID: 0}
+  bestiaryButtonIcon: {fileID: -6875582495752950771, guid: ecc8994c6259bf64bad6163c405a9cb3, type: 3}
   resumeButton: {fileID: 0}
   quitButton: {fileID: 0}
+  pauseMenuMusic: {fileID: 0}
+  pauseMusicVolume: 0.7
+  levelMusicDuckVolume: 0.3
 --- !u!4 &1716972747
 Transform:
   m_ObjectHideFlags: 0
@@ -35672,7 +35677,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 4186992394362829146, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_Name
-      value: Spyder Pi (1)
+      value: Spyder Pi
       objectReference: {fileID: 0}
     - target: {fileID: 7892910521141178416, guid: c32874ea1619d3a44b3142f6910841a3, type: 3}
       propertyPath: m_LocalPosition.x

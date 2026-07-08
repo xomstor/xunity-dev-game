@@ -36,11 +36,14 @@ public static class Bestiary
         if (string.IsNullOrEmpty(enemyName)) return;
         EnsureLoaded();
 
-        // Убираем "(Clone)" и цифры-суффиксы
+        // Убираем "(Clone)" и цифры в скобках типа "(1)", "(6)" и т.д.
         string cleanName = enemyName.Replace("(Clone)", "").Trim();
+        // Удаляем всё, что в скобках (цифры, индексы и т.д.)
+        cleanName = System.Text.RegularExpressions.Regex.Replace(cleanName, @"\s*\(\d+\)\s*", "").Trim();
 
         kills.TryGetValue(cleanName, out int current);
         kills[cleanName] = current + 1;
+        Debug.Log($"[Bestiary] Registered kill: {enemyName} -> {cleanName} (total: {kills[cleanName]})");
         Save();
         OnBestiaryChanged?.Invoke();
     }

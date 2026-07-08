@@ -1,5 +1,6 @@
 using UnityEngine;
 using TMPro;
+using System.Text.RegularExpressions;
 
 public class NameTagUI : MonoBehaviour
 {
@@ -40,7 +41,11 @@ public class NameTagUI : MonoBehaviour
         {
             originalText = nameText.text;
             if (targetCombat != null)
-                nameText.text = targetCombat.name;
+            {
+                // Убираем цифры в скобках из имени врага
+                string cleanName = Regex.Replace(targetCombat.name, @"\s*\(\d+\)\s*", "").Trim();
+                nameText.text = cleanName;
+            }
         }
 
         if (rectTransform != null)

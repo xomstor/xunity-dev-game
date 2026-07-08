@@ -133,6 +133,9 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
         if (handle != null)
             handle.anchoredPosition = Vector2.zero;
 
+        // Отслеживаем нажатие джойстика как шаг в статистике
+        GameStatistics.Instance?.RecordStep();
+
         if (!isFloating)
             SetVisualAlpha(joystickActiveAlpha);
 

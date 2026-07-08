@@ -837,6 +837,9 @@ public class AutoCombat : MonoBehaviour
             if (enemyAudio != null)
                 enemyAudio.PlayDeath();
             Bestiary.RegisterKill(name);
+            
+            // Отслеживаем убитого моба в статистике
+            GameStatistics.Instance?.RecordEnemyKilled();
         }
 
         if (team == CombatTeam.Player)
