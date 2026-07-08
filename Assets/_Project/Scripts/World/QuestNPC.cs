@@ -36,9 +36,13 @@ public class QuestNPC : MonoBehaviour
 
     private bool isPlayerNearby;
     private bool questCompleted;
+    private NPCAudio npcAudio;
 
     void Start()
     {
+        npcAudio = GetComponent<NPCAudio>();
+        if (npcAudio == null)
+            npcAudio = GetComponentInChildren<NPCAudio>();
         if (interactPrompt != null)
             interactPrompt.SetActive(false);
     }
@@ -74,6 +78,9 @@ public class QuestNPC : MonoBehaviour
 
     void TryStartQuestDialogue()
     {
+        if (npcAudio != null)
+            npcAudio.PlayDialogueStart();
+
         if (DialogueSystem.Instance == null)
         {
             Debug.LogWarning($"[{name}] DialogueSystem.Instance is null — using fallback.");
@@ -104,6 +111,9 @@ public class QuestNPC : MonoBehaviour
                 stats.AddReward(rewardExperience, 0);
                 questCompleted = true;
                 SwapToPostQuestAppearance();
+
+                if (npcAudio != null)
+                    npcAudio.PlayQuestComplete();
 
                 ShowNPCDialogue(CombineLines(introLines, rewardLines));
                 return;

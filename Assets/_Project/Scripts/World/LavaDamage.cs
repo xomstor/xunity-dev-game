@@ -15,11 +15,37 @@ public class LavaDamage : MonoBehaviour
     public ParticleSystem steamVFX;         // Пар/дым
     public AudioClip sizzleSFX;            // Звук шипения
 
+    [Header("Движение лавы")]
+    public bool enableLavaRise = true;      // Включить поднятие лавы?
+    public float riseHeight = 3f;           // На сколько поднимается лава
+    public float riseSpeed = 2f;            // Скорость поднятия
+    public float stayUpDuration = 3f;       // Как долго лава остаётся поднятой
+    public float fallSpeed = 1.5f;          // Скорость опускания
+    public float cycleDuration = 8f;        // Полный цикл (поднятие + опускание)
+
     private float damageTimer;
     private GameObject playerInLava;
+    private Vector3 startPosition;
+    private float lavaTimer;
+    private bool isRising;
+    private bool isAtTop;
+
+    void Start()
+    {
+        startPosition = transform.position;
+        isRising = true;
+        isAtTop = false;
+        lavaTimer = 0f;
+    }
 
     void Update()
     {
+        // Движение лавы вверх и вниз
+        if (enableLavaRise)
+        {
+            UpdateLavaPosition();
+        }
+
         // Наносим периодический урон если игрок в лаве
         if (playerInLava != null && !instantKill)
         {
@@ -29,6 +55,55 @@ public class LavaDamage : MonoBehaviour
             {
                 ApplyDamageToPlayer(playerInLava);
                 damageTimer = 0f;
+            }
+        }
+    }
+
+    void UpdateLavaPosition()
+    {
+        lavaTimer += Time.deltaTime;
+        Vector3 currentPos = transform.position;
+        float targetY = startPosition.y;
+
+        if (isRising)
+        {
+            // Поднимаем лаву
+            targetY = startPosition.y + riseHeight;
+            currentPos.y = Mathf.Lerp(startPosition.y, targetY, lavaTimer * riseSpeed / riseHeight);
+            transform.position = currentPos;
+
+            // Проверяем достигли ли верхнюю точку
+            if (currentPos.y >= targetY - 0.1f)
+            {
+                isRising = false;
+                isAtTop = true;
+                lavaTimer = 0f;
+                Debug.Log("🌊 Лава поднялась!");
+            }
+        }
+        else if (isAtTop)
+        {
+            // Ждём на верхней точке
+            if (lavaTimer >= stayUpDuration)
+            {
+                isAtTop = false;
+                lavaTimer = 0f;
+                Debug.Log("🌊 Лава начинает опускаться!");
+            }
+        }
+        else
+        {
+            // Опускаем лаву
+            targetY = startPosition.y;
+            currentPos.y = Mathf.Lerp(startPosition.y + riseHeight, targetY, lavaTimer * fallSpeed / riseHeight);
+            transform.position = currentPos;
+
+            // Проверяем достигли ли нижнюю точку
+            if (currentPos.y <= targetY + 0.1f)
+            {
+                isRising = true;
+                lavaTimer = 0f;
+                Debug.Log("🌊 Лава опустилась!");
             }
         }
     }

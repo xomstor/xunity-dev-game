@@ -54,6 +54,23 @@ public class DamagePopupManager : MonoBehaviour
             Debug.LogError("DamagePopupManager: no main camera found!");
             return;
         }
+        
+        // Если Canvas не найден или неправильного типа, ищем или создаём его
+        if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+        {
+            canvas = FindAnyObjectByType<Canvas>();
+            if (canvas == null || canvas.renderMode != RenderMode.ScreenSpaceOverlay)
+            {
+                GameObject canvasGO = new GameObject("DamagePopupCanvas");
+                canvas = canvasGO.AddComponent<Canvas>();
+                canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+                canvas.sortingOrder = 1000;
+                canvasGO.AddComponent<CanvasScaler>();
+                canvasGO.AddComponent<GraphicRaycaster>();
+                Debug.Log("DamagePopupManager: created dedicated ScreenSpaceOverlay canvas.");
+            }
+        }
+        
         if (canvas == null)
         {
             Debug.LogError("DamagePopupManager: canvas is not assigned!");

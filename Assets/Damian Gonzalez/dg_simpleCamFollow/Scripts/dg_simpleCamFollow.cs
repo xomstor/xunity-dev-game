@@ -13,6 +13,14 @@ public class dg_simpleCamFollow : MonoBehaviour
     bool warningAlreadyShown = false;
 
     private void Start() {
+        // Если target не привязан, ищем PlayerController
+        if (target == null)
+        {
+            PlayerController player = FindAnyObjectByType<PlayerController>();
+            if (player != null)
+                target = player.transform;
+        }
+        
         if (takeOffsetFromInitialPos && target != null) generalOffset = transform.position - target.position;
     }
 

@@ -53,9 +53,13 @@ public class DialogueTrigger : MonoBehaviour
     private bool isPlayerNearby;
     private bool questCompleted;
     private bool questStarted;
+    private NPCAudio npcAudio;
 
     void Start()
     {
+        npcAudio = GetComponent<NPCAudio>();
+        if (npcAudio == null)
+            npcAudio = GetComponentInChildren<NPCAudio>();
         if (interactPrompt != null)
             interactPrompt.SetActive(false);
     }
@@ -92,6 +96,9 @@ public class DialogueTrigger : MonoBehaviour
     void StartDialogue()
     {
         if (DialogueSystem.Instance == null) return;
+
+        if (npcAudio != null)
+            npcAudio.PlayDialogueStart();
 
         if (requiredItem != null)
         {
@@ -131,6 +138,9 @@ public class DialogueTrigger : MonoBehaviour
                 stats.AddReward(rewardExperience, 0);
                 questCompleted = true;
                 SwapToPostQuestAppearance();
+
+                if (npcAudio != null)
+                    npcAudio.PlayQuestComplete();
 
                 string[] rewardLines = AppendLine(questCompleteLines, $"+{rewardGold} gold\n+{rewardExperience} XP");
 

@@ -95,4 +95,37 @@ public class LevelAudioManager : MonoBehaviour
         if (audioSource != null)
             audioSource.Stop();
     }
+
+    // ===== Floor override music (used by FloorMusicZone) =====
+    private AudioClip overrideClip;
+
+    public void PlayOverrideMusic(AudioClip clip, float volume, bool loop = true)
+    {
+        if (clip == null || audioSource == null) return;
+        if (overrideClip == clip && audioSource.isPlaying) return;
+
+        overrideClip = clip;
+        audioSource.clip = clip;
+        audioSource.volume = volume;
+        audioSource.loop = loop;
+        audioSource.Play();
+    }
+
+    public void ClearOverrideMusic()
+    {
+        if (overrideClip == null) return;
+        overrideClip = null;
+
+        // Return to scene music
+        string sceneName = SceneManager.GetActiveScene().name;
+        SceneMusic sceneMusic = FindMusicForScene(sceneName);
+        AudioClip clip = sceneMusic != null ? sceneMusic.musicClip : defaultMusic;
+        float volume = sceneMusic != null ? sceneMusic.volume : defaultVolume;
+
+        if (clip == null) { audioSource.Stop(); return; }
+        audioSource.clip = clip;
+        audioSource.volume = volume;
+        audioSource.loop = true;
+        audioSource.Play();
+    }
 }

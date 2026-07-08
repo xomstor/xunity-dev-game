@@ -31,6 +31,10 @@ public class PauseMenu : MonoBehaviour
     public Sprite saveButtonIcon;
     public Sprite skillTreeButtonIcon;
 
+    [Header("Resume/Quit Buttons (optional - will find if null)")]
+    public Button resumeButton;
+    public Button quitButton;
+
     [Header("Settings Panel (auto-created)")]
     private GameObject settingsPanel;
     private Toggle floatingJoystickToggle;
@@ -44,6 +48,13 @@ public class PauseMenu : MonoBehaviour
     [Header("Skill Tree Panel (auto-created)")]
     private GameObject skillTreePanel;
 
+    [Header("Bestiary Panel (auto-created)")]
+    private GameObject bestiaryPanel;
+    private Transform bestiaryContainer;
+    private readonly List<GameObject> bestiaryButtons = new List<GameObject>();
+
+    private static PauseMenu instance;
+
     private bool isPaused;
     private bool inventoryVisible;
     private readonly string[] statNames = { "HP", "ATK", "DEF", "SPD", "LCK" };
@@ -52,14 +63,47 @@ public class PauseMenu : MonoBehaviour
 
     void Awake()
     {
+        // Синглтон: при повторной загрузке GameScene уничтожаем дубли (вместе с дублем Canvas)
+        if (instance != null && instance != this)
+        {
+            if (pausePanel != null)
+            {
+                Canvas dupCanvas = pausePanel.GetComponentInParent<Canvas>(true);
+                if (dupCanvas != null && PersistentUI.Instance != null && dupCanvas.gameObject != PersistentUI.Instance.gameObject)
+                    Destroy(dupCanvas.gameObject);
+            }
+            Destroy(gameObject);
+            return;
+        }
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // Делаем Canvas с UI постоянным между сценами (меню, HUD, цифры урона)
+        if (pausePanel != null)
+        {
+            Canvas rootCanvas = pausePanel.GetComponentInParent<Canvas>(true);
+            if (rootCanvas != null && rootCanvas.GetComponent<PersistentUI>() == null)
+                rootCanvas.gameObject.AddComponent<PersistentUI>();
+        }
+
+        SceneManager.sceneLoaded += OnSceneLoadedRebind;
+
         if (playerStats == null)
             playerStats = FindAnyObjectByType<PlayerStats>();
         if (playerCombat == null)
             playerCombat = FindAnyObjectByType<AutoCombat>();
         if (playerInventory == null)
             playerInventory = FindAnyObjectByType<Inventory>();
+        
+        // Если инвентаря нет, создаём его на Player GameObject
         if (playerInventory == null)
-            playerInventory = gameObject.AddComponent<Inventory>();
+        {
+            GameObject playerObj = playerStats != null ? playerStats.gameObject : (playerCombat != null ? playerCombat.gameObject : gameObject);
+            playerInventory = playerObj.GetComponent<Inventory>();
+            if (playerInventory == null)
+                playerInventory = playerObj.AddComponent<Inventory>();
+        }
+        
         if (equipmentManager == null)
             equipmentManager = FindAnyObjectByType<EquipmentManager>();
         if (equipmentManager == null)
@@ -85,6 +129,11 @@ public class PauseMenu : MonoBehaviour
         CreateSkillTreePanel();
         CreateSkillTreeButton();
 
+        CreateBestiaryPanel();
+        CreateBestiaryButton();
+
+        FindAndStyleResumeQuitButtons();
+
         AddStartingItems();
 
         Inventory.OnInventoryChanged += OnInventoryChangedHandler;
@@ -93,6 +142,41 @@ public class PauseMenu : MonoBehaviour
     void OnDestroy()
     {
         Inventory.OnInventoryChanged -= OnInventoryChangedHandler;
+        if (instance == this)
+        {
+            instance = null;
+            SceneManager.sceneLoaded -= OnSceneLoadedRebind;
+        }
+    }
+
+    void OnSceneLoadedRebind(Scene scene, LoadSceneMode mode)
+    {
+        if (instance != this) return;
+
+        // Перепривязываем ссылки на объекты новой сцены
+        if (playerStats == null)
+            playerStats = FindAnyObjectByType<PlayerStats>();
+        if (playerCombat == null && playerStats != null)
+            playerCombat = playerStats.GetComponent<AutoCombat>();
+        if (playerCombat == null)
+            playerCombat = FindAnyObjectByType<AutoCombat>();
+        if (playerInventory == null)
+            playerInventory = FindAnyObjectByType<Inventory>();
+        if (equipmentManager == null)
+            equipmentManager = FindAnyObjectByType<EquipmentManager>();
+
+        Debug.Log($"[PauseMenu] Scene loaded: {scene.name}, inventory items: {(playerInventory != null ? playerInventory.items.Count : 0)}");
+
+        // Меню закрыто после смены сцены
+        isPaused = false;
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+        Time.timeScale = 1f;
+        CloseAllSubPanels();
+        
+        // Обновляем инвентарь после смены сцены
+        RefreshInventory();
+        UpdateStatsDisplay();
     }
 
     void OnInventoryChangedHandler()
@@ -161,6 +245,10 @@ public class PauseMenu : MonoBehaviour
             UpdateStatsDisplay();
             RefreshInventory();
         }
+        else
+        {
+            CloseAllSubPanels();
+        }
     }
 
     public void Resume()
@@ -168,6 +256,17 @@ public class PauseMenu : MonoBehaviour
         isPaused = false;
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
+        CloseAllSubPanels();
+    }
+
+    void CloseAllSubPanels()
+    {
+        if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (savePanel != null) savePanel.SetActive(false);
+        if (skillTreePanel != null) skillTreePanel.SetActive(false);
+        if (bestiaryPanel != null) bestiaryPanel.SetActive(false);
+        selectedSlot = -1;
+        inventoryVisible = true;
     }
 
     public void QuitGame()
@@ -178,6 +277,7 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenSettings()
     {
+        HideInventory();
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
@@ -192,10 +292,12 @@ public class PauseMenu : MonoBehaviour
     {
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
+        ShowInventory();
     }
 
     public void OpenSavePanel()
     {
+        HideInventory();
         if (savePanel != null)
         {
             savePanel.SetActive(true);
@@ -208,6 +310,7 @@ public class PauseMenu : MonoBehaviour
         if (savePanel != null)
             savePanel.SetActive(false);
         selectedSlot = -1;
+        ShowInventory();
     }
 
     public void SelectSlot(int slot)
@@ -242,6 +345,7 @@ public class PauseMenu : MonoBehaviour
 
     public void OpenSkillTree()
     {
+        HideInventory();
         if (skillTreePanel != null)
             skillTreePanel.SetActive(true);
     }
@@ -250,12 +354,27 @@ public class PauseMenu : MonoBehaviour
     {
         if (skillTreePanel != null)
             skillTreePanel.SetActive(false);
+        ShowInventory();
     }
 
     public void OnHeartStyleToggle(bool value)
     {
         PlayerPrefs.SetInt(HealthBarUI.HealthBarStyleKey, value ? 1 : 0);
         PlayerPrefs.Save();
+    }
+
+    public void OnCameraOffsetXChanged(float value)
+    {
+        PlayerPrefs.SetFloat("CameraOffsetX", value);
+        PlayerPrefs.Save();
+        CameraOffsetApplier.ApplyOffset();
+    }
+
+    public void OnCameraOffsetYChanged(float value)
+    {
+        PlayerPrefs.SetFloat("CameraOffsetY", value);
+        PlayerPrefs.Save();
+        CameraOffsetApplier.ApplyOffset();
     }
 
     public void OnFloatingJoystickToggle(bool value)
@@ -293,7 +412,7 @@ public class PauseMenu : MonoBehaviour
         srt.anchorMax = new Vector2(0.5f, 0.5f);
         srt.pivot = new Vector2(0.5f, 0.5f);
         srt.anchoredPosition = Vector2.zero;
-        srt.sizeDelta = new Vector2(500, 380);
+        srt.sizeDelta = new Vector2(520, 620);
 
         Image bg = settingsPanel.AddComponent<Image>();
         bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
@@ -402,9 +521,119 @@ public class PauseMenu : MonoBehaviour
 
         heartToggle.onValueChanged.AddListener(OnHeartStyleToggle);
 
+        // Ползунки смещения камеры отключены, но скрипты остаются работающими
+        /*
+        GameObject camOffsetXGO = new GameObject("CameraOffsetXSlider");
+        camOffsetXGO.transform.SetParent(settingsPanel.transform, false);
+        camOffsetXGO.AddComponent<CanvasRenderer>();
+        Image camOffsetXBg = camOffsetXGO.AddComponent<Image>();
+        camOffsetXBg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Slider camOffsetXSlider = camOffsetXGO.AddComponent<Slider>();
+        camOffsetXSlider.minValue = -5f;
+        camOffsetXSlider.maxValue = 5f;
+        camOffsetXSlider.wholeNumbers = false;
+        camOffsetXSlider.value = PlayerPrefs.GetFloat("CameraOffsetX", 0f);
+        RectTransform camOffsetXRt = camOffsetXGO.GetComponent<RectTransform>();
+        camOffsetXRt.sizeDelta = new Vector2(0, 70);
+
+        GameObject camOffsetXLabelGO = new GameObject("Label");
+        camOffsetXLabelGO.transform.SetParent(camOffsetXGO.transform, false);
+        camOffsetXLabelGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI camOffsetXLabel = camOffsetXLabelGO.AddComponent<TextMeshProUGUI>();
+        camOffsetXLabel.text = "Смещение камеры X";
+        camOffsetXLabel.fontSize = 28;
+        camOffsetXLabel.alignment = TextAlignmentOptions.Left;
+        camOffsetXLabel.color = Color.white;
+        RectTransform camOffsetXLabelRt = camOffsetXLabelGO.GetComponent<RectTransform>();
+        camOffsetXLabelRt.anchorMin = new Vector2(0, 0.5f);
+        camOffsetXLabelRt.anchorMax = new Vector2(1, 0.5f);
+        camOffsetXLabelRt.pivot = new Vector2(0, 0.5f);
+        camOffsetXLabelRt.offsetMin = new Vector2(10, -35);
+        camOffsetXLabelRt.offsetMax = new Vector2(-10, 35);
+
+        AddSliderVisuals(camOffsetXSlider);
+        camOffsetXSlider.onValueChanged.AddListener(OnCameraOffsetXChanged);
+
+        GameObject camOffsetYGO = new GameObject("CameraOffsetYSlider");
+        camOffsetYGO.transform.SetParent(settingsPanel.transform, false);
+        camOffsetYGO.AddComponent<CanvasRenderer>();
+        Image camOffsetYBg = camOffsetYGO.AddComponent<Image>();
+        camOffsetYBg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Slider camOffsetYSlider = camOffsetYGO.AddComponent<Slider>();
+        camOffsetYSlider.minValue = -5f;
+        camOffsetYSlider.maxValue = 5f;
+        camOffsetYSlider.wholeNumbers = false;
+        camOffsetYSlider.value = PlayerPrefs.GetFloat("CameraOffsetY", 0f);
+        RectTransform camOffsetYRt = camOffsetYGO.GetComponent<RectTransform>();
+        camOffsetYRt.sizeDelta = new Vector2(0, 70);
+
+        GameObject camOffsetYLabelGO = new GameObject("Label");
+        camOffsetYLabelGO.transform.SetParent(camOffsetYGO.transform, false);
+        camOffsetYLabelGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI camOffsetYLabel = camOffsetYLabelGO.AddComponent<TextMeshProUGUI>();
+        camOffsetYLabel.text = "Смещение камеры Y";
+        camOffsetYLabel.fontSize = 28;
+        camOffsetYLabel.alignment = TextAlignmentOptions.Left;
+        camOffsetYLabel.color = Color.white;
+        RectTransform camOffsetYLabelRt = camOffsetYLabelGO.GetComponent<RectTransform>();
+        camOffsetYLabelRt.anchorMin = new Vector2(0, 0.5f);
+        camOffsetYLabelRt.anchorMax = new Vector2(1, 0.5f);
+        camOffsetYLabelRt.pivot = new Vector2(0, 0.5f);
+        camOffsetYLabelRt.offsetMin = new Vector2(10, -35);
+        camOffsetYLabelRt.offsetMax = new Vector2(-10, 35);
+
+        AddSliderVisuals(camOffsetYSlider);
+        camOffsetYSlider.onValueChanged.AddListener(OnCameraOffsetYChanged);
+        */
+
         CreateSmallButton(settingsPanel.transform, "Закрыть", new Vector2(300, 60), CloseSettings);
 
         settingsPanel.SetActive(false);
+    }
+
+    void AddSliderVisuals(Slider slider)
+    {
+        GameObject fillAreaGO = new GameObject("FillArea");
+        fillAreaGO.transform.SetParent(slider.transform, false);
+        RectTransform fillAreaRt = fillAreaGO.AddComponent<RectTransform>();
+        fillAreaRt.anchorMin = new Vector2(0, 0);
+        fillAreaRt.anchorMax = new Vector2(1, 0);
+        fillAreaRt.pivot = new Vector2(0.5f, 0);
+        fillAreaRt.anchoredPosition = new Vector2(0, 8);
+        fillAreaRt.sizeDelta = new Vector2(-30, 12);
+
+        GameObject fillGO = new GameObject("Fill");
+        fillGO.transform.SetParent(fillAreaGO.transform, false);
+        fillGO.AddComponent<CanvasRenderer>();
+        Image fillImg = fillGO.AddComponent<Image>();
+        fillImg.color = new Color(0f, 0.85f, 1f, 1f);
+        RectTransform fillRt = fillGO.GetComponent<RectTransform>();
+        fillRt.anchorMin = Vector2.zero;
+        fillRt.anchorMax = Vector2.one;
+        fillRt.offsetMin = Vector2.zero;
+        fillRt.offsetMax = Vector2.zero;
+
+        GameObject handleAreaGO = new GameObject("HandleArea");
+        handleAreaGO.transform.SetParent(slider.transform, false);
+        RectTransform handleAreaRt = handleAreaGO.AddComponent<RectTransform>();
+        handleAreaRt.anchorMin = new Vector2(0, 0);
+        handleAreaRt.anchorMax = new Vector2(1, 0);
+        handleAreaRt.pivot = new Vector2(0.5f, 0);
+        handleAreaRt.anchoredPosition = new Vector2(0, 4);
+        handleAreaRt.sizeDelta = new Vector2(-30, 20);
+
+        GameObject handleGO = new GameObject("Handle");
+        handleGO.transform.SetParent(handleAreaGO.transform, false);
+        handleGO.AddComponent<CanvasRenderer>();
+        Image handleImg = handleGO.AddComponent<Image>();
+        handleImg.color = Color.white;
+        RectTransform handleRt = handleGO.GetComponent<RectTransform>();
+        handleRt.sizeDelta = new Vector2(24, 24);
+
+        slider.fillRect = fillRt;
+        slider.handleRect = handleRt;
+        slider.targetGraphic = handleImg;
+        slider.direction = Slider.Direction.LeftToRight;
     }
 
     void CreateSettingsButton()
@@ -662,6 +891,283 @@ public class PauseMenu : MonoBehaviour
         CreateSmallButton(skillTreePanel.transform, "Закрыть", new Vector2(300, 60), CloseSkillTree);
 
         skillTreePanel.SetActive(false);
+    }
+
+    void CreateBestiaryPanel()
+    {
+        if (pausePanel == null) return;
+
+        bestiaryPanel = new GameObject("BestiaryPanel");
+        bestiaryPanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = bestiaryPanel.AddComponent<RectTransform>();
+        srt.anchorMin = new Vector2(0.5f, 0.5f);
+        srt.anchorMax = new Vector2(0.5f, 0.5f);
+        srt.pivot = new Vector2(0.5f, 0.5f);
+        srt.anchoredPosition = Vector2.zero;
+        srt.sizeDelta = new Vector2(600, 500);
+
+        Image bg = bestiaryPanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = bestiaryPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 15;
+        vlg.padding = new RectOffset(25, 25, 25, 25);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(bestiaryPanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "Бестиарий";
+        title.fontSize = 48;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = Color.white;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        GameObject scrollViewportGO = new GameObject("Viewport");
+        scrollViewportGO.transform.SetParent(bestiaryPanel.transform, false);
+        RectTransform viewportRt = scrollViewportGO.AddComponent<RectTransform>();
+        viewportRt.sizeDelta = new Vector2(0, 350);
+        Image viewportBg = scrollViewportGO.AddComponent<Image>();
+        viewportBg.color = new Color(0.05f, 0.05f, 0.08f, 0.9f);
+        Mask viewportMask = scrollViewportGO.AddComponent<Mask>();
+        viewportMask.showMaskGraphic = false;
+
+        GameObject scrollContentGO = new GameObject("Content");
+        scrollContentGO.transform.SetParent(scrollViewportGO.transform, false);
+        RectTransform contentRt = scrollContentGO.AddComponent<RectTransform>();
+        contentRt.anchorMin = Vector2.zero;
+        contentRt.anchorMax = new Vector2(1, 1);
+        contentRt.pivot = new Vector2(0.5f, 1);
+        contentRt.offsetMin = new Vector2(5, 5);
+        contentRt.offsetMax = new Vector2(-5, -5);
+
+        VerticalLayoutGroup contentVlg = scrollContentGO.AddComponent<VerticalLayoutGroup>();
+        contentVlg.spacing = 8;
+        contentVlg.padding = new RectOffset(10, 10, 10, 10);
+        contentVlg.childAlignment = TextAnchor.UpperCenter;
+        contentVlg.childControlWidth = true;
+        contentVlg.childControlHeight = false;
+        contentVlg.childForceExpandWidth = true;
+        contentVlg.childForceExpandHeight = false;
+
+        ContentSizeFitter csf = scrollContentGO.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        ScrollRect scrollRect = bestiaryPanel.AddComponent<ScrollRect>();
+        scrollRect.viewport = viewportRt;
+        scrollRect.content = contentRt;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Elastic;
+
+        bestiaryContainer = scrollContentGO.transform;
+
+        CreateSmallButton(bestiaryPanel.transform, "Закрыть", new Vector2(300, 60), CloseBestiary);
+
+        bestiaryPanel.SetActive(false);
+    }
+
+    void CreateBestiaryButton()
+    {
+        if (pausePanel == null) return;
+
+        GameObject btnGO = new GameObject("BestiaryButton");
+        btnGO.transform.SetParent(pausePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.color = new Color(0.8f, 0.4f, 0.2f, 0.8f);
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(OpenBestiary);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(1, 1);
+        rt.anchoredPosition = new Vector2(-380, -20);
+        rt.sizeDelta = new Vector2(80, 80);
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(btnGO.transform, false);
+        textGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+        text.text = "B";
+        text.fontSize = 40;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        RectTransform textRt = textGO.GetComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+    }
+
+    public void OpenBestiary()
+    {
+        HideInventory();
+        if (bestiaryPanel != null)
+        {
+            bestiaryPanel.SetActive(true);
+            RefreshBestiary();
+        }
+    }
+
+    public void CloseBestiary()
+    {
+        if (bestiaryPanel != null)
+            bestiaryPanel.SetActive(false);
+        ShowInventory();
+    }
+
+    void RefreshBestiary()
+    {
+        if (bestiaryContainer == null) return;
+
+        foreach (GameObject btn in bestiaryButtons)
+            if (btn != null) Destroy(btn);
+        bestiaryButtons.Clear();
+
+        var kills = Bestiary.GetAll();
+        if (kills.Count == 0)
+        {
+            GameObject emptyGO = new GameObject("EmptyText");
+            emptyGO.transform.SetParent(bestiaryContainer, false);
+            emptyGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI emptyText = emptyGO.AddComponent<TextMeshProUGUI>();
+            emptyText.text = "Пока нет убитых врагов";
+            emptyText.fontSize = 32;
+            emptyText.alignment = TextAlignmentOptions.Center;
+            emptyText.color = new Color(0.6f, 0.6f, 0.6f, 1f);
+            RectTransform emptyRt = emptyGO.GetComponent<RectTransform>();
+            emptyRt.sizeDelta = new Vector2(0, 50);
+            bestiaryButtons.Add(emptyGO);
+            return;
+        }
+
+        foreach (var kv in kills)
+        {
+            GameObject entryGO = new GameObject("BestiaryEntry");
+            entryGO.transform.SetParent(bestiaryContainer, false);
+            entryGO.AddComponent<CanvasRenderer>();
+            Image entryBg = entryGO.AddComponent<Image>();
+            entryBg.color = new Color(0.12f, 0.12f, 0.18f, 0.9f);
+            RectTransform entryRt = entryGO.GetComponent<RectTransform>();
+            entryRt.sizeDelta = new Vector2(0, 50);
+
+            GameObject textGO = new GameObject("Text");
+            textGO.transform.SetParent(entryGO.transform, false);
+            textGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+            text.text = $"{kv.Key}: {kv.Value} убито";
+            text.fontSize = 28;
+            text.alignment = TextAlignmentOptions.Left;
+            text.color = Color.white;
+            RectTransform textRt = textGO.GetComponent<RectTransform>();
+            textRt.anchorMin = Vector2.zero;
+            textRt.anchorMax = Vector2.one;
+            textRt.offsetMin = new Vector2(15, 0);
+            textRt.offsetMax = new Vector2(-10, 0);
+
+            bestiaryButtons.Add(entryGO);
+        }
+    }
+
+    void HideInventory()
+    {
+        inventoryVisible = false;
+        RefreshInventory();
+    }
+
+    void ShowInventory()
+    {
+        inventoryVisible = true;
+        RefreshInventory();
+    }
+
+    void FindAndStyleResumeQuitButtons()
+    {
+        if (resumeButton == null)
+        {
+            Button[] allButtons = FindObjectsByType<Button>(FindObjectsInactive.Include);
+            foreach (Button btn in allButtons)
+            {
+                if (btn.name == "ResumeButton")
+                {
+                    resumeButton = btn;
+                    break;
+                }
+            }
+        }
+
+        if (quitButton == null)
+        {
+            Button[] allButtons = FindObjectsByType<Button>(FindObjectsInactive.Include);
+            foreach (Button btn in allButtons)
+            {
+                if (btn.name == "QuitButton")
+                {
+                    quitButton = btn;
+                    break;
+                }
+            }
+        }
+
+        if (resumeButton != null)
+        {
+            StyleResumeQuitButton(resumeButton);
+            RectTransform rt = resumeButton.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.anchorMin = new Vector2(0.5f, 0);
+                rt.anchorMax = new Vector2(0.5f, 0);
+                rt.pivot = new Vector2(0.5f, 0);
+                rt.anchoredPosition = new Vector2(-120, 50);
+            }
+        }
+
+        if (quitButton != null)
+        {
+            StyleResumeQuitButton(quitButton);
+            RectTransform rt = quitButton.GetComponent<RectTransform>();
+            if (rt != null)
+            {
+                rt.anchorMin = new Vector2(0.5f, 0);
+                rt.anchorMax = new Vector2(0.5f, 0);
+                rt.pivot = new Vector2(0.5f, 0);
+                rt.anchoredPosition = new Vector2(120, 50);
+            }
+        }
+    }
+
+    void StyleResumeQuitButton(Button btn)
+    {
+        if (btn == null) return;
+
+        Image img = btn.targetGraphic as Image;
+        if (img != null)
+        {
+            img.color = new Color(0.05f, 0.05f, 0.05f, 1f);
+        }
+
+        TextMeshProUGUI text = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (text != null)
+        {
+            text.color = new Color(1f, 0.84f, 0f, 1f);
+            text.fontSize = 36;
+            text.fontStyle = FontStyles.Bold;
+        }
+
+        Shadow shadow = btn.gameObject.GetComponent<Shadow>();
+        if (shadow == null)
+            shadow = btn.gameObject.AddComponent<Shadow>();
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.8f);
+        shadow.effectDistance = new Vector2(4, -4);
     }
 
     void CreateStatButtons()

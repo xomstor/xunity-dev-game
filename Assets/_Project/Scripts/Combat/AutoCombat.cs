@@ -68,6 +68,7 @@ public class AutoCombat : MonoBehaviour
     private bool isReturning;
     private bool hasSeenTarget;
     private GameObject questionMarkInstance;
+    private EnemyAudio enemyAudio;
 
     public int CurrentHealth => currentHealth;
     public bool IsDead => isDead;
@@ -103,6 +104,9 @@ public class AutoCombat : MonoBehaviour
 
     void Awake()
     {
+        enemyAudio = GetComponent<EnemyAudio>();
+        if (enemyAudio == null)
+            enemyAudio = GetComponentInChildren<EnemyAudio>();
         currentHealth = maxHealth;
         startPosition = transform.position;
         lastKnownTargetDirection = Vector2.right;
@@ -299,6 +303,9 @@ public class AutoCombat : MonoBehaviour
 
     void SetAnimState(int state)
     {
+        if (team == CombatTeam.Enemy && enemyAudio != null)
+            enemyAudio.SetMovementState(state);
+
         if (anim == null || anim.runtimeAnimatorController == null) return;
         if (state == lastAnimState) return;
         lastAnimState = state;
@@ -737,6 +744,9 @@ public class AutoCombat : MonoBehaviour
             anim.SetTrigger(attackTrigger);
         }
 
+        if (enemyAudio != null)
+            enemyAudio.PlayAttack();
+
         if (canJumpAttack && Random.value < jumpAttackChance && IsGrounded())
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -821,6 +831,13 @@ public class AutoCombat : MonoBehaviour
     {
         isDead = true;
         ShowQuestionMark(false);
+
+        if (team == CombatTeam.Enemy)
+        {
+            if (enemyAudio != null)
+                enemyAudio.PlayDeath();
+            Bestiary.RegisterKill(name);
+        }
 
         if (team == CombatTeam.Player)
         {
