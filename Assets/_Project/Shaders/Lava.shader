@@ -6,7 +6,7 @@ Shader "Custom/Lava"
         _ColorDeep ("Deep Lava Color", Color) = (0.5, 0.0, 0.0, 1)
         _ColorHot ("Hot Lava Color", Color) = (1.0, 0.25, 0.0, 1)
         _ColorGlow ("Glow Edge Color", Color) = (1.0, 0.8, 0.1, 1)
-        _FlowSpeed ("Flow Speed", Float) = 0.5
+        _FlowSpeed ("Flow Speed", Float) = 4
         _FlowScale ("Flow Scale", Float) = 4.0
         _WaveAmp ("Wave Amplitude", Float) = 0.04
         _WaveSpeed ("Wave Speed", Float) = 1.5
