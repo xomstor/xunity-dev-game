@@ -1964,10 +1964,11 @@ public class PauseMenu : MonoBehaviour
         HideInventory();
         if (bestiaryDescriptionPanel == null)
             CreateBestiaryDescriptionPanel();
-        
+
         if (bestiaryDescriptionPanel != null)
         {
             bestiaryDescriptionPanel.SetActive(true);
+            bestiaryDescriptionPanel.transform.SetAsLastSibling();
             RefreshBestiaryDescription(enemyName, enemyData);
         }
     }
@@ -1985,73 +1986,93 @@ public class PauseMenu : MonoBehaviour
 
         bestiaryDescriptionPanel = new GameObject("BestiaryDescriptionPanel");
         bestiaryDescriptionPanel.transform.SetParent(pausePanel.transform, false);
+        bestiaryDescriptionPanel.transform.SetAsLastSibling();
+
         RectTransform prt = bestiaryDescriptionPanel.AddComponent<RectTransform>();
-        prt.anchorMin = new Vector2(0.5f, 0.5f);
-        prt.anchorMax = new Vector2(0.5f, 0.5f);
-        prt.pivot = new Vector2(0.5f, 0.5f);
-        prt.anchoredPosition = Vector2.zero;
-        prt.sizeDelta = new Vector2(700, 600);
+        // Панель на весь экран с небольшим отступом
+        prt.anchorMin = Vector2.zero;
+        prt.anchorMax = Vector2.one;
+        prt.offsetMin = new Vector2(40, 40);
+        prt.offsetMax = new Vector2(-40, -40);
 
         Image bg = bestiaryDescriptionPanel.AddComponent<Image>();
-        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+        bg.color = new Color(0.05f, 0.05f, 0.08f, 0.98f);
 
-        VerticalLayoutGroup vlg = bestiaryDescriptionPanel.AddComponent<VerticalLayoutGroup>();
-        vlg.spacing = 15;
-        vlg.padding = new RectOffset(30, 30, 30, 30);
-        vlg.childAlignment = TextAnchor.UpperCenter;
-        vlg.childControlWidth = true;
-        vlg.childControlHeight = false;
-        vlg.childForceExpandWidth = true;
-        vlg.childForceExpandHeight = false;
-
-        // Заголовок с иконкой
-        GameObject headerGO = new GameObject("Header");
-        headerGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
-        headerGO.AddComponent<CanvasRenderer>();
-        HorizontalLayoutGroup hlg = headerGO.AddComponent<HorizontalLayoutGroup>();
-        hlg.spacing = 15;
-        hlg.childControlWidth = false;
-        hlg.childControlHeight = false;
-        RectTransform headerRt = headerGO.GetComponent<RectTransform>();
-        headerRt.sizeDelta = new Vector2(0, 120);
-
-        // Иконка
+        // Иконка — большая, по центру сверху
         GameObject iconGO = new GameObject("Icon");
-        iconGO.transform.SetParent(headerGO.transform, false);
+        iconGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
         iconGO.AddComponent<CanvasRenderer>();
         descriptionIcon = iconGO.AddComponent<Image>();
         RectTransform iconRt = iconGO.GetComponent<RectTransform>();
-        iconRt.sizeDelta = new Vector2(100, 100);
+        iconRt.anchorMin = new Vector2(0.5f, 1f);
+        iconRt.anchorMax = new Vector2(0.5f, 1f);
+        iconRt.pivot = new Vector2(0.5f, 1f);
+        iconRt.anchoredPosition = new Vector2(0, -40);
+        iconRt.sizeDelta = new Vector2(350, 350);
 
         // Заголовок
         GameObject titleGO = new GameObject("Title");
-        titleGO.transform.SetParent(headerGO.transform, false);
+        titleGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         descriptionTitle = titleGO.AddComponent<TextMeshProUGUI>();
         descriptionTitle.text = "Враг";
-        descriptionTitle.fontSize = 40;
-        descriptionTitle.alignment = TextAlignmentOptions.Left;
+        descriptionTitle.fontSize = 52;
+        descriptionTitle.alignment = TextAlignmentOptions.Center;
         descriptionTitle.color = new Color(1f, 0.84f, 0f, 1f);
-        descriptionTitle.enableAutoSizing = false;
+        descriptionTitle.fontStyle = FontStyles.Bold;
         descriptionTitle.textWrappingMode = TextWrappingModes.NoWrap;
         RectTransform titleRt = titleGO.GetComponent<RectTransform>();
-        titleRt.sizeDelta = new Vector2(500, 100);
+        titleRt.anchorMin = new Vector2(0, 1f);
+        titleRt.anchorMax = new Vector2(1f, 1f);
+        titleRt.pivot = new Vector2(0.5f, 1f);
+        titleRt.anchoredPosition = new Vector2(0, -430);
+        titleRt.sizeDelta = new Vector2(0, 90);
 
-        // Текст описания
+        // Текст описания — большой, по центру
         GameObject descGO = new GameObject("Description");
         descGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
         descGO.AddComponent<CanvasRenderer>();
         descriptionText = descGO.AddComponent<TextMeshProUGUI>();
         descriptionText.text = "Описание отсутствует";
-        descriptionText.fontSize = 28;
+        descriptionText.fontSize = 36;
         descriptionText.alignment = TextAlignmentOptions.TopLeft;
         descriptionText.color = Color.white;
         descriptionText.textWrappingMode = TextWrappingModes.Normal;
         RectTransform descRt = descGO.GetComponent<RectTransform>();
-        descRt.sizeDelta = new Vector2(0, 300);
+        descRt.anchorMin = new Vector2(0, 0);
+        descRt.anchorMax = new Vector2(1, 1);
+        descRt.offsetMin = new Vector2(50, 120);
+        descRt.offsetMax = new Vector2(-50, -530);
 
-        // Кнопка закрытия
-        CreateSmallButton(bestiaryDescriptionPanel.transform, "Закрыть", new Vector2(300, 60), CloseBestiaryDescription);
+        // Кнопка закрытия — снизу по центру
+        GameObject closeBtnGO = new GameObject("CloseButton");
+        closeBtnGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
+        closeBtnGO.AddComponent<CanvasRenderer>();
+        Image closeImg = closeBtnGO.AddComponent<Image>();
+        closeImg.color = new Color(0.2f, 0.45f, 0.65f, 0.95f);
+        Button closeBtn = closeBtnGO.AddComponent<Button>();
+        closeBtn.targetGraphic = closeImg;
+        closeBtn.onClick.AddListener(CloseBestiaryDescription);
+        RectTransform closeRt = closeBtnGO.GetComponent<RectTransform>();
+        closeRt.anchorMin = new Vector2(0.5f, 0);
+        closeRt.anchorMax = new Vector2(0.5f, 0);
+        closeRt.pivot = new Vector2(0.5f, 0);
+        closeRt.anchoredPosition = new Vector2(0, 40);
+        closeRt.sizeDelta = new Vector2(400, 80);
+
+        GameObject closeTextGO = new GameObject("Text");
+        closeTextGO.transform.SetParent(closeBtnGO.transform, false);
+        closeTextGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI closeText = closeTextGO.AddComponent<TextMeshProUGUI>();
+        closeText.text = "Закрыть";
+        closeText.fontSize = 40;
+        closeText.alignment = TextAlignmentOptions.Center;
+        closeText.color = Color.white;
+        RectTransform closeTextRt = closeTextGO.GetComponent<RectTransform>();
+        closeTextRt.anchorMin = Vector2.zero;
+        closeTextRt.anchorMax = Vector2.one;
+        closeTextRt.offsetMin = Vector2.zero;
+        closeTextRt.offsetMax = Vector2.zero;
 
         bestiaryDescriptionPanel.SetActive(false);
     }
@@ -2064,9 +2085,15 @@ public class PauseMenu : MonoBehaviour
         if (descriptionIcon != null)
         {
             if (enemyData != null && enemyData.enemyIcon != null)
+            {
                 descriptionIcon.sprite = enemyData.enemyIcon;
+                descriptionIcon.color = Color.white;
+            }
             else
+            {
+                descriptionIcon.sprite = null;
                 descriptionIcon.color = new Color(0.3f, 0.3f, 0.3f, 0.5f);
+            }
         }
         
         if (descriptionText != null)

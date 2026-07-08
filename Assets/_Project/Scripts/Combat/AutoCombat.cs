@@ -846,6 +846,11 @@ public class AutoCombat : MonoBehaviour
         {
             PlayerStats stats = GetComponent<PlayerStats>();
             stats?.ApplyDeathPenalty();
+
+            // Показываем панель смерти
+            DeathPanel.Show(gameObject, stats, null);
+            gameObject.SetActive(false);
+            return;
         }
 
         GiveRewards();
