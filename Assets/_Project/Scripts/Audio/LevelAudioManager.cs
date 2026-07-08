@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections;
 
 public class LevelAudioManager : MonoBehaviour
 {
@@ -21,8 +22,16 @@ public class LevelAudioManager : MonoBehaviour
     public AudioClip defaultMusic;
     [Range(0f, 1f)] public float defaultVolume = 0.5f;
 
-    private AudioSource audioSource;
+    [Header("Crossfade")]
+    [Range(0f, 5f)] public float crossfadeDuration = 1.5f;
+
+    private AudioSource sourceA;
+    private AudioSource sourceB;
+    private AudioSource activeSource;
+    private AudioSource inactiveSource => activeSource == sourceA ? sourceB : sourceA;
+
     private string currentScene;
+    private Coroutine crossfadeRoutine;
 
     void Awake()
     {
@@ -35,10 +44,18 @@ public class LevelAudioManager : MonoBehaviour
         Instance = this;
         DontDestroyOnLoad(gameObject);
 
-        audioSource = gameObject.AddComponent<AudioSource>();
-        audioSource.loop = true;
-        audioSource.playOnAwake = false;
-        audioSource.spatialBlend = 0f;
+        sourceA = gameObject.AddComponent<AudioSource>();
+        sourceB = gameObject.AddComponent<AudioSource>();
+
+        sourceA.loop = true;
+        sourceA.playOnAwake = false;
+        sourceA.spatialBlend = 0f;
+
+        sourceB.loop = true;
+        sourceB.playOnAwake = false;
+        sourceB.spatialBlend = 0f;
+
+        activeSource = sourceA;
 
         SceneManager.sceneLoaded += OnSceneLoaded;
     }
@@ -69,13 +86,7 @@ public class LevelAudioManager : MonoBehaviour
         float volume = sceneMusic != null ? sceneMusic.volume : defaultVolume;
         bool loop = sceneMusic != null ? sceneMusic.loop : true;
 
-        if (clip == null) return;
-        if (audioSource.clip == clip && audioSource.isPlaying) return;
-
-        audioSource.clip = clip;
-        audioSource.volume = volume;
-        audioSource.loop = loop;
-        audioSource.Play();
+        PlayMusic(clip, volume, loop);
     }
 
     SceneMusic FindMusicForScene(string sceneName)
@@ -90,10 +101,65 @@ public class LevelAudioManager : MonoBehaviour
         return null;
     }
 
+    void PlayMusic(AudioClip clip, float volume, bool loop)
+    {
+        if (clip == null) return;
+        if (activeSource.clip == clip && activeSource.isPlaying && activeSource.loop == loop)
+        {
+            activeSource.volume = volume;
+            return;
+        }
+
+        if (crossfadeRoutine != null)
+            StopCoroutine(crossfadeRoutine);
+
+        if (crossfadeDuration <= 0f)
+        {
+            sourceA.Stop();
+            sourceB.Stop();
+            activeSource.clip = clip;
+            activeSource.volume = volume;
+            activeSource.loop = loop;
+            activeSource.Play();
+            return;
+        }
+
+        crossfadeRoutine = StartCoroutine(CrossfadeTo(clip, volume, loop));
+    }
+
+    IEnumerator CrossfadeTo(AudioClip clip, float targetVolume, bool loop)
+    {
+        AudioSource next = inactiveSource;
+        next.Stop();
+        next.clip = clip;
+        next.loop = loop;
+        next.volume = 0f;
+        next.Play();
+
+        float startVolume = activeSource.volume;
+        float elapsed = 0f;
+
+        while (elapsed < crossfadeDuration)
+        {
+            float t = elapsed / crossfadeDuration;
+            activeSource.volume = Mathf.Lerp(startVolume, 0f, t);
+            next.volume = Mathf.Lerp(0f, targetVolume, t);
+            elapsed += Time.unscaledDeltaTime;
+            yield return null;
+        }
+
+        activeSource.volume = 0f;
+        activeSource.Stop();
+        next.volume = targetVolume;
+        activeSource = next;
+
+        crossfadeRoutine = null;
+    }
+
     public void StopMusic()
     {
-        if (audioSource != null)
-            audioSource.Stop();
+        if (sourceA != null) sourceA.Stop();
+        if (sourceB != null) sourceB.Stop();
     }
 
     // ===== Floor override music (used by FloorMusicZone) =====
@@ -101,14 +167,11 @@ public class LevelAudioManager : MonoBehaviour
 
     public void PlayOverrideMusic(AudioClip clip, float volume, bool loop = true)
     {
-        if (clip == null || audioSource == null) return;
-        if (overrideClip == clip && audioSource.isPlaying) return;
+        if (clip == null) return;
+        if (overrideClip == clip && activeSource.isPlaying) return;
 
         overrideClip = clip;
-        audioSource.clip = clip;
-        audioSource.volume = volume;
-        audioSource.loop = loop;
-        audioSource.Play();
+        PlayMusic(clip, volume, loop);
     }
 
     public void ClearOverrideMusic()
@@ -122,10 +185,7 @@ public class LevelAudioManager : MonoBehaviour
         AudioClip clip = sceneMusic != null ? sceneMusic.musicClip : defaultMusic;
         float volume = sceneMusic != null ? sceneMusic.volume : defaultVolume;
 
-        if (clip == null) { audioSource.Stop(); return; }
-        audioSource.clip = clip;
-        audioSource.volume = volume;
-        audioSource.loop = true;
-        audioSource.Play();
+        if (clip == null) { StopMusic(); return; }
+        PlayMusic(clip, volume, true);
     }
 }

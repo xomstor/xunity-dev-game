@@ -19314,6 +19314,7 @@ MonoBehaviour:
     loop: 0
   defaultMusic: {fileID: 0}
   defaultVolume: 0.5
+  crossfadeDuration: 5
 --- !u!4 &1071018798
 Transform:
   m_ObjectHideFlags: 0
