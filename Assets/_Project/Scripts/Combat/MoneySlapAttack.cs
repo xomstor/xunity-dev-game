@@ -9,6 +9,8 @@ public class MoneySlapAttack : MonoBehaviour
     [Range(0.1f, 1f)] public float maxHpDamagePercent = 0.5f;
     [Tooltip("Множитель удачи")]
     public float luckMultiplier = 1f;
+    [Tooltip("Стихия атаки")]
+    public ElementalType element = ElementalType.Physical;
 
     PlayerStats playerStats;
     AutoCombat playerCombat;
@@ -45,7 +47,7 @@ public class MoneySlapAttack : MonoBehaviour
         damage = Mathf.Min(damage, Mathf.RoundToInt(enemyMaxHp * maxHpDamagePercent));
         damage = Mathf.Max(1, damage);
 
-        target.TakeDamage(damage, 0);
+        target.TakeDamage(damage, 0, element);
 
         Debug.Log($"[MoneySlap] Потрачено {spent} gold, урон {damage} (cap {maxHpDamagePercent * 100}% HP).");
         return true;

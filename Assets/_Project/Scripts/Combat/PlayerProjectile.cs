@@ -2,92 +2,108 @@ using UnityEngine;
 
 [RequireComponent(typeof(Rigidbody2D))]
 [RequireComponent(typeof(Collider2D))]
-public class EnemyProjectile : MonoBehaviour
+public class PlayerProjectile : MonoBehaviour
 {
     [Header("Base")]
-    public int damage = 10;
-    public float speed = 8f;
-    public float lifetime = 5f;
+    public int damage = 20;
+    public float speed = 12f;
+    public float lifetime = 3f;
     public bool destroyOnHit = true;
+    public int pierceCount = 0;
 
     [Header("Element")]
-    public ElementalType element = ElementalType.Physical;
+    public ElementalType element = ElementalType.Fire;
 
-    [Header("Homing")]
-    public bool homing = false;
-    public float homingStrength = 30f;
-    public float homingDelay = 0.3f;
+    [Header("Physics")]
+    public bool useGravity = false;
+    public float gravityScale = 0f;
 
     [Header("Visual")]
-    public Color projectileColor = Color.red;
+    public Color projectileColor = new Color(1f, 0.45f, 0f, 1f);
+    public bool rotateToVelocity = true;
+    public float rotationOffset = 0f;
 
     [Header("Effects")]
     public GameObject impactEffect;
+    public AudioClip impactSound;
+
+    [Header("Targeting")]
+    [Tooltip("Если true, не наносит урон CombatTeam.Player")]
+    public bool ignorePlayerTeam = true;
 
     private Rigidbody2D rb;
     private Collider2D col;
     private SpriteRenderer sr;
-    private Transform target;
     private Vector2 currentDirection;
-    private float spawnTime;
     private int runtimeDamage;
+    private int pierceHits;
+    private AudioSource audioSource;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<Collider2D>();
         sr = GetComponent<SpriteRenderer>();
+        audioSource = GetComponent<AudioSource>();
+
         if (col != null)
             col.isTrigger = true;
+
+        if (rb != null)
+        {
+            rb.gravityScale = useGravity ? gravityScale : 0f;
+            rb.constraints = RigidbodyConstraints2D.FreezeRotation;
+        }
+
         if (sr != null)
+        {
             sr.color = projectileColor;
+        }
+
         runtimeDamage = damage;
     }
 
-    public void Initialize(Vector2 direction, Transform targetTransform = null, int? damageOverride = null, float? speedOverride = null)
+    public void Initialize(Vector2 direction, int? damageOverride = null, float? speedOverride = null, float? lifetimeOverride = null)
     {
         currentDirection = direction.normalized;
-        target = targetTransform;
+
         if (damageOverride.HasValue)
             runtimeDamage = damageOverride.Value;
         if (speedOverride.HasValue)
             speed = speedOverride.Value;
-        spawnTime = Time.time;
-    }
+        if (lifetimeOverride.HasValue)
+            lifetime = lifetimeOverride.Value;
 
-    void Start()
-    {
-        if (target == null)
+        if (rotateToVelocity)
         {
-            PlayerController pc = FindAnyObjectByType<PlayerController>();
-            if (pc != null)
-                target = pc.transform;
+            float angle = Mathf.Atan2(currentDirection.y, currentDirection.x) * Mathf.Rad2Deg + rotationOffset;
+            transform.rotation = Quaternion.Euler(0f, 0f, angle);
         }
+
         Destroy(gameObject, lifetime);
     }
 
     void Update()
     {
-        if (homing && target != null && Time.time - spawnTime > homingDelay)
-        {
-            Vector2 toTarget = (target.position - transform.position).normalized;
-            currentDirection = Vector2.MoveTowards(currentDirection, toTarget, homingStrength * Time.deltaTime).normalized;
-        }
         rb.linearVelocity = currentDirection * speed;
     }
 
     void OnTriggerEnter2D(Collider2D other)
     {
         if (other.isTrigger) return;
+        if (other.CompareTag("Player")) return;
 
         AutoCombat autoCombat = other.GetComponent<AutoCombat>();
         if (autoCombat == null) autoCombat = other.GetComponentInParent<AutoCombat>();
         if (autoCombat == null) autoCombat = other.GetComponentInChildren<AutoCombat>();
 
-        if (autoCombat != null && autoCombat.team == CombatTeam.Player)
+        if (autoCombat != null)
         {
+            if (ignorePlayerTeam && autoCombat.team == CombatTeam.Player)
+                return;
+
             autoCombat.TakeDamage(runtimeDamage, 0, element);
-            Hit();
+            Hit(other);
             return;
         }
 
@@ -98,16 +114,23 @@ public class EnemyProjectile : MonoBehaviour
         if (playerStats != null)
         {
             playerStats.TakeDamage(runtimeDamage, 0, element);
-            Hit();
+            Hit(other);
         }
     }
 
-    void Hit()
+    void Hit(Collider2D other)
     {
         if (impactEffect != null)
             Instantiate(impactEffect, transform.position, Quaternion.identity);
-        if (destroyOnHit)
+
+        if (impactSound != null && audioSource != null)
+            audioSource.PlayOneShot(impactSound);
+
+        pierceHits++;
+        if (pierceHits > pierceCount && destroyOnHit)
+        {
             Destroy(gameObject);
+        }
     }
 
     public void SetDamage(int value) => runtimeDamage = value;

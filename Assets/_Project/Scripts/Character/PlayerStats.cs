@@ -12,6 +12,11 @@ public class PlayerStats : MonoBehaviour
     public int atkSpd = 0;
     public int lethality = 0;
 
+    [Header("Elemental (Hidden)")]
+    public ElementalType element = ElementalType.Physical;
+    [Tooltip("Индекс = ElementalType. 0.5 = 50% резист, 1 = иммунитет, -0.5 = уязвимость")]
+    public float[] elementalResistances;
+
     [Header("Progress")]
     public int level = 1;
     public int experience = 0;
@@ -49,22 +54,13 @@ public class PlayerStats : MonoBehaviour
         experienceToNextLevel = GetXpForLevel(level + 1);
     }
 
-    public void TakeDamage(int amount)
+    public void TakeDamage(int amount, int attackerLethality = 0, ElementalType attackElement = ElementalType.Physical)
     {
         if (IsInvulnerable()) return;
-        int finalDamage = GetMitigatedDamage(amount, 0);
+        int finalDamage = GetMitigatedDamage(amount, attackerLethality, attackElement);
         hp = Mathf.Max(0, hp - finalDamage);
-        
-        Debug.Log($"[PlayerStats] TakeDamage: amount={amount}, finalDamage={finalDamage}, hp={hp}");
-    }
 
-    public void TakeDamage(int amount, int attackerLethality)
-    {
-        if (IsInvulnerable()) return;
-        int finalDamage = GetMitigatedDamage(amount, attackerLethality);
-        hp = Mathf.Max(0, hp - finalDamage);
-        
-        Debug.Log($"[PlayerStats] TakeDamage: amount={amount}, lethality={attackerLethality}, finalDamage={finalDamage}, hp={hp}");
+        Debug.Log($"[PlayerStats] TakeDamage: amount={amount}, lethality={attackerLethality}, element={attackElement}, finalDamage={finalDamage}, hp={hp}");
     }
 
     bool IsInvulnerable()
@@ -82,13 +78,18 @@ public class PlayerStats : MonoBehaviour
         return Mathf.Clamp01(multiplier);
     }
 
-    public int GetMitigatedDamage(int rawDamage, int attackerLethality)
+    public int GetMitigatedDamage(int rawDamage, int attackerLethality, ElementalType attackElement = ElementalType.Physical)
     {
         int pureDamage = Mathf.Min(attackerLethality, rawDamage);
         int mitigatable = rawDamage - pureDamage;
         float multiplier = GetDefenseMultiplier();
         int mitigated = Mathf.RoundToInt(mitigatable * multiplier);
-        return Mathf.Max(1, pureDamage + mitigated);
+        int damage = Mathf.Max(1, pureDamage + mitigated);
+
+        if (elementalResistances == null || elementalResistances.Length == 0)
+            elementalResistances = ElementalSystem.CreateEmptyResistances();
+
+        return ElementalSystem.ApplyElemental(damage, attackElement, elementalResistances);
     }
 
     public float GetDamageReductionPercent()

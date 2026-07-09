@@ -11,6 +11,9 @@ public class BossProjectile : MonoBehaviour
     public bool canBeDestroyed = true;
     public bool destroyOnHit = true;
 
+    [Header("Element")]
+    public ElementalType element = ElementalType.Physical;
+
     [Header("Homing")]
     public bool homing = false;
     public float homingStrength = 30f;
@@ -76,7 +79,7 @@ public class BossProjectile : MonoBehaviour
 
         if (autoCombat != null && autoCombat.team == CombatTeam.Player)
         {
-            autoCombat.TakeDamage(damage, 0);
+            autoCombat.TakeDamage(damage, 0, element);
             if (destroyOnHit)
                 Destroy(gameObject);
             return;
@@ -88,7 +91,7 @@ public class BossProjectile : MonoBehaviour
 
         if (playerStats != null)
         {
-            playerStats.TakeDamage(damage, 0);
+            playerStats.TakeDamage(damage, 0, element);
             if (destroyOnHit)
                 Destroy(gameObject);
         }

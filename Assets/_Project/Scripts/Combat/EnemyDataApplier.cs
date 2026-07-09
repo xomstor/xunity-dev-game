@@ -1,5 +1,6 @@
 using UnityEngine;
 
+[DefaultExecutionOrder(-10)]
 [RequireComponent(typeof(EnemyReward))]
 public class EnemyDataApplier : MonoBehaviour
 {
@@ -8,6 +9,17 @@ public class EnemyDataApplier : MonoBehaviour
 
     [Tooltip("Если true, значения перезаписывают настройки EnemyReward при старте")]
     public bool applyOnStart = true;
+
+    private EnemyAudio enemyAudio;
+
+    void Awake()
+    {
+        // Создаем EnemyAudio заранее, чтобы AutoCombat смог найти его в своем Awake
+        if (enemyData != null && HasAnyAudio(enemyData) && GetComponent<EnemyAudio>() == null)
+        {
+            gameObject.AddComponent<EnemyAudio>();
+        }
+    }
 
     private void Start()
     {
@@ -55,6 +67,7 @@ public class EnemyDataApplier : MonoBehaviour
         {
             combat.maxHealth = enemyData.maxHealth;
             combat.damage = enemyData.damage;
+            combat.def = enemyData.defense;
 
             if (WorldLevelManager.Instance != null)
             {
@@ -65,6 +78,37 @@ public class EnemyDataApplier : MonoBehaviour
             combat.ResetHealth();
         }
 
+        // Применяем звуки
+        if (HasAnyAudio(enemyData))
+        {
+            enemyAudio = GetComponent<EnemyAudio>();
+            if (enemyAudio == null)
+            {
+                enemyAudio = gameObject.AddComponent<EnemyAudio>();
+            }
+            enemyAudio.attackClip = enemyData.attackSound;
+            enemyAudio.deathClip = enemyData.deathSound;
+            enemyAudio.extraClips = enemyData.extraSounds;
+        }
+
+        // Применяем элементальные параметры
+        combat = GetComponent<AutoCombat>();
+        if (combat != null)
+        {
+            combat.element = enemyData.element;
+            combat.elementalResistances = enemyData.elementalResistances != null && enemyData.elementalResistances.Length > 0
+                ? enemyData.elementalResistances
+                : ElementalSystem.CreateEmptyResistances();
+        }
+
         Debug.Log($"Применены данные врага: {enemyData.enemyName} к {gameObject.name}");
+    }
+
+    static bool HasAnyAudio(EnemyData data)
+    {
+        if (data == null) return false;
+        if (data.attackSound != null || data.deathSound != null) return true;
+        if (data.extraSounds != null && data.extraSounds.Length > 0) return true;
+        return false;
     }
 }

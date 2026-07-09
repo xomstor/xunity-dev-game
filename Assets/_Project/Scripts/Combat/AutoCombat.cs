@@ -65,6 +65,11 @@ public class AutoCombat : MonoBehaviour
     [Tooltip("If true, projectile damage equals this enemy's damage stat")]
     public bool inheritProjectileDamage = true;
 
+    [Header("Elemental")]
+    public ElementalType element = ElementalType.Physical;
+    [Tooltip("Размер ElementalType массива должен быть 20. Индекс = стихия. 0.5 = 50% резист, 1 = иммунитет, -0.5 = уязвимость")]
+    public float[] elementalResistances;
+
     [Header("Health (Runtime)")]
     [SerializeField]
     private int currentHealth;
@@ -152,6 +157,7 @@ public class AutoCombat : MonoBehaviour
             maxHealth = stats.maxHp;
             currentHealth = stats.hp;
             damage = stats.atk;
+            def = stats.def;
         }
 
         if (team == CombatTeam.Enemy && WorldLevelManager.Instance != null)
@@ -191,6 +197,17 @@ public class AutoCombat : MonoBehaviour
             HealthSystem.Instance.UpdateGraphics();
         }
         // ------------------------------------------------
+    }
+
+    void Start()
+    {
+        // Перепроверяем EnemyAudio после EnemyDataApplier
+        if (enemyAudio == null)
+        {
+            enemyAudio = GetComponent<EnemyAudio>();
+            if (enemyAudio == null)
+                enemyAudio = GetComponentInChildren<EnemyAudio>();
+        }
     }
 
     void Update()
@@ -377,7 +394,7 @@ public class AutoCombat : MonoBehaviour
         AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
-            targetCombat.TakeDamage(finalDamage, attackerLethality);
+            targetCombat.TakeDamage(finalDamage, attackerLethality, element);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, isPlayer);
             return true;
         }
@@ -385,7 +402,7 @@ public class AutoCombat : MonoBehaviour
         PlayerStats targetStats = FindPlayerStats(target);
         if (targetStats != null)
         {
-            targetStats.TakeDamage(finalDamage, attackerLethality);
+            targetStats.TakeDamage(finalDamage, attackerLethality, element);
             ShowDamagePopup(GetPopupPosition(targetStats.transform), finalDamage, isCrit, isPlayer);
             return true;
         }
@@ -476,7 +493,7 @@ public class AutoCombat : MonoBehaviour
             if (!IsValidAttackTarget(other)) continue;
             if (!CanReachCombatColliders(other)) continue;
 
-            other.TakeDamage(finalDamage, attackerLethality);
+            other.TakeDamage(finalDamage, attackerLethality, element);
             ShowDamagePopup(GetPopupPosition(other.transform), finalDamage, isCrit, isPlayer);
             hitAny = true;
         }
@@ -533,14 +550,19 @@ public class AutoCombat : MonoBehaviour
         return attackCooldown;
     }
 
-    int GetMitigatedDamage(int rawDamage, int attackerLethality)
+    int GetMitigatedDamage(int rawDamage, int attackerLethality, ElementalType attackElement = ElementalType.Physical)
     {
         int pureDamage = Mathf.Min(attackerLethality, rawDamage);
         int mitigatable = rawDamage - pureDamage;
         float effectiveDef = Mathf.Clamp(def, 0, 34221);
         float multiplier = Mathf.Pow(100f / (100f + effectiveDef), 0.774f);
         int mitigated = Mathf.RoundToInt(mitigatable * Mathf.Clamp01(multiplier));
-        return Mathf.Max(1, pureDamage + mitigated);
+        int damage = Mathf.Max(1, pureDamage + mitigated);
+
+        if (elementalResistances == null || elementalResistances.Length == 0)
+            elementalResistances = ElementalSystem.CreateEmptyResistances();
+
+        return ElementalSystem.ApplyElemental(damage, attackElement, elementalResistances);
     }
 
     AutoCombat FindAutoCombat(Transform t)
@@ -777,7 +799,7 @@ public class AutoCombat : MonoBehaviour
         AutoCombat targetCombat = FindAutoCombat(target);
         if (targetCombat != null)
         {
-            targetCombat.TakeDamage(finalDamage, attackerLethality);
+            targetCombat.TakeDamage(finalDamage, attackerLethality, element);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, team == CombatTeam.Player);
         }
     }
@@ -795,6 +817,7 @@ public class AutoCombat : MonoBehaviour
         {
             int dmg = inheritProjectileDamage ? damage : projectile.damage;
             projectile.Initialize(direction, target, dmg, projectileSpeed);
+            projectile.element = element;
         }
         else
         {
@@ -822,7 +845,7 @@ public class AutoCombat : MonoBehaviour
         // -----------------------------------------------
     }
 
-    public void TakeDamage(int amount, int attackerLethality = 0)
+    public void TakeDamage(int amount, int attackerLethality = 0, ElementalType attackElement = ElementalType.Physical)
     {
         if (isDead) return;
 
@@ -840,7 +863,7 @@ public class AutoCombat : MonoBehaviour
             }
         }
 
-        int finalDamage = GetMitigatedDamage(amount, attackerLethality);
+        int finalDamage = GetMitigatedDamage(amount, attackerLethality, attackElement);
 
         currentHealth = Mathf.Max(0, currentHealth - finalDamage);
 

@@ -1,0 +1,23 @@
+public enum ElementalType
+{
+    Physical,
+    Fire,
+    Ice,
+    Lightning,
+    Water,
+    Earth,
+    Wind,
+    Poison,
+    Dark,
+    Light,
+    Divine,
+    Cursed,
+    Psychic,
+    Nuclear,
+    Metal,
+    Bio,
+    Sound,
+    Trash,
+    Isekai,
+    TruckKun
+}

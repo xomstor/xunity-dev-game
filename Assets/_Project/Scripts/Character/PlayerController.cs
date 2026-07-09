@@ -90,6 +90,8 @@ public class PlayerController : MonoBehaviour
     }
 
     public bool IsInputBlocked => DialogueSystem.IsDialogueActive;
+    public bool IsRolling => isRolling;
+    public float MoveInput => moveInput;
 
     void Update()
     {

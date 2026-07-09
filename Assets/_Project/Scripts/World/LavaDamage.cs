@@ -169,7 +169,7 @@ public class LavaDamage : MonoBehaviour
         if (stats.hp <= 0) return;
 
         // Наносим урон через PlayerStats.TakeDamage!
-        stats.TakeDamage(damagePerTick);
+        stats.TakeDamage(damagePerTick, 0, ElementalType.Fire);
 
         Debug.Log($"💥 Лава нанесла {damagePerTick} урона! HP осталось: {stats.hp}/{stats.maxHp}");
 

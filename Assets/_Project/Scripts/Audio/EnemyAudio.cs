@@ -12,6 +12,8 @@ public class EnemyAudio : MonoBehaviour
     public AudioClip walkClip;
     public AudioClip attackClip;
     public AudioClip deathClip;
+    [Tooltip("Дополнительные звуки (например, hit, aggro, taunt). Используются через PlayExtra/PlayRandomExtra.")]
+    public AudioClip[] extraClips;
 
     [Header("Settings")]
     [Range(0f, 1f)] public float volume = 0.8f;
@@ -19,10 +21,15 @@ public class EnemyAudio : MonoBehaviour
     public float maxDistance = 15f;
     [Tooltip("Минимальный интервал между idle-звуками (сек)")]
     public float idleInterval = 4f;
+    [Tooltip("Интервал между случайными доп. звуками (0 = отключено)")]
+    public float extraSoundInterval = 0f;
+    [Tooltip("Шанс проигрыша случайного доп. звука по таймеру")]
+    [Range(0f, 1f)] public float extraSoundChance = 0.3f;
 
     private AudioSource loopSource;   // idle/walk (зацикленные)
-    private AudioSource oneShotSource; // attack/death
+    private AudioSource oneShotSource; // attack/death/extra
     private float idleTimer;
+    private float extraTimer;
     private int currentState = -1;    // 0 = idle, 1 = walk, -1 = none
 
     void Awake()
@@ -42,6 +49,8 @@ public class EnemyAudio : MonoBehaviour
         oneShotSource.maxDistance = maxDistance;
         oneShotSource.rolloffMode = AudioRolloffMode.Linear;
         oneShotSource.volume = volume;
+
+        extraTimer = extraSoundInterval * Random.Range(0.7f, 1.3f);
     }
 
     /// <summary>state: 0 = стоит, 1 = идёт</summary>
@@ -75,6 +84,20 @@ public class EnemyAudio : MonoBehaviour
                 idleTimer = idleInterval * Random.Range(0.8f, 1.5f);
             }
         }
+
+        // Случайные дополнительные звуки (для разнообразия)
+        if (extraSoundInterval > 0f && extraClips != null && extraClips.Length > 0)
+        {
+            extraTimer -= Time.deltaTime;
+            if (extraTimer <= 0f)
+            {
+                extraTimer = extraSoundInterval * Random.Range(0.7f, 1.3f);
+                if (Random.value < extraSoundChance)
+                {
+                    PlayRandomExtra();
+                }
+            }
+        }
     }
 
     public void PlayAttack()
@@ -88,5 +111,21 @@ public class EnemyAudio : MonoBehaviour
         loopSource.Stop();
         if (deathClip != null)
             oneShotSource.PlayOneShot(deathClip, volume);
+    }
+
+    public void PlayExtra(int index)
+    {
+        if (extraClips == null || extraClips.Length == 0) return;
+        if (index < 0 || index >= extraClips.Length) return;
+        if (extraClips[index] != null)
+            oneShotSource.PlayOneShot(extraClips[index], volume);
+    }
+
+    public void PlayRandomExtra()
+    {
+        if (extraClips == null || extraClips.Length == 0) return;
+        int i = Random.Range(0, extraClips.Length);
+        if (extraClips[i] != null)
+            oneShotSource.PlayOneShot(extraClips[i], volume);
     }
 }
