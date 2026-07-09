@@ -1,28 +1,39 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class JumpButton : MonoBehaviour, IPointerDownHandler
+public class BlockButton : MonoBehaviour, IPointerDownHandler, IPointerUpHandler
 {
     public PlayerController player;
 
     void Start()
     {
-        // Если PlayerController не привязан, ищем его в сцене
         if (player == null)
             player = FindAnyObjectByType<PlayerController>();
     }
 
     public void OnPointerDown(PointerEventData eventData)
     {
+        if (!ResolvePlayer()) return;
+        player.StartBlock();
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if (!ResolvePlayer()) return;
+        player.StopBlock();
+    }
+
+    bool ResolvePlayer()
+    {
         if (player == null)
         {
             player = FindAnyObjectByType<PlayerController>();
             if (player == null)
             {
-                Debug.LogWarning("[JumpButton] PlayerController not found!");
-                return;
+                Debug.LogWarning("[BlockButton] PlayerController not found!");
+                return false;
             }
         }
-        player.Jump();
+        return true;
     }
 }

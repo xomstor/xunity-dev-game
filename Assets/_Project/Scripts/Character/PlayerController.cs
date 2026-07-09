@@ -21,6 +21,12 @@ public class PlayerController : MonoBehaviour
     public float rollSpeed = 8f;
     public float rollDuration = 0.5f;
     public float rollCooldown = 1f;
+    [Header("Block")]
+    public Key blockKey = Key.B;
+    [Range(0f, 1f)]
+    public float blockDamageReduction = 0.8f;
+    public bool isBlocking { get; private set; }
+
     [Header("Invulnerability")]
     public float rollInvulnerabilityDuration = 0.5f;
     public bool isInvulnerable { get; private set; }
@@ -124,6 +130,12 @@ public class PlayerController : MonoBehaviour
 
             if (keyboard.kKey.wasPressedThisFrame)
                 Roll();
+
+            if (keyboard[blockKey].wasPressedThisFrame)
+                StartBlock();
+
+            if (keyboard[blockKey].wasReleasedThisFrame)
+                StopBlock();
         }
 
         moveInput = keyboardMoveInput != 0f ? keyboardMoveInput : externalMoveInput;
@@ -136,16 +148,25 @@ public class PlayerController : MonoBehaviour
         UpdateAttackComboTimer();
         UpdateWallSlide();
 
-        if (rawMoveInput > 0)
-            transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
-        else if (rawMoveInput < 0)
-            transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+        if (!isBlocking)
+        {
+            if (rawMoveInput > 0)
+                transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+            else if (rawMoveInput < 0)
+                transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+        }
 
         UpdateAnimator();
     }
 
     void UpdateMoveSpeed()
     {
+        if (isBlocking)
+        {
+            currentMoveSpeed = 0f;
+            return;
+        }
+
         float speedMultiplier = playerStats != null ? 1f + playerStats.spd * 0.05f : 1f;
 
         if (moveInput != 0)
@@ -172,14 +193,14 @@ public class PlayerController : MonoBehaviour
 
     public void AutoAttack()
     {
-        if (anim == null || isRolling) return;
+        if (anim == null || isRolling || isBlocking) return;
         if (isAttacking) return;
         Attack();
     }
 
     public void Attack()
     {
-        if (anim == null || isAttacking || isRolling) return;
+        if (anim == null || isAttacking || isRolling || isBlocking) return;
 
         isAttacking = true;
         attackComboTimer = attackComboResetTime;
@@ -238,7 +259,7 @@ public class PlayerController : MonoBehaviour
 
     public void Roll(int direction)
     {
-        if (isRolling || rollCooldownTimer > 0 || !isGrounded) return;
+        if (isRolling || rollCooldownTimer > 0 || !isGrounded || isBlocking) return;
 
         isRolling = true;
         rollTimer = rollDuration;
@@ -257,6 +278,27 @@ public class PlayerController : MonoBehaviour
     void EndRollInvulnerability()
     {
         isInvulnerable = false;
+    }
+
+    public void StartBlock()
+    {
+        if (isBlocking || isRolling || !isGrounded) return;
+
+        isBlocking = true;
+        if (anim != null)
+        {
+            anim.SetTrigger("Block");
+            anim.SetBool("IdleBlock", true);
+        }
+    }
+
+    public void StopBlock()
+    {
+        if (!isBlocking) return;
+
+        isBlocking = false;
+        if (anim != null)
+            anim.SetBool("IdleBlock", false);
     }
 
     void UpdateRoll()
@@ -404,6 +446,8 @@ public class PlayerController : MonoBehaviour
 
     public void Jump()
     {
+        if (isBlocking) return;
+
         if (isWallSliding)
         {
             WallJump();

@@ -52,6 +52,19 @@ public class AutoCombat : MonoBehaviour
 
     [Header("Effects")]
     public GameObject deathEffect;
+
+    [Header("Ranged Attack")]
+    [Tooltip("If true, this enemy fires a projectile instead of using a melee hit")]
+    public bool isRanged = false;
+    [Tooltip("Projectile prefab to fire (must have an EnemyProjectile or Rigidbody2D)")]
+    public GameObject projectilePrefab;
+    [Tooltip("Optional spawn point; if null, uses this object's position")]
+    public Transform firePoint;
+    [Tooltip("Projectile flight speed")]
+    public float projectileSpeed = 8f;
+    [Tooltip("If true, projectile damage equals this enemy's damage stat")]
+    public bool inheritProjectileDamage = true;
+
     [Header("Health (Runtime)")]
     [SerializeField]
     private int currentHealth;
@@ -747,6 +760,12 @@ public class AutoCombat : MonoBehaviour
         if (enemyAudio != null)
             enemyAudio.PlayAttack();
 
+        if (isRanged && projectilePrefab != null)
+        {
+            FireProjectile();
+            return;
+        }
+
         if (canJumpAttack && Random.value < jumpAttackChance && IsGrounded())
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
@@ -760,6 +779,28 @@ public class AutoCombat : MonoBehaviour
         {
             targetCombat.TakeDamage(finalDamage, attackerLethality);
             ShowDamagePopup(GetPopupPosition(targetCombat.transform), finalDamage, isCrit, team == CombatTeam.Player);
+        }
+    }
+
+    void FireProjectile()
+    {
+        if (target == null || projectilePrefab == null) return;
+
+        Vector3 origin = firePoint != null ? firePoint.position : transform.position;
+        Vector2 direction = (target.position - origin).normalized;
+
+        GameObject go = Instantiate(projectilePrefab, origin, Quaternion.identity);
+        EnemyProjectile projectile = go.GetComponent<EnemyProjectile>();
+        if (projectile != null)
+        {
+            int dmg = inheritProjectileDamage ? damage : projectile.damage;
+            projectile.Initialize(direction, target, dmg, projectileSpeed);
+        }
+        else
+        {
+            Rigidbody2D prb = go.GetComponent<Rigidbody2D>();
+            if (prb != null)
+                prb.linearVelocity = direction * projectileSpeed;
         }
     }
 
@@ -792,6 +833,11 @@ public class AutoCombat : MonoBehaviour
             if (pc == null) pc = GetComponent<PlayerController>();
             if (pc != null && pc.isInvulnerable)
                 return;
+            if (pc != null && pc.isBlocking)
+            {
+                float multiplier = 1f - pc.blockDamageReduction;
+                amount = Mathf.Max(1, Mathf.RoundToInt(amount * multiplier));
+            }
         }
 
         int finalDamage = GetMitigatedDamage(amount, attackerLethality);

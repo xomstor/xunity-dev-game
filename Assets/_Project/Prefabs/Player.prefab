@@ -532,7 +532,7 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 584365748166f814d8102e39c2d6035c, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::JumpButton
+  m_EditorClassIdentifier: Assembly-CSharp::BlockButton
   player: {fileID: 2068702010085759554}
 --- !u!95 &1692295666058085129
 Animator:
