@@ -20,7 +20,7 @@ MonoBehaviour:
     \u0431\u043E\u043B\u044C\u043D\u043E \u0438 \u0433\u0440\u043E\u043C\u043A\u043E."
   itemType: 0
   rarity: 2
-  icon: {fileID: 6631000824587985109, guid: f74d5990809ef144195884c966695f50, type: 3}
+  icon: {fileID: 6647481243368557133, guid: fa3a7fc865e14494398fe860d57dcd6b, type: 3}
   price: 140
   maxStack: 1
   atkBonus: 19
@@ -28,5 +28,7 @@ MonoBehaviour:
   hpBonus: 0
   spdBonus: 1
   lckBonus: 0
+  atkSpdBonus: 0
+  lethalityBonus: 0
   restoreHp: 0
   experienceReward: 0

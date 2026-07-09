@@ -1,25 +1,10 @@
 fileFormatVersion: 2
-guid: 811205627984f1848ab799355e6c58ce
+guid: b95556a1b82ed2b4b951bd93a51c66a5
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -2424553518018739129
-    second: boss_0
-  - first:
-      213: -3588229512158965765
-    second: boss_1
-  - first:
-      213: -6963195877183015321
-    second: boss_2
-  - first:
-      213: 7801903984715115176
-    second: boss_3
-  - first:
-      213: -5888845342232556802
-    second: boss_4
-  - first:
-      213: -7366506907712603825
-    second: boss_5
+      213: 8708543651112508147
+    second: goblin_cook_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -124,17 +109,43 @@ TextureImporter:
     ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
     forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: boss_0
+      name: goblin_cook_0
       rect:
         serializedVersion: 2
-        x: 4
-        y: 6
-        width: 763
-        height: 559
+        x: 0
+        y: 0
+        width: 1024
+        height: 1024
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -143,8 +154,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 744c193db614a5ed0800000000000000
-      internalID: -2424553518018739129
+      spriteID: 3fa5b839f46fad870800000000000000
+      internalID: 8708543651112508147
       vertices: []
       indices: 
       edges: []
@@ -153,7 +164,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: f00d681707ad73642a3d21061afeb54a
+    spriteID: 
     internalID: 0
     vertices: []
     indices: 
@@ -163,12 +174,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      boss_0: -2424553518018739129
-      boss_1: -3588229512158965765
-      boss_2: -6963195877183015321
-      boss_3: 7801903984715115176
-      boss_4: -5888845342232556802
-      boss_5: -7366506907712603825
+      goblin_cook_0: 8708543651112508147
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
