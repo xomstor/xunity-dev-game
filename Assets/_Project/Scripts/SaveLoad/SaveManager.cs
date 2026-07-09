@@ -480,6 +480,8 @@ public class SaveManager : MonoBehaviour
 
         PauseMenu pauseMenu = FindAnyObjectByType<PauseMenu>();
         pauseMenu?.RefreshStats();
+
+        PlayerStateTransfer.Instance?.ClearSnapshot();
     }
 
     void ApplyQuestData(List<QuestData> quests)

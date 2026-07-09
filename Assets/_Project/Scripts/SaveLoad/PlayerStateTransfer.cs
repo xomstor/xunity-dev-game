@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -20,6 +21,8 @@ public class PlayerStateTransfer : MonoBehaviour
     }
 
     private Snapshot snapshot;
+    public bool spawnAtHub;
+    public int? overrideHp;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     static void AutoCreate()
@@ -57,7 +60,7 @@ public class PlayerStateTransfer : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (snapshot == null) return;
+        if (snapshot == null && !spawnAtHub && !overrideHp.HasValue) return;
         StartCoroutine(ApplyNextFrame());
     }
 
@@ -72,20 +75,21 @@ public class PlayerStateTransfer : MonoBehaviour
 
     public void Capture()
     {
-        PlayerStats stats = FindAnyObjectByType<PlayerStats>();
+        PlayerStats stats = FindInactivePlayerStats();
         if (stats == null) return;
 
         Snapshot s = new Snapshot
         {
-            hp = stats.hp, maxHp = stats.maxHp,
+            hp = overrideHp ?? stats.hp, maxHp = stats.maxHp,
             atk = stats.atk, def = stats.def, spd = stats.spd, lck = stats.lck,
             atkSpd = stats.atkSpd, lethality = stats.lethality,
             level = stats.level, experience = stats.experience, gold = stats.gold,
             experienceToNextLevel = stats.experienceToNextLevel,
             skillPoints = stats.skillPoints
         };
+        overrideHp = null;
 
-        Inventory inv = FindAnyObjectByType<Inventory>();
+        Inventory inv = FindInactive<Inventory>();
         if (inv != null)
         {
             foreach (InventoryItem it in inv.items)
@@ -95,7 +99,7 @@ public class PlayerStateTransfer : MonoBehaviour
             }
         }
 
-        EquipmentManager eq = FindAnyObjectByType<EquipmentManager>();
+        EquipmentManager eq = FindInactive<EquipmentManager>();
         if (eq != null)
         {
             s.weapon = eq.weapon;
@@ -108,10 +112,19 @@ public class PlayerStateTransfer : MonoBehaviour
         Debug.Log($"[PlayerStateTransfer] Captured: lvl={s.level}, hp={s.hp}/{s.maxHp}, gold={s.gold}, items={s.items.Count}");
     }
 
+    static PlayerStats FindInactivePlayerStats()
+    {
+        return FindInactive<PlayerStats>();
+    }
+
+    static T FindInactive<T>() where T : Component
+    {
+        T[] found = Object.FindObjectsByType<T>(FindObjectsInactive.Include);
+        return found.FirstOrDefault();
+    }
+
     public void Apply()
     {
-        if (snapshot == null) return;
-
         PlayerStats stats = FindAnyObjectByType<PlayerStats>();
         if (stats == null)
         {
@@ -119,53 +132,91 @@ public class PlayerStateTransfer : MonoBehaviour
             return;
         }
 
-        stats.hp = snapshot.hp;
-        stats.maxHp = snapshot.maxHp;
-        stats.atk = snapshot.atk;
-        stats.def = snapshot.def;
-        stats.spd = snapshot.spd;
-        stats.lck = snapshot.lck;
-        stats.atkSpd = snapshot.atkSpd;
-        stats.lethality = snapshot.lethality;
-        stats.level = snapshot.level;
-        stats.experience = snapshot.experience;
-        stats.gold = snapshot.gold;
-        stats.experienceToNextLevel = snapshot.experienceToNextLevel;
-        stats.skillPoints = snapshot.skillPoints;
-
-        // Синхронизируем боевую систему
-        AutoCombat combat = stats.GetComponent<AutoCombat>();
-        if (combat == null)
-            combat = stats.GetComponentInChildren<AutoCombat>();
-        if (combat != null && combat.team == CombatTeam.Player)
+        if (snapshot != null)
         {
-            combat.maxHealth = snapshot.maxHp;
-            combat.damage = snapshot.atk;
-            int missing = snapshot.hp - combat.CurrentHealth;
-            if (missing > 0) combat.Heal(missing);
-            else if (missing < 0) combat.TakeDamage(-missing, int.MaxValue);
+            stats.hp = overrideHp ?? snapshot.hp;
+            stats.maxHp = snapshot.maxHp;
+            stats.atk = snapshot.atk;
+            stats.def = snapshot.def;
+            stats.spd = snapshot.spd;
+            stats.lck = snapshot.lck;
+            stats.atkSpd = snapshot.atkSpd;
+            stats.lethality = snapshot.lethality;
+            stats.level = snapshot.level;
+            stats.experience = snapshot.experience;
+            stats.gold = snapshot.gold;
+            stats.experienceToNextLevel = snapshot.experienceToNextLevel;
+            stats.skillPoints = snapshot.skillPoints;
+
+            // Синхронизируем боевую систему
+            AutoCombat combat = stats.GetComponent<AutoCombat>();
+            if (combat == null)
+                combat = stats.GetComponentInChildren<AutoCombat>();
+            if (combat != null && combat.team == CombatTeam.Player)
+            {
+                combat.maxHealth = snapshot.maxHp;
+                combat.damage = snapshot.atk;
+                int missing = stats.hp - combat.CurrentHealth;
+                if (missing > 0) combat.Heal(missing);
+                else if (missing < 0) combat.TakeDamage(-missing, int.MaxValue);
+            }
+
+            // Инвентарь
+            Inventory inv = FindAnyObjectByType<Inventory>();
+            if (inv != null)
+            {
+                inv.items.Clear();
+                foreach (var (item, qty) in snapshot.items)
+                    inv.items.Add(new InventoryItem { itemData = item, quantity = qty });
+                Inventory.NotifyInventoryChanged();
+            }
+
+            // Экипировка
+            EquipmentManager eq = FindAnyObjectByType<EquipmentManager>();
+            if (eq != null)
+            {
+                eq.weapon = snapshot.weapon;
+                eq.armor = snapshot.armor;
+                eq.boots = snapshot.boots;
+                eq.accessory = snapshot.accessory;
+            }
+
+            Debug.Log($"[PlayerStateTransfer] Applied: lvl={snapshot.level}, hp={stats.hp}/{snapshot.maxHp}, gold={snapshot.gold}, items={snapshot.items.Count}");
         }
 
-        // Инвентарь
-        Inventory inv = FindAnyObjectByType<Inventory>();
-        if (inv != null)
-        {
-            inv.items.Clear();
-            foreach (var (item, qty) in snapshot.items)
-                inv.items.Add(new InventoryItem { itemData = item, quantity = qty });
-            Inventory.NotifyInventoryChanged();
-        }
+        overrideHp = null;
 
-        // Экипировка
-        EquipmentManager eq = FindAnyObjectByType<EquipmentManager>();
-        if (eq != null)
+        if (spawnAtHub)
         {
-            eq.weapon = snapshot.weapon;
-            eq.armor = snapshot.armor;
-            eq.boots = snapshot.boots;
-            eq.accessory = snapshot.accessory;
+            spawnAtHub = false;
+            Transform hub = FindHubSpawnPoint();
+            if (hub != null)
+            {
+                stats.transform.position = hub.position;
+                Rigidbody2D rb = stats.GetComponent<Rigidbody2D>();
+                if (rb == null) rb = stats.GetComponentInChildren<Rigidbody2D>();
+                if (rb != null) rb.linearVelocity = Vector2.zero;
+                Debug.Log($"[PlayerStateTransfer] Spawned at hub: {hub.position}");
+            }
         }
+    }
 
-        Debug.Log($"[PlayerStateTransfer] Applied: lvl={snapshot.level}, hp={snapshot.hp}/{snapshot.maxHp}, gold={snapshot.gold}, items={snapshot.items.Count}");
+    Transform FindHubSpawnPoint()
+    {
+        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsInactive.Include);
+        SpawnPoint hub = System.Array.Find(spawnPoints, s => s != null && s.isHub);
+        if (hub != null) return hub.transform;
+
+        GameObject byName = GameObject.Find("SpawnPoint_Hub") ?? GameObject.Find("Hub") ?? GameObject.Find("RespawnPoint");
+        if (byName != null) return byName.transform;
+
+        return null;
+    }
+
+    public void ClearSnapshot()
+    {
+        snapshot = null;
+        spawnAtHub = false;
+        overrideHp = null;
     }
 }

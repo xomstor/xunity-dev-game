@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Linq;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Панель смерти: YOUR SOUL IS DEAD + кнопки ВЕРНУТЬСЯ В ГОРОД / ЗАГРУЗКА
@@ -138,37 +139,26 @@ public static class DeathPanel
         DestroyPanel();
         Time.timeScale = 1f;
 
-        Transform point = respawnPoint ?? FindRespawnPoint();
-
-        if (point != null)
+        if (stats == null)
         {
-            player.SetActive(true);
-            player.transform.position = point.position;
-            stats.hp = stats.maxHp;
+            Debug.LogError("[DeathPanel] ResurrectInCity: PlayerStats is null!");
+            return;
+        }
 
-            // Восстанавливаем Rigidbody2D, если было отключено
-            Rigidbody2D[] bodies = player.GetComponentsInChildren<Rigidbody2D>(true);
-            foreach (var body in bodies)
+        if (PlayerStateTransfer.Instance != null)
+        {
+            PlayerStateTransfer.Instance.overrideHp = stats.maxHp;
+            PlayerStateTransfer.Instance.spawnAtHub = true;
+        }
+
+        Debug.Log("[DeathPanel] Returning to GameScene (hub)...");
+
+        TeleportEffect.Play(
+            () =>
             {
-                body.bodyType = RigidbodyType2D.Dynamic;
-                body.linearVelocity = Vector2.zero;
-            }
-
-            // Включаем коллайдеры
-            Collider2D[] cols = player.GetComponentsInChildren<Collider2D>(true);
-            foreach (var c in cols)
-                c.enabled = true;
-
-            // Включаем PlayerController
-            PlayerController pc = player.GetComponentInChildren<PlayerController>(true);
-            if (pc != null) pc.enabled = true;
-
-            Debug.Log($"🔄 {player.name} воскрешён в городе!");
-        }
-        else
-        {
-            Debug.LogWarning("Точка респауна не найдена!");
-        }
+                SceneManager.LoadScene("GameScene");
+            },
+            null);
     }
 
     static void OpenLoadMenu()

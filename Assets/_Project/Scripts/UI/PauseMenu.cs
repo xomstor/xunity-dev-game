@@ -351,7 +351,22 @@ public class PauseMenu : MonoBehaviour
     public void QuitGame()
     {
         Time.timeScale = 1f;
-        SceneManager.LoadScene(0);
+        if (pausePanel != null) pausePanel.SetActive(false);
+        CloseAllSubPanels();
+
+        PlayerStats stats = playerStats ?? FindAnyObjectByType<PlayerStats>();
+        if (PlayerStateTransfer.Instance != null && stats != null)
+        {
+            PlayerStateTransfer.Instance.overrideHp = stats.maxHp;
+            PlayerStateTransfer.Instance.spawnAtHub = true;
+        }
+
+        TeleportEffect.Play(
+            () =>
+            {
+                SceneManager.LoadScene("GameScene");
+            },
+            null);
     }
 
     public void OpenSettings()

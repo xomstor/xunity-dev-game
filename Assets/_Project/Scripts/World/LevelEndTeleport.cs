@@ -157,6 +157,7 @@ public class LevelEndTeleport : MonoBehaviour
             TeleportToSpawnPoint(nextLevelSpawnPointName);
     }
 
+
     void TeleportToScene(string sceneName, string spawnPointName)
     {
         SaveManager.Instance?.AutoSave();
@@ -164,9 +165,17 @@ public class LevelEndTeleport : MonoBehaviour
         VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
         joystick?.ForceReset();
 
-        pendingSceneSpawnPoint = spawnPointName;
-        SceneManager.sceneLoaded += OnTargetSceneLoaded;
-        SceneManager.LoadScene(sceneName);
+        string capturedScene = sceneName;
+        string capturedSpawnPoint = spawnPointName;
+
+        TeleportEffect.Play(
+            () =>
+            {
+                pendingSceneSpawnPoint = capturedSpawnPoint;
+                SceneManager.sceneLoaded += OnTargetSceneLoaded;
+                SceneManager.LoadScene(capturedScene);
+            },
+            null);
     }
 
     private static string pendingSceneSpawnPoint;
@@ -211,29 +220,36 @@ public class LevelEndTeleport : MonoBehaviour
         VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
         joystick?.ForceReset();
 
-        GameObject spawnPoint = FindSpawnPointObject(spawnPointName);
-        if (spawnPoint == null)
-        {
-            Debug.LogError($"LevelEndTeleport: SpawnPoint '{spawnPointName}' not found in scene!");
-            return;
-        }
+        string capturedSpawnPoint = spawnPointName;
 
-        GameObject player = GameObject.FindGameObjectWithTag(targetTag);
-        if (player == null)
-        {
-            Debug.LogError("LevelEndTeleport: Player not found!");
-            return;
-        }
+        TeleportEffect.Play(
+            () =>
+            {
+                GameObject spawnPoint = FindSpawnPointObject(capturedSpawnPoint);
+                if (spawnPoint == null)
+                {
+                    Debug.LogError($"LevelEndTeleport: SpawnPoint '{capturedSpawnPoint}' not found in scene!");
+                    return;
+                }
 
-        player.transform.position = spawnPoint.transform.position;
+                GameObject player = GameObject.FindGameObjectWithTag(targetTag);
+                if (player == null)
+                {
+                    Debug.LogError("LevelEndTeleport: Player not found!");
+                    return;
+                }
 
-        if (respawnEnemiesOnTeleport)
-            EnemyRespawnManager.Instance?.RespawnAllEnemies();
+                player.transform.position = spawnPoint.transform.position;
 
-        SpawnPoint spawnPointComponent = spawnPoint.GetComponent<SpawnPoint>();
-        if (spawnPointComponent != null && spawnPointComponent.showLevelName)
-            LevelNameDisplay.Instance?.Show(spawnPointComponent.displayName);
+                if (respawnEnemiesOnTeleport)
+                    EnemyRespawnManager.Instance?.RespawnAllEnemies();
 
-        Debug.Log($"Teleported player to {spawnPointName}");
+                SpawnPoint spawnPointComponent = spawnPoint.GetComponent<SpawnPoint>();
+                if (spawnPointComponent != null && spawnPointComponent.showLevelName)
+                    LevelNameDisplay.Instance?.Show(spawnPointComponent.displayName);
+
+                Debug.Log($"[LevelEndTeleport] Teleported player to {capturedSpawnPoint}");
+            },
+            null);
     }
 }

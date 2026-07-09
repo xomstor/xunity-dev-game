@@ -22,15 +22,20 @@ public class Teleport2D : MonoBehaviour
         {
             SaveManager.Instance?.AutoSave();
 
-            // 1. Телепортируем игрока
-            other.transform.position = teleportTarget.position;
-            Debug.Log($"✨ {other.name} телепортирован в {teleportTarget.name}");
+            Transform player = other.transform;
+            Vector3 destination = teleportTarget.position;
+            string targetName = teleportTarget.name;
 
-            // 2. Респавним врагов
-            if (respawnEnemies)
-            {
-                InvokeRespawn();
-            }
+            TeleportEffect.Play(
+                () =>
+                {
+                    player.position = destination;
+                    Debug.Log($"[Teleport2D] {player.name} teleported to {targetName}");
+
+                    if (respawnEnemies)
+                        InvokeRespawn();
+                },
+                null);
         }
     }
 
@@ -59,8 +64,8 @@ public class Teleport2D : MonoBehaviour
 
     System.Collections.IEnumerator RespawnWithDelay(EnemyRespawnManager mgr)
     {
-        yield return new WaitForSeconds(respawnDelay);
+        yield return new WaitForSecondsRealtime(respawnDelay);
         mgr.RespawnAllEnemies();
-        Debug.Log($"🔄 Враги респавнены (задержка {respawnDelay} сек)");
+        Debug.Log($"[Teleport2D] Enemies respawned after delay {respawnDelay}s");
     }
 }
