@@ -995,6 +995,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallCollision (2)
       objectReference: {fileID: 0}
+    - target: {fileID: 4059272348200261187, guid: 3fe106ca10b6c2348be86dcedd089a38, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -1338,8 +1342,7 @@ MonoBehaviour:
   joystickAlpha: 0.33
   joystickActiveAlpha: 0.66
   isFloating: 1
-  rollInputThreshold: 0.2
-  rollCooldown: 0.5
+  rollInputThreshold: 0.9
 --- !u!114 &93468229
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3166,7 +3169,7 @@ GameObject:
   m_Component:
   - component: {fileID: 192717647}
   - component: {fileID: 192717648}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallCollision2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -12349,8 +12352,7 @@ MonoBehaviour:
   joystickAlpha: 0.33
   joystickActiveAlpha: 0.66
   isFloating: 1
-  rollInputThreshold: 0.2
-  rollCooldown: 0.5
+  rollInputThreshold: 0.9
 --- !u!114 &584613713
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -12934,7 +12936,7 @@ GameObject:
   m_Component:
   - component: {fileID: 624837020}
   - component: {fileID: 624837021}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallCollisionHub
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -17334,6 +17336,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallCollision (3)
       objectReference: {fileID: 0}
+    - target: {fileID: 4059272348200261187, guid: 3fe106ca10b6c2348be86dcedd089a38, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -19084,7 +19090,7 @@ MonoBehaviour:
   walkSpeed: 2
   runSpeed: 5
   runDelay: 0.3
-  jumpForce: 12
+  jumpForce: 18
   maxJumps: 2
   attackComboResetTime: 1.5
   maxAttackAnimSpeed: 25
@@ -19099,10 +19105,13 @@ MonoBehaviour:
     m_Bits: 8
   groundCheckDistance: 0.1
   enableWallSlide: 1
-  wallSlideSpeed: 0.5
+  wallSlideSpeed: 1.5
   wallJumpForceX: 6
-  wallJumpForceY: 10
-  wallCheckDistance: 0.1
+  wallJumpForceY: 15
+  wallCheckDistance: 0.15
+  wallLayer:
+    serializedVersion: 2
+    m_Bits: 0
   slideDustPrefab: {fileID: 1399700508894817354, guid: eba7cf3733a848941a5a576923bc6f66, type: 3}
   playerStats: {fileID: 0}
   playerAudio: {fileID: 0}
@@ -19202,7 +19211,7 @@ Transform:
   m_GameObject: {fileID: 981941156}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 68.39, y: -50.69, z: 0}
+  m_LocalPosition: {x: -35.8, y: -4.9, z: 0}
   m_LocalScale: {x: 2.5, y: 2.5, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -19296,6 +19305,8 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   projectileSpeed: 8
   inheritProjectileDamage: 1
+  element: 0
+  elementalResistances: []
   currentHealth: 0
 --- !u!114 &981941166
 MonoBehaviour:
@@ -19317,6 +19328,8 @@ MonoBehaviour:
   lck: 5
   atkSpd: 0
   lethality: 0
+  element: 0
+  elementalResistances: []
   level: 1
   experience: 0
   gold: 500
@@ -20202,6 +20215,8 @@ MonoBehaviour:
   firePoint: {fileID: 0}
   projectileSpeed: 8
   inheritProjectileDamage: 1
+  element: 0
+  elementalResistances: []
   currentHealth: 0
 --- !u!114 &1036889372
 MonoBehaviour:
@@ -23590,6 +23605,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallCollision
       objectReference: {fileID: 0}
+    - target: {fileID: 4059272348200261187, guid: 3fe106ca10b6c2348be86dcedd089a38, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -23702,7 +23721,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1331859903}
   - component: {fileID: 1331859904}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: WallCollision1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -31826,6 +31845,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallCollision (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 4059272348200261187, guid: 3fe106ca10b6c2348be86dcedd089a38, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -32040,6 +32063,7 @@ MonoBehaviour:
   playerCombat: {fileID: 981941165}
   playerInventory: {fileID: 981941169}
   equipmentManager: {fileID: 0}
+  skillsManager: {fileID: 0}
   inventoryContainer: {fileID: 0}
   equippedText: {fileID: 0}
   discardButtonIcon: {fileID: 0}
@@ -38930,6 +38954,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: WallCollision3
       objectReference: {fileID: 0}
+    - target: {fileID: 4059272348200261187, guid: 3fe106ca10b6c2348be86dcedd089a38, type: 3}
+      propertyPath: m_Layer
+      value: 3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -39182,27 +39210,6 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 4669616562756305465, guid: 32f66933ffcc65a4cb1a183c06315831, type: 3}
   m_PrefabInstance: {fileID: 3693911572157809311}
   m_PrefabAsset: {fileID: 0}
---- !u!1660057539 &9223372036854775807
-SceneRoots:
-  m_ObjectHideFlags: 0
-  m_Roots:
-  - {fileID: 1616801619}
-  - {fileID: 1046201328}
-  - {fileID: 1962584589}
-  - {fileID: 788736649}
-  - {fileID: 981941162}
-  - {fileID: 1036889366}
-  - {fileID: 93468227}
-  - {fileID: 1205778131}
-  - {fileID: 1719471088}
-  - {fileID: 1201361954}
-  - {fileID: 763381073}
-  - {fileID: 1071018798}
-  - {fileID: 1716972747}
-  - {fileID: 378629450}
-  - {fileID: 1740176376}
-  - {fileID: 1798082227}
-
 --- !u!1 &9000000000000000001
 GameObject:
   m_ObjectHideFlags: 0
@@ -39230,7 +39237,6 @@ RectTransform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9000000000000000001}
-  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -39339,6 +39345,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::ThrowSkillButton
   button: {fileID: 9000000000000000003}
   throwAbility: {fileID: 9000000000000000007}
+  icon: {fileID: 0}
+  iconImage: {fileID: 0}
 --- !u!114 &9000000000000000007
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -39351,14 +39359,29 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 742899d650354355b58d00033c6c4222, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerThrowAbility
-  projectilePrefab: {fileID: 3000000000000000006, guid: aab6af0c17ed4585a4388cb7e1c2cadb, type: 3}
+  Data: {fileID: 11400000, guid: 1f94e40ff05846f480dde1c6fb9bb7c1, type: 2}
+  isSelected: 1
+  level: 1
+  talentPoints: 1
+  totalKills: 0
   firePoint: {fileID: 0}
-  fireOffset: {x: 0.5, y: 0.2}
-  cooldown: 1
-  baseDamage: 20
-  projectileSpeed: 12
-  projectileLifetime: 3
-  usePlayerStats: 1
-  useFacingDirection: 1
-  throwKey: 26
-  throwSound: {fileID: 0}
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 1616801619}
+  - {fileID: 1046201328}
+  - {fileID: 1962584589}
+  - {fileID: 788736649}
+  - {fileID: 981941162}
+  - {fileID: 1036889366}
+  - {fileID: 93468227}
+  - {fileID: 1205778131}
+  - {fileID: 1719471088}
+  - {fileID: 1201361954}
+  - {fileID: 763381073}
+  - {fileID: 1071018798}
+  - {fileID: 1716972747}
+  - {fileID: 378629450}
+  - {fileID: 1740176376}
+  - {fileID: 1798082227}

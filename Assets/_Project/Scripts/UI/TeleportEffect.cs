@@ -9,28 +9,21 @@ public class TeleportEffect : MonoBehaviour
 
     [Header("Overlay")]
     [SerializeField] private int sortOrder = 1000;
-    [SerializeField] private int textureSize = 256;
-    [SerializeField] private float starDensity = 0.05f;
+    [SerializeField] private Color fadeColor = Color.white;
 
     [Header("Effect")]
     [SerializeField] private float inDuration = 0.8f;
     [SerializeField] private float holdDuration = 0.8f;
     [SerializeField] private float outDuration = 1.5f;
     [SerializeField] private AnimationCurve intensityCurve = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
-    [SerializeField] private float maxSpeed = 14f;
-    [SerializeField] private float maxWarp = 7f;
-    [SerializeField] private float maxGlow = 2.5f;
-    [SerializeField] private float pixelSize = 24f;
-    [SerializeField] private Color colorA = new Color(0.0f, 1.0f, 0.95f, 1f);
-    [SerializeField] private Color colorB = new Color(1.0f, 0.25f, 0.85f, 1f);
 
     [Header("Time Freeze")]
     [SerializeField] private float timeScaleMin = 0.01f;
     [SerializeField] private AnimationCurve unfreezeEase = AnimationCurve.EaseInOut(0f, 0f, 1f, 1f);
 
     private GameObject root;
-    private RawImage rawImage;
-    private Material material;
+    private Image image;
+    private CanvasGroup canvasGroup;
     private bool isPlaying;
     private float originalTimeScale = 1f;
 
@@ -88,9 +81,8 @@ public class TeleportEffect : MonoBehaviour
         canvas.overrideSorting = true;
 
         root.AddComponent<CanvasScaler>();
-        root.AddComponent<GraphicRaycaster>();
 
-        GameObject imageGO = new GameObject("TunnelImage");
+        GameObject imageGO = new GameObject("FadeImage");
         imageGO.transform.SetParent(root.transform, false);
         RectTransform rt = imageGO.AddComponent<RectTransform>();
         rt.anchorMin = Vector2.zero;
@@ -98,43 +90,16 @@ public class TeleportEffect : MonoBehaviour
         rt.offsetMin = Vector2.zero;
         rt.offsetMax = Vector2.zero;
 
-        rawImage = imageGO.AddComponent<RawImage>();
-        rawImage.raycastTarget = true;
+        image = imageGO.AddComponent<Image>();
+        image.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 0f);
+        image.raycastTarget = false;
 
-        material = new Material(Shader.Find("Custom/TeleportTunnel"));
-        material.SetColor("_ColorA", colorA);
-        material.SetColor("_ColorB", colorB);
-        material.SetFloat("_PixelSize", pixelSize);
-        material.SetFloat("_Chromatic", 0.25f);
-        material.SetFloat("_Layers", 3f);
-        material.SetTexture("_MainTex", CreateStarTexture());
-
-        rawImage.material = material;
+        canvasGroup = imageGO.AddComponent<CanvasGroup>();
+        canvasGroup.alpha = 0f;
+        canvasGroup.blocksRaycasts = false;
     }
 
-    Texture2D CreateStarTexture()
-    {
-        Texture2D tex = new Texture2D(textureSize, textureSize, TextureFormat.RGBA32, false);
-        tex.filterMode = FilterMode.Point;
-        tex.wrapMode = TextureWrapMode.Repeat;
-
-        Color[] pixels = new Color[textureSize * textureSize];
-        for (int i = 0; i < pixels.Length; i++)
-            pixels[i] = Color.black;
-
-        System.Random rng = new System.Random(42);
-        int count = Mathf.Max(1, Mathf.RoundToInt(textureSize * textureSize * starDensity));
-        for (int i = 0; i < count; i++)
-        {
-            int x = rng.Next(0, textureSize);
-            int y = rng.Next(0, textureSize);
-            pixels[y * textureSize + x] = Color.white;
-        }
-
-        tex.SetPixels(pixels);
-        tex.Apply();
-        return tex;
-    }
+    // Custom star texture removed; using a simple CanvasGroup color fade instead.
 
     public static void Play(Action onMid = null, Action onComplete = null)
     {
@@ -205,14 +170,10 @@ public class TeleportEffect : MonoBehaviour
 
     void ApplyEffect(float curve)
     {
-        float timeY = Time.unscaledTime;
-        material.SetFloat("_TimeY", timeY);
-        material.SetFloat("_Speed", maxSpeed * curve);
-        material.SetFloat("_Warp", maxWarp * curve);
-        material.SetFloat("_Opacity", curve);
-        material.SetFloat("_Glow", 1f + (maxGlow - 1f) * curve);
-        material.SetColor("_ColorA", colorA);
-        material.SetColor("_ColorB", colorB);
+        if (canvasGroup != null)
+            canvasGroup.alpha = curve;
+        if (image != null)
+            image.color = new Color(fadeColor.r, fadeColor.g, fadeColor.b, 1f);
     }
 
     public bool IsPlaying => isPlaying;

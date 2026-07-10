@@ -9,7 +9,7 @@ public class PlayerController : MonoBehaviour
     public float walkSpeed = 2f;
     public float runSpeed = 5f;
     public float runDelay = 0.3f;
-    public float jumpForce = 10f;
+    public float jumpForce = 18f;
     public int maxJumps = 2;
 
     [Header("Attack")]
@@ -37,10 +37,11 @@ public class PlayerController : MonoBehaviour
 
     [Header("Wall Slide")]
     public bool enableWallSlide = true;
-    public float wallSlideSpeed = 0.5f;
+    public float wallSlideSpeed = 1.5f;
     public float wallJumpForceX = 6f;
-    public float wallJumpForceY = 10f;
-    public float wallCheckDistance = 0.1f;
+    public float wallJumpForceY = 15f;
+    public float wallCheckDistance = 0.15f;
+    public LayerMask wallLayer;
     public GameObject slideDustPrefab;
 
     [Header("Stats")]
@@ -152,7 +153,11 @@ public class PlayerController : MonoBehaviour
 
         if (!isBlocking)
         {
-            if (rawMoveInput > 0)
+            if (isWallSliding)
+            {
+                transform.localScale = new Vector3(wallDirection * Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
+            }
+            else if (rawMoveInput > 0)
                 transform.localScale = new Vector3(Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
             else if (rawMoveInput < 0)
                 transform.localScale = new Vector3(-Mathf.Abs(transform.localScale.x), transform.localScale.y, 1);
@@ -337,7 +342,7 @@ public class PlayerController : MonoBehaviour
         }
         else if (isWallSliding)
         {
-            rb.linearVelocity = new Vector2(rb.linearVelocity.x, Mathf.Max(rb.linearVelocity.y, -wallSlideSpeed));
+            rb.linearVelocity = new Vector2(0f, -wallSlideSpeed);
         }
         else
         {
@@ -373,20 +378,46 @@ public class PlayerController : MonoBehaviour
         if (!enableWallSlide || isGrounded) { isWallSliding = false; return; }
 
         Bounds bounds = col.bounds;
-        float facing = Mathf.Sign(transform.localScale.x);
-        Vector2 origin = new Vector2(facing > 0 ? bounds.max.x : bounds.min.x, bounds.center.y);
-        RaycastHit2D hit = Physics2D.Raycast(origin, Vector2.right * facing, wallCheckDistance, groundLayer);
+        float skin = 0.05f;
+        LayerMask mask = wallLayer == 0 ? groundLayer : wallLayer;
+        Vector2 origin = new Vector2(bounds.center.x, bounds.center.y);
+        float reach = bounds.extents.x + wallCheckDistance + skin;
 
-        bool touchingWall = hit.collider != null;
-        bool pushingIntoWall = Mathf.Sign(rawMoveInput) == facing && rawMoveInput != 0;
-        bool falling = rb.linearVelocity.y < 0;
+        RaycastHit2D hitRight = Physics2D.Raycast(origin, Vector2.right, reach, mask);
+        RaycastHit2D hitLeft = Physics2D.Raycast(origin, Vector2.left, reach, mask);
 
-        bool wasSliding = isWallSliding;
-        isWallSliding = touchingWall && pushingIntoWall && falling;
-        wallDirection = (int)facing;
+        if (hitRight.collider == col) hitRight = new RaycastHit2D();
+        if (hitLeft.collider == col) hitLeft = new RaycastHit2D();
 
-        if (isWallSliding && !wasSliding && slideDustPrefab != null)
-            Instantiate(slideDustPrefab, new Vector3(bounds.center.x + facing * bounds.extents.x, bounds.min.y, 0), Quaternion.identity);
+        int wallSide = 0;
+        if (hitRight.collider != null && hitLeft.collider != null)
+        {
+            float rightGap = hitRight.distance - bounds.extents.x;
+            float leftGap = hitLeft.distance - bounds.extents.x;
+            wallSide = rightGap <= leftGap ? 1 : -1;
+        }
+        else if (hitRight.collider != null)
+        {
+            wallSide = 1;
+        }
+        else if (hitLeft.collider != null)
+        {
+            wallSide = -1;
+        }
+
+        bool pushingIntoWall = rawMoveInput == 0 || Mathf.Sign(rawMoveInput) == wallSide;
+        bool falling = rb.linearVelocity.y <= 0;
+
+        isWallSliding = wallSide != 0 && pushingIntoWall && falling;
+        wallDirection = wallSide;
+    }
+
+    public void AE_SlideDust()
+    {
+        if (slideDustPrefab == null || col == null) return;
+        Bounds bounds = col.bounds;
+        int side = wallDirection != 0 ? wallDirection : 1;
+        Instantiate(slideDustPrefab, new Vector3(bounds.center.x + side * bounds.extents.x, bounds.min.y, 0), Quaternion.identity);
     }
 
     void UpdateWallSlide()

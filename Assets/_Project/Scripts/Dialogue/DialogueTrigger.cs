@@ -97,7 +97,7 @@ public class DialogueTrigger : MonoBehaviour
         }
     }
 
-    void StartDialogue()
+    public void StartDialogue()
     {
         if (DialogueSystem.Instance == null) return;
 

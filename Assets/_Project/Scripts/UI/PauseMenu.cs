@@ -21,6 +21,7 @@ public class PauseMenu : MonoBehaviour
     public AutoCombat playerCombat;
     public Inventory playerInventory;
     public EquipmentManager equipmentManager;
+    public PlayerSkillsManager skillsManager;
 
     [Header("Inventory Panel (auto-created if null)")]
     public Transform inventoryContainer;
@@ -49,6 +50,24 @@ public class PauseMenu : MonoBehaviour
 
     [Header("Skill Tree Panel (auto-created)")]
     private GameObject skillTreePanel;
+    private Transform skillTreeContent;
+    private TextMeshProUGUI skillTreeTalentPointsText;
+    private GameObject skillDescriptionPanel;
+    private TextMeshProUGUI skillDescriptionText;
+    private TextMeshProUGUI skillDescriptionStatsText;
+    private PlayerSkillInstance selectedSkill;
+
+    private class SkillTreeRow
+    {
+        public GameObject root;
+        public PlayerSkillInstance skill;
+        public Toggle selectedToggle;
+        public TextMeshProUGUI nameText;
+        public TextMeshProUGUI costText;
+        public Button plusButton;
+        public Image icon;
+    }
+    private readonly List<SkillTreeRow> skillTreeRows = new List<SkillTreeRow>();
 
     [Header("Pause Menu Audio")]
     public AudioClip pauseMenuMusic;
@@ -77,6 +96,7 @@ public class PauseMenu : MonoBehaviour
     private static PauseMenu instance;
 
     private bool isPaused;
+    public static bool IsPaused { get; private set; }
     private bool inventoryVisible;
     private readonly string[] statNames = { "HP", "ATK", "DEF", "SPD", "LCK" };
     private readonly List<GameObject> inventoryButtons = new List<GameObject>();
@@ -115,7 +135,11 @@ public class PauseMenu : MonoBehaviour
             playerCombat = FindAnyObjectByType<AutoCombat>();
         if (playerInventory == null)
             playerInventory = FindAnyObjectByType<Inventory>();
-        
+        if (skillsManager == null)
+            skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager != null)
+            skillsManager.OnChanged += OnSkillTreeChanged;
+
         // Если инвентаря нет, создаём его на Player GameObject
         if (playerInventory == null)
         {
@@ -147,7 +171,6 @@ public class PauseMenu : MonoBehaviour
         CreateSavePanel();
         CreateSaveButton();
 
-        CreateSkillTreePanel();
         CreateSkillTreeButton();
 
         CreateBestiaryPanel();
@@ -160,9 +183,17 @@ public class PauseMenu : MonoBehaviour
         Inventory.OnInventoryChanged += OnInventoryChangedHandler;
     }
 
+    void Start()
+    {
+        if (skillTreePanel == null)
+            CreateSkillTreePanel();
+    }
+
     void OnDestroy()
     {
         Inventory.OnInventoryChanged -= OnInventoryChangedHandler;
+        if (skillsManager != null)
+            skillsManager.OnChanged -= OnSkillTreeChanged;
         if (instance == this)
         {
             instance = null;
@@ -186,10 +217,19 @@ public class PauseMenu : MonoBehaviour
         if (equipmentManager == null)
             equipmentManager = FindAnyObjectByType<EquipmentManager>();
 
+        if (skillsManager != null)
+            skillsManager.OnChanged -= OnSkillTreeChanged;
+        skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager != null)
+            skillsManager.OnChanged += OnSkillTreeChanged;
+
+        RebuildSkillTreeRows();
+
         Debug.Log($"[PauseMenu] Scene loaded: {scene.name}, inventory items: {(playerInventory != null ? playerInventory.items.Count : 0)}");
 
         // Меню закрыто после смены сцены
         isPaused = false;
+        IsPaused = false;
         if (pausePanel != null)
             pausePanel.SetActive(false);
         Time.timeScale = 1f;
@@ -258,6 +298,7 @@ public class PauseMenu : MonoBehaviour
     public void TogglePause()
     {
         isPaused = !isPaused;
+        IsPaused = isPaused;
         pausePanel.SetActive(isPaused);
         Time.timeScale = isPaused ? 0f : 1f;
 
@@ -277,6 +318,7 @@ public class PauseMenu : MonoBehaviour
     public void Resume()
     {
         isPaused = false;
+        IsPaused = false;
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
         CloseAllSubPanels();
@@ -343,6 +385,7 @@ public class PauseMenu : MonoBehaviour
         if (settingsPanel != null) settingsPanel.SetActive(false);
         if (savePanel != null) savePanel.SetActive(false);
         if (skillTreePanel != null) skillTreePanel.SetActive(false);
+        CloseSkillDescription();
         if (bestiaryPanel != null) bestiaryPanel.SetActive(false);
         selectedSlot = -1;
         inventoryVisible = true;
@@ -441,13 +484,18 @@ public class PauseMenu : MonoBehaviour
     {
         HideInventory();
         if (skillTreePanel != null)
+        {
             skillTreePanel.SetActive(true);
+            CloseSkillDescription();
+            RefreshSkillTree();
+        }
     }
 
     public void CloseSkillTree()
     {
         if (skillTreePanel != null)
             skillTreePanel.SetActive(false);
+        CloseSkillDescription();
         ShowInventory();
     }
 
@@ -938,22 +986,133 @@ public class PauseMenu : MonoBehaviour
     void CreateSkillTreePanel()
     {
         if (pausePanel == null) return;
+        if (skillsManager == null)
+            skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
 
         skillTreePanel = new GameObject("SkillTreePanel");
         skillTreePanel.transform.SetParent(pausePanel.transform, false);
         RectTransform srt = skillTreePanel.AddComponent<RectTransform>();
-        srt.anchorMin = new Vector2(0.5f, 0.5f);
-        srt.anchorMax = new Vector2(0.5f, 0.5f);
-        srt.pivot = new Vector2(0.5f, 0.5f);
-        srt.anchoredPosition = Vector2.zero;
-        srt.sizeDelta = new Vector2(700, 500);
+        srt.anchorMin = Vector2.zero;
+        srt.anchorMax = Vector2.one;
+        srt.offsetMin = new Vector2(120, 120);
+        srt.offsetMax = new Vector2(-120, -120);
 
         Image bg = skillTreePanel.AddComponent<Image>();
         bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
 
-        VerticalLayoutGroup vlg = skillTreePanel.AddComponent<VerticalLayoutGroup>();
+        // Header
+        GameObject header = new GameObject("Header");
+        header.transform.SetParent(skillTreePanel.transform, false);
+        RectTransform headerRt = header.AddComponent<RectTransform>();
+        headerRt.anchorMin = new Vector2(0, 1);
+        headerRt.anchorMax = new Vector2(1, 1);
+        headerRt.pivot = new Vector2(0.5f, 1);
+        headerRt.anchoredPosition = Vector2.zero;
+        headerRt.sizeDelta = new Vector2(0, 70);
+        header.AddComponent<Image>().color = new Color(0.12f, 0.12f, 0.18f, 1f);
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(header.transform, false);
+        RectTransform titleRt = titleGO.AddComponent<RectTransform>();
+        titleRt.anchorMin = new Vector2(0, 0);
+        titleRt.anchorMax = new Vector2(1, 1);
+        titleRt.offsetMin = new Vector2(20, 0);
+        titleRt.offsetMax = new Vector2(-70, 0);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = "Дерево скиллов";
+        title.fontSize = 32;
+        title.alignment = TextAlignmentOptions.Left;
+        title.color = Color.white;
+
+        GameObject closeBtnGO = new GameObject("CloseButton");
+        closeBtnGO.transform.SetParent(header.transform, false);
+        RectTransform closeRt = closeBtnGO.AddComponent<RectTransform>();
+        closeRt.anchorMin = new Vector2(1, 0.5f);
+        closeRt.anchorMax = new Vector2(1, 0.5f);
+        closeRt.pivot = new Vector2(1, 0.5f);
+        closeRt.anchoredPosition = new Vector2(-10, 0);
+        closeRt.sizeDelta = new Vector2(50, 50);
+        Image closeImg = closeBtnGO.AddComponent<Image>();
+        closeImg.color = new Color(0.5f, 0.15f, 0.1f, 1f);
+        Button closeBtn = closeBtnGO.AddComponent<Button>();
+        closeBtn.targetGraphic = closeImg;
+        closeBtn.onClick.AddListener(CloseSkillTree);
+
+        GameObject closeTextGO = new GameObject("Text");
+        closeTextGO.transform.SetParent(closeBtnGO.transform, false);
+        RectTransform closeTextRt = closeTextGO.AddComponent<RectTransform>();
+        closeTextRt.anchorMin = Vector2.zero;
+        closeTextRt.anchorMax = Vector2.one;
+        closeTextRt.offsetMin = Vector2.zero;
+        closeTextRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI closeTxt = closeTextGO.AddComponent<TextMeshProUGUI>();
+        closeTxt.text = "X";
+        closeTxt.fontSize = 24;
+        closeTxt.alignment = TextAlignmentOptions.Center;
+        closeTxt.color = Color.white;
+
+        // Content
+        GameObject content = new GameObject("Content");
+        content.transform.SetParent(skillTreePanel.transform, false);
+        RectTransform contentRt = content.AddComponent<RectTransform>();
+        contentRt.anchorMin = new Vector2(0, 0);
+        contentRt.anchorMax = new Vector2(1, 1);
+        contentRt.offsetMin = new Vector2(20, 20);
+        contentRt.offsetMax = new Vector2(-20, -80);
+        VerticalLayoutGroup vlg = content.AddComponent<VerticalLayoutGroup>();
         vlg.spacing = 20;
-        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.padding = new RectOffset(10, 10, 10, 10);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        skillTreeContent = content.transform;
+
+        // Talent points label
+        GameObject pointsGO = new GameObject("TalentPointsLabel");
+        pointsGO.transform.SetParent(content.transform, false);
+        pointsGO.AddComponent<CanvasRenderer>();
+        skillTreeTalentPointsText = pointsGO.AddComponent<TextMeshProUGUI>();
+        skillTreeTalentPointsText.fontSize = 28;
+        skillTreeTalentPointsText.alignment = TextAlignmentOptions.Center;
+        skillTreeTalentPointsText.color = new Color(1f, 0.85f, 0.4f, 1f);
+        RectTransform pointsRt = pointsGO.GetComponent<RectTransform>();
+        pointsRt.sizeDelta = new Vector2(0, 50);
+
+        // Skill rows
+        if (skillsManager == null)
+            skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager != null)
+        {
+            foreach (PlayerSkillInstance skill in skillsManager.Skills)
+                CreateSkillRow(skill, content.transform);
+        }
+
+        CreateSkillDescriptionPopup();
+
+        skillTreePanel.SetActive(false);
+    }
+
+    void CreateSkillDescriptionPopup()
+    {
+        skillDescriptionPanel = new GameObject("SkillDescriptionPanel");
+        skillDescriptionPanel.transform.SetParent(skillTreePanel.transform, false);
+        RectTransform rt = skillDescriptionPanel.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = new Vector2(560, 380);
+
+        Image bg = skillDescriptionPanel.AddComponent<Image>();
+        bg.color = new Color(0.1f, 0.1f, 0.14f, 0.98f);
+
+        VerticalLayoutGroup vlg = skillDescriptionPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 15;
+        vlg.padding = new RectOffset(25, 25, 25, 25);
         vlg.childAlignment = TextAnchor.UpperCenter;
         vlg.childControlWidth = true;
         vlg.childControlHeight = false;
@@ -961,30 +1120,277 @@ public class PauseMenu : MonoBehaviour
         vlg.childForceExpandHeight = false;
 
         GameObject titleGO = new GameObject("Title");
-        titleGO.transform.SetParent(skillTreePanel.transform, false);
+        titleGO.transform.SetParent(skillDescriptionPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "Дерево скиллов";
-        title.fontSize = 48;
+        title.text = "Fireball";
+        title.fontSize = 36;
         title.alignment = TextAlignmentOptions.Center;
         title.color = Color.white;
         RectTransform titleRt = titleGO.GetComponent<RectTransform>();
-        titleRt.sizeDelta = new Vector2(0, 60);
+        titleRt.sizeDelta = new Vector2(0, 50);
 
-        GameObject hintGO = new GameObject("Hint");
-        hintGO.transform.SetParent(skillTreePanel.transform, false);
-        hintGO.AddComponent<CanvasRenderer>();
-        TextMeshProUGUI hint = hintGO.AddComponent<TextMeshProUGUI>();
-        hint.text = "Здесь будет дерево скиллов. Заполним позже.";
-        hint.fontSize = 28;
-        hint.alignment = TextAlignmentOptions.Center;
-        hint.color = new Color(0.8f, 0.8f, 0.8f, 1f);
-        RectTransform hintRt = hintGO.GetComponent<RectTransform>();
-        hintRt.sizeDelta = new Vector2(0, 60);
+        GameObject descGO = new GameObject("Description");
+        descGO.transform.SetParent(skillDescriptionPanel.transform, false);
+        descGO.AddComponent<CanvasRenderer>();
+        skillDescriptionText = descGO.AddComponent<TextMeshProUGUI>();
+        skillDescriptionText.fontSize = 24;
+        skillDescriptionText.alignment = TextAlignmentOptions.Center;
+        skillDescriptionText.color = new Color(0.85f, 0.85f, 0.85f, 1f);
+        RectTransform descRt = descGO.GetComponent<RectTransform>();
+        descRt.sizeDelta = new Vector2(0, 160);
 
-        CreateSmallButton(skillTreePanel.transform, "Закрыть", new Vector2(300, 60), CloseSkillTree);
+        GameObject statsGO = new GameObject("Stats");
+        statsGO.transform.SetParent(skillDescriptionPanel.transform, false);
+        statsGO.AddComponent<CanvasRenderer>();
+        skillDescriptionStatsText = statsGO.AddComponent<TextMeshProUGUI>();
+        skillDescriptionStatsText.fontSize = 26;
+        skillDescriptionStatsText.alignment = TextAlignmentOptions.Center;
+        skillDescriptionStatsText.color = new Color(1f, 0.85f, 0.4f, 1f);
+        RectTransform statsRt = statsGO.GetComponent<RectTransform>();
+        statsRt.sizeDelta = new Vector2(0, 60);
 
-        skillTreePanel.SetActive(false);
+        CreateSmallButton(skillDescriptionPanel.transform, "Закрыть", new Vector2(220, 55), CloseSkillDescription);
+
+        skillDescriptionPanel.SetActive(false);
+    }
+
+    void RebuildSkillTreeRows()
+    {
+        if (skillTreeContent == null) return;
+
+        foreach (var row in skillTreeRows)
+        {
+            if (row.root != null)
+                Destroy(row.root);
+        }
+        skillTreeRows.Clear();
+
+        if (skillsManager == null)
+            skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager == null) return;
+
+        foreach (PlayerSkillInstance skill in skillsManager.Skills)
+            CreateSkillRow(skill, skillTreeContent);
+
+        RefreshSkillTree();
+    }
+
+    void CreateSkillRow(PlayerSkillInstance skill, Transform parent)
+    {
+        if (skill == null || skill.Data == null) return;
+
+        GameObject rowGO = new GameObject($"{skill.Data.skillName}Row");
+        rowGO.transform.SetParent(parent, false);
+        RectTransform rowRt = rowGO.AddComponent<RectTransform>();
+        rowRt.sizeDelta = new Vector2(0, 90);
+        HorizontalLayoutGroup rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
+        rowHlg.spacing = 15;
+        rowHlg.padding = new RectOffset(15, 15, 10, 10);
+        rowHlg.childAlignment = TextAnchor.MiddleLeft;
+        rowHlg.childControlWidth = true;
+        rowHlg.childControlHeight = false;
+        rowHlg.childForceExpandWidth = false;
+        rowHlg.childForceExpandHeight = false;
+
+        // Selection toggle
+        GameObject toggleGO = new GameObject("SelectedToggle");
+        toggleGO.transform.SetParent(rowGO.transform, false);
+        RectTransform toggleRt = toggleGO.AddComponent<RectTransform>();
+        toggleRt.sizeDelta = new Vector2(40, 40);
+        LayoutElement toggleLe = toggleGO.AddComponent<LayoutElement>();
+        toggleLe.minWidth = 40f;
+        toggleLe.minHeight = 40f;
+        Image toggleBg = toggleGO.AddComponent<Image>();
+        toggleBg.color = new Color(0.2f, 0.2f, 0.2f, 0.9f);
+        Toggle toggle = toggleGO.AddComponent<Toggle>();
+        toggle.targetGraphic = toggleBg;
+        toggle.isOn = skill.IsSelected;
+
+        GameObject checkGO = new GameObject("Checkmark");
+        checkGO.transform.SetParent(toggleGO.transform, false);
+        RectTransform checkRt = checkGO.AddComponent<RectTransform>();
+        checkRt.anchorMin = Vector2.zero;
+        checkRt.anchorMax = Vector2.one;
+        checkRt.offsetMin = Vector2.zero;
+        checkRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI checkText = checkGO.AddComponent<TextMeshProUGUI>();
+        checkText.text = "✓";
+        checkText.fontSize = 28;
+        checkText.alignment = TextAlignmentOptions.Center;
+        checkText.color = new Color(0.2f, 0.95f, 0.25f, 1f);
+        toggle.graphic = checkText;
+
+        toggle.onValueChanged.AddListener((isOn) =>
+        {
+            if (isOn && skillsManager != null)
+                skillsManager.SelectSkill(skill);
+        });
+
+        Image rowImg = rowGO.AddComponent<Image>();
+        rowImg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Button rowBtn = rowGO.AddComponent<Button>();
+        rowBtn.targetGraphic = rowImg;
+
+        GameObject iconGO = new GameObject("Icon");
+        iconGO.transform.SetParent(rowGO.transform, false);
+        RectTransform iconRt = iconGO.AddComponent<RectTransform>();
+        iconRt.sizeDelta = new Vector2(70, 70);
+        LayoutElement iconLe = iconGO.AddComponent<LayoutElement>();
+        iconLe.minWidth = 70f;
+        iconLe.minHeight = 70f;
+        Image iconImg = iconGO.AddComponent<Image>();
+        iconImg.color = new Color(1f, 0.45f, 0f, 1f);
+
+        GameObject nameGO = new GameObject("NameLabel");
+        nameGO.transform.SetParent(rowGO.transform, false);
+        RectTransform nameRt = nameGO.AddComponent<RectTransform>();
+        nameRt.sizeDelta = new Vector2(0, 70);
+        nameGO.AddComponent<CanvasRenderer>();
+        LayoutElement nameLe = nameGO.AddComponent<LayoutElement>();
+        nameLe.flexibleWidth = 1f;
+        nameLe.minWidth = 140f;
+        nameLe.minHeight = 70f;
+        TextMeshProUGUI nameText = nameGO.AddComponent<TextMeshProUGUI>();
+        nameText.fontSize = 28;
+        nameText.alignment = TextAlignmentOptions.Left;
+        nameText.color = Color.white;
+        nameText.overflowMode = TextOverflowModes.Overflow;
+
+        GameObject costGO = new GameObject("CostLabel");
+        costGO.transform.SetParent(rowGO.transform, false);
+        RectTransform costRt = costGO.AddComponent<RectTransform>();
+        costRt.sizeDelta = new Vector2(100, 70);
+        costGO.AddComponent<CanvasRenderer>();
+        LayoutElement costLe = costGO.AddComponent<LayoutElement>();
+        costLe.minWidth = 100f;
+        costLe.minHeight = 70f;
+        TextMeshProUGUI costText = costGO.AddComponent<TextMeshProUGUI>();
+        costText.fontSize = 26;
+        costText.alignment = TextAlignmentOptions.Right;
+        costText.color = new Color(1f, 0.85f, 0.4f, 1f);
+        costText.overflowMode = TextOverflowModes.Overflow;
+
+        GameObject plusGO = new GameObject("PlusButton");
+        plusGO.transform.SetParent(rowGO.transform, false);
+        RectTransform plusRt = plusGO.AddComponent<RectTransform>();
+        plusRt.sizeDelta = new Vector2(80, 70);
+        LayoutElement plusLe = plusGO.AddComponent<LayoutElement>();
+        plusLe.minWidth = 80f;
+        plusLe.minHeight = 70f;
+        Image plusImg = plusGO.AddComponent<Image>();
+        plusImg.sprite = CreateCircleGradientSprite(64, new Color(0.25f, 0.95f, 0.35f, 1f), new Color(0.05f, 0.55f, 0.15f, 1f));
+        plusImg.type = Image.Type.Simple;
+        plusImg.preserveAspect = true;
+        Button plusBtn = plusGO.AddComponent<Button>();
+        plusBtn.targetGraphic = plusImg;
+
+        GameObject plusTextGO = new GameObject("Text");
+        plusTextGO.transform.SetParent(plusGO.transform, false);
+        RectTransform plusTextRt = plusTextGO.AddComponent<RectTransform>();
+        plusTextRt.anchorMin = Vector2.zero;
+        plusTextRt.anchorMax = Vector2.one;
+        plusTextRt.offsetMin = Vector2.zero;
+        plusTextRt.offsetMax = Vector2.zero;
+        TextMeshProUGUI plusText = plusTextGO.AddComponent<TextMeshProUGUI>();
+        plusText.text = "+";
+        plusText.fontSize = 48;
+        plusText.alignment = TextAlignmentOptions.Center;
+        plusText.color = Color.white;
+
+        SkillTreeRow row = new SkillTreeRow
+        {
+            root = rowGO,
+            skill = skill,
+            selectedToggle = toggle,
+            nameText = nameText,
+            costText = costText,
+            plusButton = plusBtn,
+            icon = iconImg
+        };
+        skillTreeRows.Add(row);
+
+        rowBtn.onClick.AddListener(() => OpenSkillDescription(row.skill));
+        plusBtn.onClick.AddListener(() =>
+        {
+            if (row.skill != null && row.skill.TryUpgrade())
+                RefreshSkillTree();
+        });
+    }
+
+    void RefreshSkillTree()
+    {
+        if (skillsManager == null) skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager == null) return;
+
+        int totalPoints = 0;
+        foreach (var s in skillsManager.Skills)
+            totalPoints += s.TalentPoints;
+
+        if (skillTreeTalentPointsText != null)
+            skillTreeTalentPointsText.text = $"Очки талантов: {totalPoints}";
+
+        foreach (var row in skillTreeRows)
+        {
+            if (row.skill == null || row.skill.Data == null) continue;
+            row.nameText.text = $"{row.skill.Data.skillName} Lv.{row.skill.Level}";
+            row.costText.text = $"{row.skill.GetUpgradeCost()} TP";
+            row.plusButton.interactable = row.skill.CanUpgrade();
+            if (row.skill.Data.icon != null)
+                row.icon.sprite = row.skill.Data.icon;
+            if (row.selectedToggle != null)
+                row.selectedToggle.SetIsOnWithoutNotify(row.skill.IsSelected);
+        }
+    }
+
+    void OpenSkillDescription(PlayerSkillInstance skill)
+    {
+        if (skill == null || skill.Data == null || skillDescriptionPanel == null) return;
+        selectedSkill = skill;
+
+        TextMeshProUGUI title = skillDescriptionPanel.transform.Find("Title")?.GetComponent<TextMeshProUGUI>();
+        if (title != null) title.text = skill.Data.skillName;
+
+        skillDescriptionText.text = skill.Data.description;
+        skillDescriptionStatsText.text = $"Урон: {skill.GetCurrentDamage()}\nПерезарядка: {skill.GetCurrentCooldown():F2} сек";
+        skillDescriptionPanel.SetActive(true);
+    }
+
+    void CloseSkillDescription()
+    {
+        if (skillDescriptionPanel != null)
+            skillDescriptionPanel.SetActive(false);
+    }
+
+    void OnSkillTreeChanged()
+    {
+        if (skillTreePanel != null && skillTreePanel.activeSelf)
+            RefreshSkillTree();
+    }
+
+    Sprite CreateCircleGradientSprite(int size, Color center, Color edge)
+    {
+        Texture2D tex = new Texture2D(size, size);
+        Vector2 centerPos = new Vector2(size / 2f, size / 2f);
+        float radius = size / 2f;
+        for (int y = 0; y < size; y++)
+        {
+            for (int x = 0; x < size; x++)
+            {
+                float dist = Vector2.Distance(new Vector2(x, y), centerPos);
+                if (dist > radius)
+                {
+                    tex.SetPixel(x, y, Color.clear);
+                }
+                else
+                {
+                    float t = dist / radius;
+                    tex.SetPixel(x, y, Color.Lerp(center, edge, t));
+                }
+            }
+        }
+        tex.Apply();
+        return Sprite.Create(tex, new Rect(0, 0, size, size), new Vector2(0.5f, 0.5f));
     }
 
     void CreateBestiaryPanel()

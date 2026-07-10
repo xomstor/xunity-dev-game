@@ -909,6 +909,10 @@ public class AutoCombat : MonoBehaviour
             
             // Отслеживаем убитого моба в статистике
             GameStatistics.Instance?.RecordEnemyKilled();
+
+            // Прокачка скиллов: очко таланта за каждые 10 убитых врагов
+            PlayerSkillsManager skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+            skillsManager?.RegisterKill();
         }
 
         if (team == CombatTeam.Player)

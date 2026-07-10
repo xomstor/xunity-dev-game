@@ -1,43 +1,20 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class PlayerThrowAbility : MonoBehaviour
+public class PlayerThrowAbility : PlayerSkillInstance
 {
-    [Header("Projectile")]
-    [Tooltip("Префаб с компонентом PlayerProjectile")]
-    public PlayerProjectile projectilePrefab;
-    [Tooltip("Точка вылета. Если null, берется transform.position + offset")]
+    [Header("References")]
+    [Tooltip("Точка вылета. Если null, берется transform.position + offset из SkillData")]
     public Transform firePoint;
-    [Tooltip("Смещение точки вылета относительно игрока, если firePoint не назначен")]
-    public Vector2 fireOffset = new Vector2(0.5f, 0.2f);
 
-    [Header("Skill Stats")]
-    public float cooldown = 1f;
-    public int baseDamage = 20;
-    public float projectileSpeed = 12f;
-    public float projectileLifetime = 3f;
-    public bool usePlayerStats = true;
-    public bool useFacingDirection = true;
-
-    [Header("Element")]
-    public ElementalType projectileElement = ElementalType.Fire;
-
-    [Header("Input")]
-    [Tooltip("Клавиша для броска (по умолчанию L). Можно вызывать TryUse() из UI/скриптов.")]
-    public Key throwKey = Key.L;
-
-    [Header("Audio")]
-    public AudioClip throwSound;
-
-    private float cooldownTimer;
     private PlayerController playerController;
-    private PlayerStats playerStats;
     private AudioSource audioSource;
+    private bool inputHeld;
 
-    void Awake()
+    protected override void Awake()
     {
+        base.Awake();
         playerController = GetComponent<PlayerController>();
-        playerStats = GetComponent<PlayerStats>();
         audioSource = GetComponent<AudioSource>();
         if (audioSource == null)
         {
@@ -46,24 +23,23 @@ public class PlayerThrowAbility : MonoBehaviour
         }
     }
 
-    void Update()
+    protected override void Update()
     {
-        if (cooldownTimer > 0f)
-            cooldownTimer -= Time.deltaTime;
+        base.Update();
+        if (Data == null) return;
 
         var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard[throwKey].wasPressedThisFrame)
-        {
+        if ((keyboard != null && keyboard[Data.throwKey].isPressed) || inputHeld)
             TryUse();
-        }
     }
 
-    public bool TryUse()
+    public override bool TryUse()
     {
+        if (Data == null) return false;
         if (cooldownTimer > 0f) return false;
-        if (projectilePrefab == null)
+        if (Data.projectilePrefab == null)
         {
-            Debug.LogWarning("[PlayerThrowAbility] projectilePrefab не назначен.");
+            Debug.LogWarning("[PlayerThrowAbility] projectilePrefab is not assigned in SkillData.");
             return false;
         }
         if (playerController != null && (playerController.IsInputBlocked || playerController.IsRolling || playerController.isBlocking)) return false;
@@ -74,77 +50,52 @@ public class PlayerThrowAbility : MonoBehaviour
 
         Vector3 spawnPos = firePoint != null
             ? firePoint.position
-            : (Vector3)(Vector2)transform.position + (Vector3)(direction * fireOffset.x + Vector2.up * fireOffset.y);
+            : (Vector3)(Vector2)transform.position + (Vector3)(direction * Data.fireOffset.x + Vector2.up * Data.fireOffset.y);
 
-        PlayerProjectile projectile = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-        projectile.element = projectileElement;
+        PlayerProjectile projectile = Instantiate(Data.projectilePrefab, spawnPos, Quaternion.identity);
+        projectile.element = Data.projectileElement;
+        projectile.Initialize(direction, GetCurrentDamage(), Data.projectileSpeed, Data.projectileLifetime);
 
-        int damage = baseDamage;
-        if (usePlayerStats && playerStats != null)
-        {
-            bool isCrit;
-            damage = playerStats.GetDamage(out isCrit, 0);
-        }
+        if (Data.muzzleEffectPrefab != null)
+            Instantiate(Data.muzzleEffectPrefab, spawnPos, Quaternion.identity);
+        if (Data.projectileEffectPrefab != null)
+            AttachEffect(projectile.transform);
 
-        projectile.Initialize(direction, damage, projectileSpeed, projectileLifetime);
+        if (Data.castSound != null && audioSource != null)
+            audioSource.PlayOneShot(Data.castSound);
 
-        if (throwSound != null && audioSource != null)
-            audioSource.PlayOneShot(throwSound);
-
-        cooldownTimer = cooldown;
+        cooldownTimer = GetCurrentCooldown();
         return true;
     }
 
-    public bool TryUse(Vector2 direction)
+    void AttachEffect(Transform projectileTransform)
     {
-        if (cooldownTimer > 0f) return false;
-        if (projectilePrefab == null) return false;
-
-        Vector3 spawnPos = firePoint != null
-            ? firePoint.position
-            : (Vector3)(Vector2)transform.position + (Vector3)(direction * fireOffset.x + Vector2.up * fireOffset.y);
-
-        PlayerProjectile projectile = Instantiate(projectilePrefab, spawnPos, Quaternion.identity);
-        projectile.element = projectileElement;
-
-        int damage = baseDamage;
-        if (usePlayerStats && playerStats != null)
-        {
-            bool isCrit;
-            damage = playerStats.GetDamage(out isCrit, 0);
-        }
-
-        projectile.Initialize(direction, damage, projectileSpeed, projectileLifetime);
-
-        if (throwSound != null && audioSource != null)
-            audioSource.PlayOneShot(throwSound);
-
-        cooldownTimer = cooldown;
-        return true;
+        GameObject effect = Instantiate(Data.projectileEffectPrefab, projectileTransform);
+        effect.transform.localPosition = Vector3.zero;
+        effect.transform.localRotation = Quaternion.identity;
     }
 
     Vector2 GetThrowDirection()
     {
-        if (playerController != null)
-        {
-            VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
-            if (joystick != null && joystick.IsUsable)
-            {
-                Vector2 joy = joystick.GetInput();
-                if (joy.magnitude > 0.5f)
-                    return joy.normalized;
-            }
+        if (playerController == null || Data == null) return Vector2.right;
 
-            float move = playerController.MoveInput;
-            if (move != 0f)
-                return new Vector2(Mathf.Sign(move), 0f);
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        if (joystick != null && joystick.IsUsable)
+        {
+            Vector2 joy = joystick.GetInput();
+            if (joy.magnitude > 0.5f)
+                return joy.normalized;
         }
 
-        if (useFacingDirection)
-        {
+        float move = playerController.MoveInput;
+        if (move != 0f)
+            return new Vector2(Mathf.Sign(move), 0f);
+
+        if (Data.useFacingDirection)
             return new Vector2(Mathf.Sign(transform.localScale.x), 0f);
-        }
 
         return Vector2.right;
     }
+
+    public void SetInputHeld(bool held) => inputHeld = held;
 }

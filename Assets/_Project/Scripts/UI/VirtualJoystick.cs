@@ -21,10 +21,8 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     public bool isFloating = false;
 
     [Header("Roll on Over-Pull")]
-    [Tooltip("Насколько нужно оттянуть джойстик (0 = не работает, 1 = до края). 0.2 = чуть от центра.")]
-    [Range(0f, 1f)] public float rollInputThreshold = 0.2f;
-    [Tooltip("Кулдаун переката в секундах")]
-    public float rollCooldown = 0f;
+    [Tooltip("Насколько нужно оттянуть джойстик (0 = не работает, 1 = до края). 0.9 = почти до края.")]
+    [Range(0f, 1f)] public float rollInputThreshold = 0.9f;
 
     private Vector2 input = Vector2.zero;
     private Camera uiCamera;
@@ -33,7 +31,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     private bool wasCrouching = false;
     private bool rollCharged = false;
     private Vector2 rollDirection = Vector2.zero;
-    private float rollCooldownTimer = 0f;
     private float maxDragMagnitude = 0f;
     private Vector2 originalBackgroundPos;
     private Vector2 originalBackgroundSize;
@@ -107,9 +104,6 @@ public class VirtualJoystick : MonoBehaviour, IPointerDownHandler, IDragHandler,
     // <-- Добавляем Update для непрерывной отправки ввода
     void Update()
     {
-        if (rollCooldownTimer > 0)
-            rollCooldownTimer -= Time.deltaTime;
-
         if (isHolding && player != null)
         {
             ApplyInputActions();

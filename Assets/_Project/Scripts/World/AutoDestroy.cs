@@ -8,4 +8,9 @@ public class AutoDestroy : MonoBehaviour
     {
         Destroy(gameObject, delay);
     }
+
+    public void destroyEvent()
+    {
+        Destroy(gameObject);
+    }
 }
