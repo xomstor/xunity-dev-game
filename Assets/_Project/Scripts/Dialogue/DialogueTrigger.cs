@@ -54,7 +54,6 @@ public class DialogueTrigger : MonoBehaviour
     [TextArea] public string[] questProgressLines;
     [TextArea] public string[] questAlreadyDoneLines;
 
-    private bool isPlayerNearby;
     private bool questCompleted;
     private bool questStarted;
     private NPCAudio npcAudio;
@@ -72,7 +71,6 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = true;
             if (interactPrompt != null)
                 interactPrompt.SetActive(true);
         }
@@ -82,18 +80,8 @@ public class DialogueTrigger : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = false;
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
-        }
-    }
-
-    void Update()
-    {
-        var keyboard = Keyboard.current;
-        if (isPlayerNearby && keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            StartDialogue();
         }
     }
 

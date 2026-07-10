@@ -15,7 +15,6 @@ public class BossZoneNPC : MonoBehaviour
     [Header("NPC Tags")]
     public string targetTag = "Player";
 
-    private bool isPlayerNearby;
     private bool dialoguePlayed;
     private BoxCollider2D zoneCollider;
 
@@ -35,7 +34,6 @@ public class BossZoneNPC : MonoBehaviour
     {
         if (other.CompareTag(targetTag))
         {
-            isPlayerNearby = true;
             if (interactPrompt != null)
                 interactPrompt.SetActive(true);
         }
@@ -45,20 +43,9 @@ public class BossZoneNPC : MonoBehaviour
     {
         if (other.CompareTag(targetTag))
         {
-            isPlayerNearby = false;
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
         }
-    }
-
-    void Update()
-    {
-        if (!isPlayerNearby || DialogueSystem.IsDialogueActive)
-            return;
-
-        var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
-            StartDialogue();
     }
 
     public void StartDialogue()
@@ -72,6 +59,7 @@ public class BossZoneNPC : MonoBehaviour
         if (data.playOnlyOnce && dialoguePlayed)
             return;
 
+        FreezePlayer();
         dialoguePlayed = true;
 
         if (DialogueSystem.Instance == null)
@@ -88,6 +76,18 @@ public class BossZoneNPC : MonoBehaviour
         StartCoroutine(WaitForDialogueThenTeleport());
     }
 
+    void FreezePlayer()
+    {
+        PlayerController pc = FindAnyObjectByType<PlayerController>();
+        if (pc != null)
+        {
+            pc.ResetInputAndVelocity();
+            pc.LockInput(0.5f);
+        }
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
+    }
+
     IEnumerator WaitForDialogueThenTeleport()
     {
         yield return new WaitUntil(() => !DialogueSystem.IsDialogueActive);
@@ -97,6 +97,10 @@ public class BossZoneNPC : MonoBehaviour
     void Teleport()
     {
         SaveManager.Instance?.AutoSave();
+
+        PlayerController pc = FindAnyObjectByType<PlayerController>();
+        pc?.ResetInputAndVelocity();
+        pc?.LockInput(2f);
 
         VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
         joystick?.ForceReset();
@@ -125,6 +129,15 @@ public class BossZoneNPC : MonoBehaviour
             player.transform.position = spawnPoint.transform.position;
         else
             Debug.LogError($"[BossZoneNPC] Spawn failed. SpawnPoint='{pendingSpawnPointName}' found={spawnPoint != null}, player found={player != null}");
+
+        PlayerController pc = player != null ? player.GetComponent<PlayerController>() : null;
+        if (pc != null)
+        {
+            pc.UnlockInput();
+            pc.ResetInputAndVelocity();
+        }
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
 
         pendingSpawnPointName = null;
     }

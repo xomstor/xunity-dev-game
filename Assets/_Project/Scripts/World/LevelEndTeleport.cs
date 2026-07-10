@@ -50,8 +50,23 @@ public class LevelEndTeleport : MonoBehaviour
     {
         if (other.CompareTag(targetTag) && !dialogShown && triggerTime >= enterGracePeriod)
         {
+            FreezePlayer(other);
             ShowChoiceDialogue();
         }
+    }
+
+    void FreezePlayer(Collider2D playerCollider)
+    {
+        PlayerController pc = playerCollider.GetComponent<PlayerController>();
+        if (pc == null) pc = FindAnyObjectByType<PlayerController>();
+        if (pc != null)
+        {
+            pc.ResetInputAndVelocity();
+            pc.LockInput(0.5f);
+        }
+
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
     }
 
     void OnTriggerExit2D(Collider2D other)
@@ -193,6 +208,15 @@ public class LevelEndTeleport : MonoBehaviour
         else
             Debug.LogError($"LevelEndTeleport: scene spawn failed. SpawnPoint='{spawnPointName}' found={spawnPoint != null}, player found={player != null}");
 
+        PlayerController pc = player != null ? player.GetComponent<PlayerController>() : null;
+        if (pc != null)
+        {
+            pc.UnlockInput();
+            pc.ResetInputAndVelocity();
+        }
+        VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+        joystick?.ForceReset();
+
         EnemyRespawnManager.Instance?.RespawnAllEnemies();
         pendingSceneSpawnPoint = null;
     }
@@ -240,6 +264,15 @@ public class LevelEndTeleport : MonoBehaviour
                 }
 
                 player.transform.position = spawnPoint.transform.position;
+
+                PlayerController pc = player.GetComponent<PlayerController>();
+                if (pc != null)
+                {
+                    pc.UnlockInput();
+                    pc.ResetInputAndVelocity();
+                }
+                VirtualJoystick joystick = FindAnyObjectByType<VirtualJoystick>();
+                joystick?.ForceReset();
 
                 if (respawnEnemiesOnTeleport)
                     EnemyRespawnManager.Instance?.RespawnAllEnemies();

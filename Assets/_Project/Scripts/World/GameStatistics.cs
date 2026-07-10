@@ -122,14 +122,16 @@ public class GameStatistics : MonoBehaviour
 
     public string GetStatisticsText()
     {
-        return $"СТАТИСТИКА\n\n" +
-               $"Шаги: {steps}\n" +
-               $"Дистанция: {distanceTraveled:F1} м\n" +
-               $"Атак: {attacksPerformed}\n" +
-               $"Убито мобов: {enemiesKilled}\n" +
-               $"Получено урона: {damageReceived}\n" +
-               $"Потрачено золота: {goldSpent}\n" +
-               $"Прыжков: {jumpsPerformed}\n" +
-               $"Смертей: {deathCount}";
+        string Loc(string key) => LocalizationManager.GetText(key);
+
+        return $"{Loc("Statistics.Title")}\n\n" +
+               $"{Loc("Statistics.Content.Steps")}: {steps}\n" +
+               $"{Loc("Statistics.Content.Distance")}: {distanceTraveled:F1} {Loc("Statistics.Content.Meters")}\n" +
+               $"{Loc("Statistics.Content.Attacks")}: {attacksPerformed}\n" +
+               $"{Loc("Statistics.Content.EnemiesKilled")}: {enemiesKilled}\n" +
+               $"{Loc("Statistics.Content.DamageReceived")}: {damageReceived}\n" +
+               $"{Loc("Statistics.Content.GoldSpent")}: {goldSpent}\n" +
+               $"{Loc("Statistics.Content.Jumps")}: {jumpsPerformed}\n" +
+               $"{Loc("Statistics.Content.Deaths")}: {deathCount}";
     }
 }

@@ -34,7 +34,6 @@ public class QuestNPC : MonoBehaviour
     [Header("UI")]
     public GameObject interactPrompt;
 
-    private bool isPlayerNearby;
     private bool questCompleted;
     private NPCAudio npcAudio;
 
@@ -51,7 +50,6 @@ public class QuestNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = true;
             if (interactPrompt != null)
                 interactPrompt.SetActive(true);
         }
@@ -61,22 +59,12 @@ public class QuestNPC : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = false;
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
         }
     }
 
-    void Update()
-    {
-        var keyboard = Keyboard.current;
-        if (isPlayerNearby && keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            TryStartQuestDialogue();
-        }
-    }
-
-    void TryStartQuestDialogue()
+    public void TryStartQuestDialogue()
     {
         if (npcAudio != null)
             npcAudio.PlayDialogueStart();

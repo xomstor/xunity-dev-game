@@ -105,6 +105,17 @@ public class HealthBarUI : MonoBehaviour
         bool useHeart = PlayerPrefs.GetInt(HealthBarStyleKey, 0) == 1;
         bool hasHeart = heartIcon != null && heartOutlineSprite != null && heartFill != null && heartInsideSprite != null;
 
+        if (useHeart && !hasHeart)
+        {
+            Debug.LogWarning($"[HealthBarUI] {name}: Heart style requested but assets missing. outline={heartOutlineSprite != null}, inside={heartInsideSprite != null}, icon={heartIcon != null}, fill={heartFill != null}. Falling back to bar.");
+            useHeart = false;
+        }
+
+        if (useHeart && hasHeart)
+        {
+            Debug.Log($"[HealthBarUI] {name}: Heart style active. outline={heartOutlineSprite != null}, inside={heartInsideSprite != null}, icon={heartIcon != null}, fill={heartFill != null}, shader={heartMaterial != null}");
+        }
+
         if (backgroundImage != null)
             backgroundImage.enabled = !useHeart;
         if (healthBarFill != null)

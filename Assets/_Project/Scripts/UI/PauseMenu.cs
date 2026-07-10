@@ -93,6 +93,9 @@ public class PauseMenu : MonoBehaviour
     private Image descriptionIcon;
     private TextMeshProUGUI descriptionTitle;
 
+    [Header("Language Panel (auto-created)")]
+    private GameObject languagePanel;
+
     private static PauseMenu instance;
 
     private bool isPaused;
@@ -101,6 +104,8 @@ public class PauseMenu : MonoBehaviour
     private readonly string[] statNames = { "HP", "ATK", "DEF", "SPD", "LCK" };
     private readonly List<GameObject> inventoryButtons = new List<GameObject>();
     private int selectedInvIndex;
+
+    string Loc(string key) => LocalizationManager.GetText(key);
 
     void Awake()
     {
@@ -118,6 +123,7 @@ public class PauseMenu : MonoBehaviour
         }
         instance = this;
         DontDestroyOnLoad(gameObject);
+        LocalizationManager.OnLanguageChanged += OnLanguageChanged;
 
         // Делаем Canvas с UI постоянным между сценами (меню, HUD, цифры урона)
         if (pausePanel != null)
@@ -194,6 +200,7 @@ public class PauseMenu : MonoBehaviour
         Inventory.OnInventoryChanged -= OnInventoryChangedHandler;
         if (skillsManager != null)
             skillsManager.OnChanged -= OnSkillTreeChanged;
+        LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
         if (instance == this)
         {
             instance = null;
@@ -304,12 +311,14 @@ public class PauseMenu : MonoBehaviour
 
         if (isPaused)
         {
+            HideHUD();
             UpdateStatsDisplay();
             RefreshInventory();
             PlayPauseMusic();
         }
         else
         {
+            ShowHUD();
             CloseAllSubPanels();
             StopPauseMusic();
         }
@@ -321,6 +330,7 @@ public class PauseMenu : MonoBehaviour
         IsPaused = false;
         pausePanel.SetActive(false);
         Time.timeScale = 1f;
+        ShowHUD();
         CloseAllSubPanels();
         StopPauseMusic();
     }
@@ -383,12 +393,55 @@ public class PauseMenu : MonoBehaviour
     void CloseAllSubPanels()
     {
         if (settingsPanel != null) settingsPanel.SetActive(false);
+        if (languagePanel != null) languagePanel.SetActive(false);
         if (savePanel != null) savePanel.SetActive(false);
         if (skillTreePanel != null) skillTreePanel.SetActive(false);
         CloseSkillDescription();
         if (bestiaryPanel != null) bestiaryPanel.SetActive(false);
         selectedSlot = -1;
         inventoryVisible = true;
+    }
+
+    private readonly List<GameObject> hiddenHUD = new List<GameObject>();
+
+    void HideHUD()
+    {
+        hiddenHUD.Clear();
+
+        foreach (HealthBarUI hb in FindObjectsByType<HealthBarUI>(FindObjectsInactive.Exclude))
+        {
+            if (hb != null && hb.gameObject.activeSelf)
+            {
+                hiddenHUD.Add(hb.gameObject);
+                hb.gameObject.SetActive(false);
+            }
+        }
+
+        foreach (ThrowSkillButton btn in FindObjectsByType<ThrowSkillButton>(FindObjectsInactive.Exclude))
+        {
+            if (btn != null && btn.gameObject.activeSelf)
+            {
+                hiddenHUD.Add(btn.gameObject);
+                btn.gameObject.SetActive(false);
+            }
+        }
+
+        BlockButton blockBtn = FindAnyObjectByType<BlockButton>();
+        if (blockBtn != null && blockBtn.gameObject.activeSelf)
+        {
+            hiddenHUD.Add(blockBtn.gameObject);
+            blockBtn.gameObject.SetActive(false);
+        }
+    }
+
+    void ShowHUD()
+    {
+        foreach (GameObject go in hiddenHUD)
+        {
+            if (go != null)
+                go.SetActive(true);
+        }
+        hiddenHUD.Clear();
     }
 
     public void QuitGame()
@@ -430,6 +483,132 @@ public class PauseMenu : MonoBehaviour
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
         ShowInventory();
+    }
+
+    public void OpenLanguagePanel()
+    {
+        HideInventory();
+        if (languagePanel == null)
+            CreateLanguagePanel();
+        if (languagePanel != null)
+            languagePanel.SetActive(true);
+    }
+
+    public void CloseLanguagePanel()
+    {
+        if (languagePanel != null)
+            languagePanel.SetActive(false);
+        ShowInventory();
+    }
+
+    void CreateLanguagePanel()
+    {
+        if (pausePanel == null) return;
+
+        languagePanel = new GameObject("LanguagePanel");
+        languagePanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform rt = languagePanel.AddComponent<RectTransform>();
+        rt.anchorMin = new Vector2(0.5f, 0.5f);
+        rt.anchorMax = new Vector2(0.5f, 0.5f);
+        rt.pivot = new Vector2(0.5f, 0.5f);
+        rt.anchoredPosition = Vector2.zero;
+        rt.sizeDelta = new Vector2(420, 480);
+
+        Image bg = languagePanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = languagePanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 20;
+        vlg.padding = new RectOffset(30, 30, 30, 30);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(languagePanel.transform, false);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = Loc("Language.Title");
+        titleGO.AddComponent<LocalizedText>().key = "Language.Title";
+        title.fontSize = 44;
+        title.alignment = TextAlignmentOptions.Center;
+        title.color = Color.white;
+        RectTransform titleRt = titleGO.GetComponent<RectTransform>();
+        titleRt.sizeDelta = new Vector2(0, 60);
+
+        CreateLanguageButton("Language.Russian", "ru");
+        CreateLanguageButton("Language.English", "en");
+        CreateLanguageButton("Language.Ukrainian", "ua");
+
+        CreateSmallButton(languagePanel.transform, "Common.Close", new Vector2(300, 60), CloseLanguagePanel, true);
+
+        languagePanel.SetActive(false);
+    }
+
+    void CreateLanguageButton(string key, string code)
+    {
+        GameObject btnGO = new GameObject(key);
+        btnGO.transform.SetParent(languagePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.color = new Color(0.2f, 0.45f, 0.65f, 0.95f);
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        string capturedCode = code;
+        btn.onClick.AddListener(() => OnLanguageSelected(capturedCode));
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.sizeDelta = new Vector2(0, 70);
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(btnGO.transform, false);
+        textGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+        text.text = Loc(key);
+        text.fontSize = 36;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        LocalizedText loc = textGO.AddComponent<LocalizedText>();
+        loc.key = key;
+        RectTransform textRt = textGO.GetComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+    }
+
+    void OnLanguageSelected(string code)
+    {
+        LocalizationManager.Instance?.SetLanguage(code);
+        CloseLanguagePanel();
+    }
+
+    void OnLanguageChanged()
+    {
+        RefreshActivePanels();
+    }
+
+    void RefreshActivePanels()
+    {
+        if (settingsPanel != null && settingsPanel.activeSelf)
+        {
+            if (floatingJoystickToggle != null)
+                floatingJoystickToggle.isOn = PlayerPrefs.GetInt("FloatingJoystick", 0) == 1;
+            if (heartStyleToggle != null)
+                heartStyleToggle.isOn = PlayerPrefs.GetInt(HealthBarUI.HealthBarStyleKey, 0) == 1;
+        }
+        if (savePanel != null && savePanel.activeSelf)
+            RefreshSlotButtons();
+        if (skillTreePanel != null && skillTreePanel.activeSelf)
+            RefreshSkillTree();
+        if (bestiaryPanel != null && bestiaryPanel.activeSelf)
+            RefreshBestiary();
+        if (statisticsPanel != null && statisticsPanel.activeSelf)
+            RefreshStatistics();
+        if (inventoryVisible)
+            RefreshInventory();
+        UpdateStatsDisplay();
     }
 
     public void OpenSavePanel()
@@ -572,7 +751,8 @@ public class PauseMenu : MonoBehaviour
         titleGO.transform.SetParent(settingsPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "Настройки";
+        title.text = Loc("Settings.Title");
+        titleGO.AddComponent<LocalizedText>().key = "Settings.Title";
         title.fontSize = 48;
         title.alignment = TextAlignmentOptions.Center;
         title.color = Color.white;
@@ -608,7 +788,8 @@ public class PauseMenu : MonoBehaviour
         labelGO.transform.SetParent(toggleGO.transform, false);
         labelGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI label = labelGO.AddComponent<TextMeshProUGUI>();
-        label.text = "Плавающий джойстик";
+        label.text = Loc("Settings.FloatingJoystick");
+        labelGO.AddComponent<LocalizedText>().key = "Settings.FloatingJoystick";
         label.fontSize = 36;
         label.alignment = TextAlignmentOptions.Left;
         label.color = Color.white;
@@ -650,7 +831,8 @@ public class PauseMenu : MonoBehaviour
         heartLabelGO.transform.SetParent(heartToggleGO.transform, false);
         heartLabelGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI heartLabel = heartLabelGO.AddComponent<TextMeshProUGUI>();
-        heartLabel.text = "Сердечки вместо полосок";
+        heartLabel.text = Loc("Settings.HeartStyle");
+        heartLabelGO.AddComponent<LocalizedText>().key = "Settings.HeartStyle";
         heartLabel.fontSize = 36;
         heartLabel.alignment = TextAlignmentOptions.Left;
         heartLabel.color = Color.white;
@@ -728,7 +910,8 @@ public class PauseMenu : MonoBehaviour
         camOffsetYSlider.onValueChanged.AddListener(OnCameraOffsetYChanged);
         */
 
-        CreateSmallButton(settingsPanel.transform, "Закрыть", new Vector2(300, 60), CloseSettings);
+        CreateSmallButton(settingsPanel.transform, "Settings.Language", new Vector2(300, 60), OpenLanguagePanel, true);
+        CreateSmallButton(settingsPanel.transform, "Common.Close", new Vector2(300, 60), CloseSettings, true);
 
         settingsPanel.SetActive(false);
     }
@@ -861,7 +1044,8 @@ public class PauseMenu : MonoBehaviour
         titleGO.transform.SetParent(savePanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "Сохранение / Загрузка";
+        title.text = Loc("SavePanel.Title");
+        titleGO.AddComponent<LocalizedText>().key = "SavePanel.Title";
         title.fontSize = 44;
         title.alignment = TextAlignmentOptions.Center;
         title.color = Color.white;
@@ -887,7 +1071,7 @@ public class PauseMenu : MonoBehaviour
             textGO.transform.SetParent(slotGO.transform, false);
             textGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-            text.text = isAuto ? "Автосохранение" : $"Слот {i}";
+            text.text = isAuto ? Loc("SavePanel.AutoSave") : string.Format(Loc("SavePanel.Slot"), i);
             text.fontSize = 30;
             text.alignment = TextAlignmentOptions.Center;
             text.color = isAuto ? new Color(0.6f, 0.9f, 1f) : Color.white;
@@ -905,17 +1089,18 @@ public class PauseMenu : MonoBehaviour
         infoGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI infoText = infoGO.AddComponent<TextMeshProUGUI>();
         infoText.name = "SaveInfoText";
-        infoText.text = "Выберите слот";
+        infoText.text = Loc("Common.SelectSlot");
+        infoText.gameObject.AddComponent<LocalizedText>().key = "Common.SelectSlot";
         infoText.fontSize = 24;
         infoText.alignment = TextAlignmentOptions.Center;
         infoText.color = new Color(0.8f, 0.8f, 0.8f, 1f);
         RectTransform infoRt = infoGO.GetComponent<RectTransform>();
         infoRt.sizeDelta = new Vector2(0, 40);
 
-        CreateSmallButton(savePanel.transform, "Сохранить", new Vector2(220, 55), SaveSelectedSlot);
-        CreateSmallButton(savePanel.transform, "Загрузить", new Vector2(220, 55), LoadSelectedSlot);
-        CreateSmallButton(savePanel.transform, "Удалить", new Vector2(220, 55), DeleteSelectedSlot);
-        CreateSmallButton(savePanel.transform, "Закрыть", new Vector2(220, 55), CloseSavePanel);
+        CreateSmallButton(savePanel.transform, "SavePanel.Save", new Vector2(220, 55), SaveSelectedSlot, true);
+        CreateSmallButton(savePanel.transform, "SavePanel.Load", new Vector2(220, 55), LoadSelectedSlot, true);
+        CreateSmallButton(savePanel.transform, "SavePanel.Delete", new Vector2(220, 55), DeleteSelectedSlot, true);
+        CreateSmallButton(savePanel.transform, "Common.Close", new Vector2(220, 55), CloseSavePanel, true);
 
         savePanel.SetActive(false);
     }
@@ -933,8 +1118,9 @@ public class PauseMenu : MonoBehaviour
             int realSlot = isAuto ? SaveManager.AutoSaveSlot : i;
             bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(realSlot);
             bool isSelected = selectedSlot == i;
-            string label = isAuto ? "Автосохранение" : $"Слот {i}";
-            text.text = $"{label} {(hasSave ? "[есть]" : "[пусто]")}{(isSelected ? " <<" : "")}";
+            string label = isAuto ? Loc("SavePanel.AutoSave") : string.Format(Loc("SavePanel.Slot"), i);
+            string state = hasSave ? Loc("Common.Yes") : Loc("Common.No");
+            text.text = $"{label} {state}{(isSelected ? " <<" : "")}";
             Image img = slotButtons[i].GetComponent<Image>();
             if (isSelected)
                 img.color = new Color(0.2f, 0.5f, 0.4f, 0.9f);
@@ -951,12 +1137,13 @@ public class PauseMenu : MonoBehaviour
                 bool isAuto = (selectedSlot == 0);
                 int realSlot = isAuto ? SaveManager.AutoSaveSlot : selectedSlot;
                 bool hasSave = SaveManager.Instance != null && SaveManager.Instance.HasSave(realSlot);
-                string label = isAuto ? "Автосохранение" : $"Слот {selectedSlot}";
-                infoText.text = $"{label}: {(hasSave ? "занят" : "пусто")}";
+                string label = isAuto ? Loc("SavePanel.AutoSave") : string.Format(Loc("SavePanel.Slot"), selectedSlot);
+                string state = hasSave ? Loc("Common.Occupied") : Loc("Common.Empty");
+                infoText.text = $"{label}: {state}";
             }
             else
             {
-                infoText.text = "Выберите слот";
+                infoText.text = Loc("Common.SelectSlot");
             }
         }
     }
@@ -1020,7 +1207,8 @@ public class PauseMenu : MonoBehaviour
         titleRt.offsetMax = new Vector2(-70, 0);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "Дерево скиллов";
+        title.text = Loc("SkillTree.Title");
+        titleGO.AddComponent<LocalizedText>().key = "SkillTree.Title";
         title.fontSize = 32;
         title.alignment = TextAlignmentOptions.Left;
         title.color = Color.white;
@@ -1150,7 +1338,7 @@ public class PauseMenu : MonoBehaviour
         RectTransform statsRt = statsGO.GetComponent<RectTransform>();
         statsRt.sizeDelta = new Vector2(0, 60);
 
-        CreateSmallButton(skillDescriptionPanel.transform, "Закрыть", new Vector2(220, 55), CloseSkillDescription);
+        CreateSmallButton(skillDescriptionPanel.transform, "Common.Close", new Vector2(220, 55), CloseSkillDescription, true);
 
         skillDescriptionPanel.SetActive(false);
     }
@@ -1328,13 +1516,13 @@ public class PauseMenu : MonoBehaviour
             totalPoints += s.TalentPoints;
 
         if (skillTreeTalentPointsText != null)
-            skillTreeTalentPointsText.text = $"Очки талантов: {totalPoints}";
+            skillTreeTalentPointsText.text = string.Format(Loc("SkillTree.TalentPoints"), totalPoints);
 
         foreach (var row in skillTreeRows)
         {
             if (row.skill == null || row.skill.Data == null) continue;
-            row.nameText.text = $"{row.skill.Data.skillName} Lv.{row.skill.Level}";
-            row.costText.text = $"{row.skill.GetUpgradeCost()} TP";
+            row.nameText.text = $"{row.skill.Data.skillName} {string.Format(Loc("SkillTree.Level"), row.skill.Level)}";
+            row.costText.text = string.Format(Loc("SkillTree.Cost"), row.skill.GetUpgradeCost());
             row.plusButton.interactable = row.skill.CanUpgrade();
             if (row.skill.Data.icon != null)
                 row.icon.sprite = row.skill.Data.icon;
@@ -1352,7 +1540,8 @@ public class PauseMenu : MonoBehaviour
         if (title != null) title.text = skill.Data.skillName;
 
         skillDescriptionText.text = skill.Data.description;
-        skillDescriptionStatsText.text = $"Урон: {skill.GetCurrentDamage()}\nПерезарядка: {skill.GetCurrentCooldown():F2} сек";
+        skillDescriptionStatsText.text = string.Format(Loc("SkillTree.Damage"), skill.GetCurrentDamage()) + "\n" +
+            string.Format(Loc("SkillTree.Cooldown"), skill.GetCurrentCooldown());
         skillDescriptionPanel.SetActive(true);
     }
 
@@ -1422,7 +1611,8 @@ public class PauseMenu : MonoBehaviour
         titleGO.transform.SetParent(bestiaryPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "Бестиарий";
+        title.text = Loc("Bestiary.Title");
+        titleGO.AddComponent<LocalizedText>().key = "Bestiary.Title";
         title.fontSize = 48;
         title.alignment = TextAlignmentOptions.Center;
         title.color = Color.white;
@@ -1468,7 +1658,7 @@ public class PauseMenu : MonoBehaviour
 
         bestiaryContainer = scrollContentGO.transform;
 
-        CreateSmallButton(bestiaryPanel.transform, "Закрыть", new Vector2(300, 60), CloseBestiary);
+        CreateSmallButton(bestiaryPanel.transform, "Common.Close", new Vector2(300, 60), CloseBestiary, true);
 
         bestiaryPanel.SetActive(false);
     }
@@ -1554,7 +1744,7 @@ public class PauseMenu : MonoBehaviour
             emptyGO.transform.SetParent(bestiaryContainer, false);
             emptyGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI emptyText = emptyGO.AddComponent<TextMeshProUGUI>();
-            emptyText.text = "Пока нет убитых врагов";
+            emptyText.text = Loc("Bestiary.Empty");
             emptyText.fontSize = 32;
             emptyText.alignment = TextAlignmentOptions.Center;
             emptyText.color = new Color(0.6f, 0.6f, 0.6f, 1f);
@@ -1601,7 +1791,7 @@ public class PauseMenu : MonoBehaviour
             textGO.transform.SetParent(entryGO.transform, false);
             textGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-            text.text = $"{cleanEnemyName}\n{kv.Value} убито";
+            text.text = $"{cleanEnemyName}\n{string.Format(Loc("Bestiary.Killed"), kv.Value)}";
             text.fontSize = 26;
             text.alignment = TextAlignmentOptions.Left;
             text.color = Color.white;
@@ -1631,7 +1821,7 @@ public class PauseMenu : MonoBehaviour
             descBtnTextGO.transform.SetParent(descBtnGO.transform, false);
             descBtnTextGO.AddComponent<CanvasRenderer>();
             TextMeshProUGUI descBtnText = descBtnTextGO.AddComponent<TextMeshProUGUI>();
-            descBtnText.text = "Описание";
+            descBtnText.text = Loc("Bestiary.DescriptionButton");
             descBtnText.fontSize = 20;
             descBtnText.alignment = TextAlignmentOptions.Center;
             descBtnText.color = Color.black;
@@ -1692,6 +1882,7 @@ public class PauseMenu : MonoBehaviour
         if (resumeButton != null)
         {
             StyleResumeQuitButton(resumeButton);
+            LocalizeExistingButtonText(resumeButton, "Common.Resume");
             RectTransform rt = resumeButton.GetComponent<RectTransform>();
             if (rt != null)
             {
@@ -1705,6 +1896,7 @@ public class PauseMenu : MonoBehaviour
         if (quitButton != null)
         {
             StyleResumeQuitButton(quitButton);
+            LocalizeExistingButtonText(quitButton, "Common.Quit");
             RectTransform rt = quitButton.GetComponent<RectTransform>();
             if (rt != null)
             {
@@ -1739,6 +1931,17 @@ public class PauseMenu : MonoBehaviour
             shadow = btn.gameObject.AddComponent<Shadow>();
         shadow.effectColor = new Color(0f, 0f, 0f, 0.8f);
         shadow.effectDistance = new Vector2(4, -4);
+    }
+
+    void LocalizeExistingButtonText(Button btn, string key)
+    {
+        if (btn == null) return;
+        TextMeshProUGUI text = btn.GetComponentInChildren<TextMeshProUGUI>();
+        if (text == null) return;
+        text.text = Loc(key);
+        LocalizedText loc = text.GetComponent<LocalizedText>();
+        if (loc == null) loc = text.gameObject.AddComponent<LocalizedText>();
+        loc.key = key;
     }
 
     void CreateStatButtons()
@@ -1777,7 +1980,9 @@ public class PauseMenu : MonoBehaviour
     void UpdateButtonsVisibility()
     {
         if (buttonsParent == null) return;
-        buttonsParent.gameObject.SetActive(playerStats != null && playerStats.skillPoints > 0);
+        bool visible = playerStats != null && playerStats.skillPoints > 0;
+        buttonsParent.gameObject.SetActive(visible);
+        Debug.Log($"[PauseMenu] Stat buttons visible={visible}, skillPoints={playerStats?.skillPoints ?? 0}");
     }
 
     void CreateStatButton(string statName, int index)
@@ -1799,7 +2004,10 @@ public class PauseMenu : MonoBehaviour
         GameObject textGO = new GameObject("Text");
         textGO.transform.SetParent(btnGO.transform, false);
         TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-        text.text = statName;
+        string statKey = $"Stats.{statName}";
+        text.text = Loc(statKey);
+        LocalizedText loc = textGO.AddComponent<LocalizedText>();
+        loc.key = statKey;
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.black;
         text.fontSize = 33;
@@ -1927,25 +2135,25 @@ public class PauseMenu : MonoBehaviour
             }
 
             statsText.text =
-                $"Level: {playerStats.level}\n" +
-                $"XP: {playerStats.experience} / {playerStats.experienceToNextLevel}\n" +
-                $"Gold: {playerStats.gold}\n" +
-                $"Skill Points: {playerStats.skillPoints}\n\n" +
-                $"HP: {playerStats.hp} / {playerStats.maxHp}\n" +
-                $"ATK: {playerStats.atk}\n" +
-                $"DEF: {playerStats.def} ({playerStats.GetDamageReductionPercent():F0}%)\n" +
-                $"SPD: {playerStats.spd}\n" +
-                $"LCK: {playerStats.lck}\n" +
-                $"AtkSpd: {playerStats.atkSpd} ({(1f / playerStats.GetAttackCooldownMultiplier() - 1f) * 100f:F0}%)\n" +
-                $"Lethality: {playerStats.GetEffectiveLethality()} ({playerStats.lethality} + {playerStats.GetEffectiveLethality() - playerStats.lethality} from LCK)\n\n" +
-                $"Regen: {playerStats.GetHpRegenPerSecond():F1} HP/sec\n" +
-                $"Crit: {playerStats.GetCritChance() * 100f:F0}%\n\n" +
-                $"Junk: {junkCount} items\n" +
-                $"Sell Value: {junkValue}g";
+                $"{Loc("Stats.Level")}: {playerStats.level}\n" +
+                $"{Loc("Stats.XP")}: {playerStats.experience} / {playerStats.experienceToNextLevel}\n" +
+                $"{Loc("Stats.Gold")}: {playerStats.gold}\n" +
+                $"{Loc("Stats.SkillPoints")}: {playerStats.skillPoints}\n\n" +
+                $"{Loc("Stats.HP")}: {playerStats.hp} / {playerStats.maxHp}\n" +
+                $"{Loc("Stats.ATK")}: {playerStats.atk}\n" +
+                $"{Loc("Stats.DEF")}: {playerStats.def} ({playerStats.GetDamageReductionPercent():F0}%)\n" +
+                $"{Loc("Stats.SPD")}: {playerStats.spd}\n" +
+                $"{Loc("Stats.LCK")}: {playerStats.lck}\n" +
+                $"{Loc("Stats.AtkSpd")}: {playerStats.atkSpd} ({(1f / playerStats.GetAttackCooldownMultiplier() - 1f) * 100f:F0}%)\n" +
+                $"{Loc("Stats.Lethality")}: {playerStats.GetEffectiveLethality()} ({playerStats.lethality} + {playerStats.GetEffectiveLethality() - playerStats.lethality} {Loc("Stats.FromLCK")})\n\n" +
+                $"{Loc("Stats.Regen")}: {playerStats.GetHpRegenPerSecond():F1} {Loc("Stats.PerSecond")}\n" +
+                $"{Loc("Stats.Crit")}: {playerStats.GetCritChance() * 100f:F0}%\n\n" +
+                $"{Loc("Stats.Junk")}: {junkCount} {Loc("Stats.Items")}\n" +
+                $"{Loc("Stats.SellValue")}: {junkValue}g";
         }
 
         if (skillPointsText != null)
-            skillPointsText.text = $"Skill Points: {playerStats.skillPoints}";
+            skillPointsText.text = $"{Loc("Stats.SkillPoints")}: {playerStats.skillPoints}";
 
         UpdateButtonsVisibility();
     }
@@ -2017,22 +2225,24 @@ public class PauseMenu : MonoBehaviour
         nav.childForceExpandHeight = false;
 
         CreateSmallButton(navGO.transform, "←", new Vector2(90, 60), () => SelectInventoryOffset(-1));
-        CreateSmallButton(navGO.transform, "Применить", new Vector2(220, 60), () => OnItemAction(selectedInvIndex));
+        CreateSmallButton(navGO.transform, "Inventory.Apply", new Vector2(220, 60), () => OnItemAction(selectedInvIndex), true);
         CreateSmallButton(navGO.transform, "→", new Vector2(90, 60), () => SelectInventoryOffset(1));
 
-        Button discardBtn = CreateSmallButton(navGO.transform, "Мусор", new Vector2(160, 60), () => DiscardSelectedItem());
+        Button discardBtn = CreateSmallButton(navGO.transform, "Inventory.Junk", new Vector2(160, 60), () => DiscardSelectedItem(), true);
         discardBtn.GetComponent<Image>().color = new Color(0.65f, 0.2f, 0.2f, 0.95f);
         if (discardButtonIcon != null)
         {
             discardBtn.GetComponent<Image>().sprite = discardButtonIcon;
             var txt = discardBtn.GetComponentInChildren<TextMeshProUGUI>();
             if (txt != null) txt.text = "";
+            var loc = discardBtn.GetComponentInChildren<LocalizedText>();
+            if (loc != null) loc.enabled = false;
         }
 
         inventoryVisible = true;
     }
 
-    Button CreateSmallButton(Transform parent, string label, Vector2 size, UnityEngine.Events.UnityAction action)
+    Button CreateSmallButton(Transform parent, string label, Vector2 size, UnityEngine.Events.UnityAction action, bool localize = false)
     {
         GameObject btnGO = new GameObject(label);
         btnGO.transform.SetParent(parent, false);
@@ -2048,13 +2258,19 @@ public class PauseMenu : MonoBehaviour
         textGO.transform.SetParent(btnGO.transform, false);
         textGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-        text.text = label;
+        string displayText = localize ? Loc(label) : label;
+        text.text = displayText;
         text.fontSize = 40;
         text.enableAutoSizing = true;
         text.fontSizeMin = 26;
         text.fontSizeMax = 46;
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.white;
+        if (localize)
+        {
+            LocalizedText loc = textGO.AddComponent<LocalizedText>();
+            loc.key = label;
+        }
         RectTransform textRt = textGO.GetComponent<RectTransform>();
         textRt.anchorMin = Vector2.zero;
         textRt.anchorMax = Vector2.one;
@@ -2109,7 +2325,7 @@ public class PauseMenu : MonoBehaviour
         if (invItem == null || invItem.itemData == null)
         {
             TextMeshProUGUI emptyText = contentGO.AddComponent<TextMeshProUGUI>();
-            emptyText.text = "Inventory is empty";
+            emptyText.text = Loc("Inventory.Empty");
             emptyText.fontSize = 46;
             emptyText.enableAutoSizing = true;
             emptyText.fontSizeMin = 26;
@@ -2236,7 +2452,7 @@ public class PauseMenu : MonoBehaviour
         string b = equipmentManager.boots != null ? equipmentManager.boots.itemName : "-";
         string ac = equipmentManager.accessory != null ? equipmentManager.accessory.itemName : "-";
 
-        equippedText.text = $"Equipped:\n  Weapon: {w}\n  Armor: {a}\n  Boots: {b}\n  Accessory: {ac}";
+        equippedText.text = string.Format(Loc("Inventory.Equipped"), w, a, b, ac);
     }
 
     void CreateStatisticsButton()
@@ -2271,7 +2487,8 @@ public class PauseMenu : MonoBehaviour
             GameObject textGO = new GameObject("Text");
             textGO.transform.SetParent(btnGO.transform, false);
             TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
-            text.text = "СТАТИСТИКА";
+            text.text = Loc("Statistics.Title");
+            textGO.AddComponent<LocalizedText>().key = "Statistics.Title";
             text.alignment = TextAlignmentOptions.Center;
             text.color = Color.black;
             text.fontSize = 28;
@@ -2340,7 +2557,8 @@ public class PauseMenu : MonoBehaviour
         titleGO.transform.SetParent(statisticsPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
-        title.text = "СТАТИСТИКА";
+        title.text = Loc("Statistics.Title");
+        titleGO.AddComponent<LocalizedText>().key = "Statistics.Title";
         title.fontSize = 48;
         title.alignment = TextAlignmentOptions.Center;
         title.color = new Color(1f, 0.84f, 0f, 1f);
@@ -2352,7 +2570,7 @@ public class PauseMenu : MonoBehaviour
         statsGO.transform.SetParent(statisticsPanel.transform, false);
         statsGO.AddComponent<CanvasRenderer>();
         statisticsText = statsGO.AddComponent<TextMeshProUGUI>();
-        statisticsText.text = "Загрузка...";
+        statisticsText.text = Loc("Statistics.Loading");
         statisticsText.fontSize = 32;
         statisticsText.alignment = TextAlignmentOptions.TopLeft;
         statisticsText.color = Color.white;
@@ -2360,7 +2578,7 @@ public class PauseMenu : MonoBehaviour
         statsRt.sizeDelta = new Vector2(0, 400);
 
         // Кнопка закрытия
-        CreateSmallButton(statisticsPanel.transform, "Закрыть", new Vector2(300, 60), CloseStatistics);
+        CreateSmallButton(statisticsPanel.transform, "Common.Close", new Vector2(300, 60), CloseStatistics, true);
 
         statisticsPanel.SetActive(false);
     }
@@ -2376,7 +2594,7 @@ public class PauseMenu : MonoBehaviour
         }
         else
         {
-            statisticsText.text = "Статистика недоступна";
+            statisticsText.text = Loc("Statistics.Unavailable");
         }
     }
 
@@ -2436,7 +2654,7 @@ public class PauseMenu : MonoBehaviour
         titleGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
         titleGO.AddComponent<CanvasRenderer>();
         descriptionTitle = titleGO.AddComponent<TextMeshProUGUI>();
-        descriptionTitle.text = "Враг";
+        descriptionTitle.text = Loc("Bestiary.Enemy");
         descriptionTitle.fontSize = 52;
         descriptionTitle.alignment = TextAlignmentOptions.Center;
         descriptionTitle.color = new Color(1f, 0.84f, 0f, 1f);
@@ -2454,7 +2672,7 @@ public class PauseMenu : MonoBehaviour
         descGO.transform.SetParent(bestiaryDescriptionPanel.transform, false);
         descGO.AddComponent<CanvasRenderer>();
         descriptionText = descGO.AddComponent<TextMeshProUGUI>();
-        descriptionText.text = "Описание отсутствует";
+        descriptionText.text = Loc("Bestiary.NoDescription");
         descriptionText.fontSize = 36;
         descriptionText.alignment = TextAlignmentOptions.TopLeft;
         descriptionText.color = Color.white;
@@ -2485,7 +2703,8 @@ public class PauseMenu : MonoBehaviour
         closeTextGO.transform.SetParent(closeBtnGO.transform, false);
         closeTextGO.AddComponent<CanvasRenderer>();
         TextMeshProUGUI closeText = closeTextGO.AddComponent<TextMeshProUGUI>();
-        closeText.text = "Закрыть";
+        closeText.text = Loc("Common.Close");
+        closeTextGO.AddComponent<LocalizedText>().key = "Common.Close";
         closeText.fontSize = 40;
         closeText.alignment = TextAlignmentOptions.Center;
         closeText.color = Color.white;
@@ -2522,7 +2741,7 @@ public class PauseMenu : MonoBehaviour
             if (enemyData != null && !string.IsNullOrEmpty(enemyData.description))
                 descriptionText.text = enemyData.description;
             else
-                descriptionText.text = "Описание отсутствует";
+                descriptionText.text = Loc("Bestiary.NoDescription");
         }
     }
 

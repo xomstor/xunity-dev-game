@@ -90,14 +90,44 @@ public class PlayerController : MonoBehaviour
         rb.collisionDetectionMode = CollisionDetectionMode2D.Continuous;
     }
 
-    public bool IsInputBlocked => DialogueSystem.IsDialogueActive;
+    private float inputLockTimer;
+    public bool IsInputLocked => inputLockTimer > 0f;
+    public bool IsInputBlocked => DialogueSystem.IsDialogueActive || IsInputLocked;
     public bool IsRolling => isRolling;
     public float MoveInput => moveInput;
+
+    public void LockInput(float duration) => inputLockTimer = Mathf.Max(inputLockTimer, duration);
+    public void UnlockInput() => inputLockTimer = 0f;
+
+    public void ResetInputAndVelocity()
+    {
+        keyboardMoveInput = 0f;
+        externalMoveInput = 0f;
+        moveInput = 0f;
+        rawMoveInput = 0f;
+        currentMoveSpeed = 0f;
+        if (rb != null)
+            rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+    }
 
     void Update()
     {
         if (DialogueSystem.IsDialogueActive)
         {
+            keyboardMoveInput = 0f;
+            externalMoveInput = 0f;
+            moveInput = 0f;
+            rawMoveInput = 0f;
+            currentMoveSpeed = 0f;
+            if (rb != null && isGrounded)
+                rb.linearVelocity = new Vector2(0f, rb.linearVelocity.y);
+            UpdateAnimator();
+            return;
+        }
+
+        if (inputLockTimer > 0f)
+        {
+            inputLockTimer -= Time.deltaTime;
             keyboardMoveInput = 0f;
             externalMoveInput = 0f;
             moveInput = 0f;

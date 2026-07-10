@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.InputSystem;
 
 public class ActionButton : MonoBehaviour
 {
@@ -13,6 +14,23 @@ public class ActionButton : MonoBehaviour
     public Color buttonColor = new Color(0.2f, 0.85f, 1f, 1f);
     public string buttonText = "E";
 
+    [Header("Centered Circle Mode")]
+    [Tooltip("If true, the button becomes a big tap zone in the center of the screen for dialogue taps.")]
+    public bool centeredCircleMode = true;
+    [Tooltip("Diameter of the invisible tap zone in pixels (reference 1080x2280).")]
+    public float tapZoneSize = 300f;
+    [Tooltip("Diameter of the visible circle in pixels. It will be smaller than the tap zone.")]
+    public float circleVisualSize = 150f;
+    [Tooltip("Vertical offset of the visual circle relative to the tap zone center.")]
+    public float circleVisualOffsetY = 60f;
+    [Tooltip("Speed of the visual pulse fade in/out.")]
+    public float pulseSpeed = 2f;
+    [Tooltip("Alpha range of the pulse effect.")]
+    public float pulseAlphaMin = 0.2f;
+    public float pulseAlphaMax = 0.6f;
+    [Tooltip("If true, the button is only shown when the player is near an NPC with dialogue.")]
+    public bool showOnlyNearDialogue = true;
+
     [Header("Icon")]
     [Tooltip("Optional icon to show on the button. If set, it will be drawn behind the text.")]
     public Sprite icon;
@@ -24,7 +42,10 @@ public class ActionButton : MonoBehaviour
 
     private static ActionButton instance;
     private Button button;
-    private GameObject visual;
+    private GameObject tapZone;
+    private GameObject circleVisual;
+    private Image circleImage;
+    private CanvasGroup circleGroup;
     private Canvas canvas;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
@@ -77,58 +98,151 @@ public class ActionButton : MonoBehaviour
             if (GetComponent<GraphicRaycaster>() == null)
                 gameObject.AddComponent<GraphicRaycaster>();
 
-            GameObject visual = new GameObject("ActionButtonVisual");
-            visual.transform.SetParent(transform, false);
+            tapZone = new GameObject("ActionButtonTapZone");
+            tapZone.transform.SetParent(transform, false);
 
-            RectTransform rt = visual.AddComponent<RectTransform>();
-            rt.anchorMin = new Vector2(0.5f, 0.5f);
-            rt.anchorMax = new Vector2(0.5f, 0.5f);
-            rt.pivot = new Vector2(0.5f, 0.5f);
-            rt.anchoredPosition = anchoredPosition;
-            rt.sizeDelta = size;
+            RectTransform tapRt = tapZone.AddComponent<RectTransform>();
+            tapRt.anchorMin = new Vector2(0.5f, 0.5f);
+            tapRt.anchorMax = new Vector2(0.5f, 0.5f);
+            tapRt.pivot = new Vector2(0.5f, 0.5f);
+            tapRt.anchoredPosition = centeredCircleMode ? Vector2.zero : anchoredPosition;
+            tapRt.sizeDelta = centeredCircleMode ? new Vector2(tapZoneSize, tapZoneSize) : size;
 
-            visual.AddComponent<CanvasRenderer>();
+            tapZone.AddComponent<CanvasRenderer>();
+            Image tapImg = tapZone.AddComponent<Image>();
+            tapImg.color = new Color(1f, 1f, 1f, 0f);
+            tapImg.type = Image.Type.Simple;
+            tapImg.raycastTarget = true;
 
-            Image img = visual.AddComponent<Image>();
-            img.color = buttonColor;
-            img.type = Image.Type.Simple;
-            img.raycastTarget = true;
+            button = tapZone.AddComponent<Button>();
+            button.targetGraphic = tapImg;
 
-            button = visual.AddComponent<Button>();
-            button.targetGraphic = img;
+            Transform textParent = tapZone.transform;
+            if (centeredCircleMode)
+            {
+                circleVisual = new GameObject("ActionButtonVisual");
+                circleVisual.transform.SetParent(tapZone.transform, false);
 
-            GameObject textGO = new GameObject("Text");
-            textGO.transform.SetParent(visual.transform, false);
-            RectTransform textRt = textGO.AddComponent<RectTransform>();
-            textRt.anchorMin = Vector2.zero;
-            textRt.anchorMax = Vector2.one;
-            textRt.offsetMin = Vector2.zero;
-            textRt.offsetMax = Vector2.zero;
-            textGO.AddComponent<CanvasRenderer>();
-            Text label = textGO.AddComponent<Text>();
-            label.text = buttonText;
-            label.font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-            label.fontSize = 48;
-            label.alignment = TextAnchor.MiddleCenter;
-            label.color = Color.white;
+                RectTransform cvRt = circleVisual.AddComponent<RectTransform>();
+                cvRt.anchorMin = new Vector2(0.5f, 0.5f);
+                cvRt.anchorMax = new Vector2(0.5f, 0.5f);
+                cvRt.pivot = new Vector2(0.5f, 0.5f);
+                cvRt.anchoredPosition = new Vector2(0f, circleVisualOffsetY);
+                cvRt.sizeDelta = new Vector2(circleVisualSize, circleVisualSize);
+
+                circleVisual.AddComponent<CanvasRenderer>();
+                circleImage = circleVisual.AddComponent<Image>();
+                circleImage.color = buttonColor;
+                circleImage.type = Image.Type.Simple;
+                circleImage.raycastTarget = false;
+                circleImage.alphaHitTestMinimumThreshold = 0.1f;
+                circleGroup = circleVisual.AddComponent<CanvasGroup>();
+                circleGroup.blocksRaycasts = false;
+
+                if (icon == null)
+                    circleImage.sprite = CreateCircleSprite(Color.white);
+
+                textParent = circleVisual.transform;
+            }
+
+            CreateText(textParent);
         }
 
         if (button != null)
         {
-            visual = button.gameObject;
+            tapZone = button.gameObject;
             SetupIcon();
             button.onClick.AddListener(OnClick);
         }
     }
 
+    void CreateText(Transform parent)
+    {
+        Font font = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+
+        GameObject shadowGO = new GameObject("TextShadow");
+        shadowGO.transform.SetParent(parent, false);
+        RectTransform shadowRt = shadowGO.AddComponent<RectTransform>();
+        shadowRt.anchorMin = Vector2.zero;
+        shadowRt.anchorMax = Vector2.one;
+        shadowRt.offsetMin = new Vector2(4f, -4f);
+        shadowRt.offsetMax = new Vector2(4f, -4f);
+        shadowGO.AddComponent<CanvasRenderer>();
+        Text shadow = shadowGO.AddComponent<Text>();
+        shadow.text = buttonText;
+        shadow.font = font;
+        shadow.fontSize = 60;
+        shadow.fontStyle = FontStyle.Bold;
+        shadow.alignment = TextAnchor.MiddleCenter;
+        shadow.color = new Color(0f, 0.15f, 0.2f, 0.9f);
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(parent, false);
+        RectTransform textRt = textGO.AddComponent<RectTransform>();
+        textRt.anchorMin = Vector2.zero;
+        textRt.anchorMax = Vector2.one;
+        textRt.offsetMin = Vector2.zero;
+        textRt.offsetMax = Vector2.zero;
+        textGO.AddComponent<CanvasRenderer>();
+        Text label = textGO.AddComponent<Text>();
+        label.text = buttonText;
+        label.font = font;
+        label.fontSize = 60;
+        label.fontStyle = FontStyle.Bold;
+        label.alignment = TextAnchor.MiddleCenter;
+        label.color = Color.white;
+    }
+
     void Update()
     {
-        if (visual == null) return;
+        if (tapZone == null) return;
+        PlayerAction.interactRadius = interactRadius;
         bool paused = PauseMenu.IsPaused;
-        if (paused && visual.activeSelf)
-            visual.SetActive(false);
-        else if (!paused && !visual.activeSelf)
-            visual.SetActive(true);
+        bool inDialogue = DialogueSystem.IsDialogueActive;
+        bool nearInteractable = !showOnlyNearDialogue || PlayerAction.HasInteractableNearby();
+        bool shouldShow = !paused && !inDialogue && nearInteractable;
+        if (tapZone.activeSelf != shouldShow)
+            tapZone.SetActive(shouldShow);
+
+        if (circleGroup != null && circleGroup.gameObject.activeInHierarchy)
+        {
+            float t = Mathf.PingPong(Time.time * pulseSpeed, 1f);
+            circleGroup.alpha = Mathf.Lerp(pulseAlphaMin, pulseAlphaMax, t);
+        }
+
+        if (!paused && !inDialogue && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame && PlayerAction.HasInteractableNearby())
+        {
+            PlayerAction.interactRadius = interactRadius;
+            PlayerAction.TryInteract();
+        }
+    }
+
+    static Sprite CreateCircleSprite(Color color, int resolution = 256)
+    {
+        Texture2D tex = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
+        Vector2 center = new Vector2(resolution / 2f, resolution / 2f);
+        float radius = resolution / 2f - 2f;
+        Color clear = new Color(0, 0, 0, 0);
+        for (int y = 0; y < resolution; y++)
+        {
+            for (int x = 0; x < resolution; x++)
+            {
+                float dist = Vector2.Distance(center, new Vector2(x, y));
+                if (dist <= radius)
+                {
+                    float alpha = 1f - Mathf.Clamp01((dist - (radius - 4f)) / 4f);
+                    tex.SetPixel(x, y, new Color(color.r, color.g, color.b, alpha * 0.5f));
+                }
+                else
+                {
+                    tex.SetPixel(x, y, clear);
+                }
+            }
+        }
+        tex.Apply();
+        Sprite sprite = Sprite.Create(tex, new Rect(0, 0, resolution, resolution), new Vector2(0.5f, 0.5f), 100f, 0, SpriteMeshType.FullRect);
+        sprite.name = "GeneratedCircle";
+        return sprite;
     }
 
     void SetupIcon()
@@ -138,7 +252,7 @@ public class ActionButton : MonoBehaviour
         if (iconImage == null)
         {
             GameObject iconGO = new GameObject("Icon");
-            iconGO.transform.SetParent(button.transform, false);
+            iconGO.transform.SetParent(circleVisual != null ? circleVisual.transform : button.transform, false);
             RectTransform iconRt = iconGO.AddComponent<RectTransform>();
             iconRt.anchorMin = Vector2.zero;
             iconRt.anchorMax = Vector2.one;

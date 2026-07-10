@@ -93,6 +93,8 @@ public class PlayerProjectile : MonoBehaviour
         if (other.isTrigger) return;
         if (other.CompareTag("Player")) return;
 
+        Debug.Log($"[PlayerProjectile] Hit {other.name} (layer={LayerMask.LayerToName(other.gameObject.layer)})");
+
         AutoCombat autoCombat = other.GetComponent<AutoCombat>();
         if (autoCombat == null) autoCombat = other.GetComponentInParent<AutoCombat>();
         if (autoCombat == null) autoCombat = other.GetComponentInChildren<AutoCombat>();

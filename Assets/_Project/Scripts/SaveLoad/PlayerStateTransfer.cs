@@ -22,6 +22,7 @@ public class PlayerStateTransfer : MonoBehaviour
 
     private Snapshot snapshot;
     public bool spawnAtHub;
+    [System.NonSerialized]
     public int? overrideHp;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]

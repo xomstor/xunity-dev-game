@@ -53,6 +53,14 @@ public class PlayerThrowAbility : PlayerSkillInstance
             : (Vector3)(Vector2)transform.position + (Vector3)(direction * Data.fireOffset.x + Vector2.up * Data.fireOffset.y);
 
         PlayerProjectile projectile = Instantiate(Data.projectilePrefab, spawnPos, Quaternion.identity);
+        int projectileLayer = LayerMask.NameToLayer("PlayerProjectile");
+        if (projectileLayer == -1)
+            projectileLayer = LayerMask.NameToLayer("Projectile");
+        if (projectileLayer != -1)
+            projectile.gameObject.layer = projectileLayer;
+        else
+            Debug.LogWarning("[PlayerThrowAbility] No 'PlayerProjectile' or 'Projectile' layer found. Fireball may not collide with enemies.");
+
         projectile.element = Data.projectileElement;
         projectile.Initialize(direction, GetCurrentDamage(), Data.projectileSpeed, Data.projectileLifetime);
 

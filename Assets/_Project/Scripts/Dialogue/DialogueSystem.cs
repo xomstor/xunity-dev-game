@@ -58,7 +58,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceSprite);
         currentDialogue = StartCoroutine(DisplayDialogue(lines));
     }
@@ -67,7 +68,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceFrames);
         currentDialogue = StartCoroutine(DisplayDialogue(lines));
     }
@@ -76,7 +78,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceSprite);
         onChoiceMade = callback;
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
@@ -86,7 +89,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceFrames);
         onChoiceMade = callback;
         currentDialogue = StartCoroutine(DisplayDialogueWithChoices(lines, choiceTexts, choiceResponses));
@@ -96,7 +100,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceSprite);
         onChoiceMade = callback;
         currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));
@@ -106,7 +111,8 @@ public class DialogueSystem : MonoBehaviour
     {
         if (currentDialogue != null)
             StopCoroutine(currentDialogue);
-        
+
+        IsDialogueActive = true;
         SetSpeakerInfo(npcName, faceFrames);
         onChoiceMade = callback;
         currentDialogue = StartCoroutine(DisplayDialogueWithChoiceTree(lines, choices));

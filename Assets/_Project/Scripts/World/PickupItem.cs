@@ -15,7 +15,6 @@ public class PickupItem : MonoBehaviour
     public AudioClip pickupSound;
     public float pickupSoundVolume = 1f;
 
-    private bool isPlayerNearby;
     private bool alreadyPickedUp;
     private PlayerAudio playerAudio;
 
@@ -29,7 +28,6 @@ public class PickupItem : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = true;
             playerAudio = other.GetComponent<PlayerAudio>();
             if (interactPrompt != null && !alreadyPickedUp)
                 interactPrompt.SetActive(true);
@@ -40,29 +38,24 @@ public class PickupItem : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            isPlayerNearby = false;
             if (interactPrompt != null)
                 interactPrompt.SetActive(false);
         }
     }
 
-    void Update()
-    {
-        if (alreadyPickedUp || !isPlayerNearby) return;
-
-        var keyboard = Keyboard.current;
-        if (keyboard != null && keyboard.eKey.wasPressedThisFrame)
-        {
-            TryPickUp();
-        }
-    }
-
-    void TryPickUp()
+    public void TryPickUp()
     {
         if (itemData == null)
         {
             Debug.LogError($"[{name}] PickupItem.itemData is not assigned!");
             return;
+        }
+
+        if (playerAudio == null)
+        {
+            GameObject playerGO = GameObject.FindGameObjectWithTag("Player");
+            if (playerGO != null)
+                playerAudio = playerGO.GetComponent<PlayerAudio>();
         }
 
         Inventory inventory = FindAnyObjectByType<Inventory>();
