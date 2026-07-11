@@ -74,5 +74,14 @@
   "Stats.PerSecond": "HP/sec",
   "Stats.Items": "items",
   "Common.Resume": "Resume",
-  "Common.Quit": "Quit"
+  "Common.Quit": "Quit",
+
+  "Menu.Title": "EirHold",
+  "Menu.Play": "Play",
+  "Menu.Continue": "Continue",
+  "Menu.Load": "Load",
+  "Menu.Settings": "Settings",
+  "Menu.Credits": "Credits",
+  "Menu.Exit": "Exit",
+  "Menu.CreditsText": "EirHold\n\nGraduation Project\nPlatform: Android / Unity 6\n\nTeam\n\nNikolay\nLead Developer / Game Programmer / Systems Architect / Unity Engineer / Bug Fixer / Build Master / Project Setup\n\nKirill\nGameplay Programmer / Combat System Developer / Game Object Designer / QA and Testing\n\nKonstantin\nDialogue System Designer / Narrative Designer / NPC Writer / Story Writer / Technical Writer / Documentation Lead\n\nValeriy\nLevel Designer / World Builder / NPC Placement / Scene Designer / Playtester\n\nVladislav\nSound Designer / Music Supervisor / Ambient Composer / Audio Engineer / SFX Integrator\n\nPavel\nTeam Coordinator / Project Manager / Milestone Tracker / Final QA Lead\n\nTechnology\nUnity 6 / C# / Unity 2D / TextMeshPro / JSON Save System / Localization\n\nThanks for playing!\nThank you for playing!\nДякуємо за гру!\n\n(c) 2025 EirHold Team. All rights reserved."
 }

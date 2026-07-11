@@ -1,0 +1,2184 @@
+fileFormatVersion: 2
+guid: 2e4746319290d9e43ac6d354247ebf79
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 6717023980460294179
+    second: Sebaru_Idle_spritesheet_0
+  - first:
+      213: -6703346193520438015
+    second: Sebaru_Idle_spritesheet_1
+  - first:
+      213: 869330326167302198
+    second: Sebaru_Idle_spritesheet_2
+  - first:
+      213: 6359850147108408836
+    second: Sebaru_Idle_spritesheet_3
+  - first:
+      213: 6458045917242386882
+    second: Sebaru_Idle_spritesheet_4
+  - first:
+      213: -8701130210004949243
+    second: Sebaru_Idle_spritesheet_5
+  - first:
+      213: 2942272518435987209
+    second: Sebaru_Idle_spritesheet_6
+  - first:
+      213: 4654068053283760595
+    second: Sebaru_Idle_spritesheet_7
+  - first:
+      213: 2022957825323507991
+    second: Sebaru_Idle_spritesheet_8
+  - first:
+      213: 8246421156328879228
+    second: Sebaru_Idle_spritesheet_9
+  - first:
+      213: -2176401196386744618
+    second: Sebaru_Idle_spritesheet_10
+  - first:
+      213: 4354946682007201607
+    second: Sebaru_Idle_spritesheet_11
+  - first:
+      213: -56551400366541004
+    second: Sebaru_Idle_spritesheet_12
+  - first:
+      213: 6287941556742640018
+    second: Sebaru_Idle_spritesheet_13
+  - first:
+      213: 8570235060592528386
+    second: Sebaru_Idle_spritesheet_14
+  - first:
+      213: 3143447680443496526
+    second: Sebaru_Idle_spritesheet_15
+  - first:
+      213: 1916779664370942415
+    second: Sebaru_Idle_spritesheet_16
+  - first:
+      213: -8523202235783855685
+    second: Sebaru_Idle_spritesheet_17
+  - first:
+      213: -5277325585989400742
+    second: Sebaru_Idle_spritesheet_18
+  - first:
+      213: 3371892982444452033
+    second: Sebaru_Idle_spritesheet_19
+  - first:
+      213: 3033734704290441978
+    second: Sebaru_Idle_spritesheet_20
+  - first:
+      213: 2717406832538098204
+    second: Sebaru_Idle_spritesheet_21
+  - first:
+      213: -5553751629520561679
+    second: Sebaru_Idle_spritesheet_22
+  - first:
+      213: -5683706847452716672
+    second: Sebaru_Idle_spritesheet_23
+  - first:
+      213: -3661817559009764393
+    second: Sebaru_Idle_spritesheet_24
+  - first:
+      213: -8236608134866862564
+    second: Sebaru_Idle_spritesheet_25
+  - first:
+      213: 7607198304240250161
+    second: Sebaru_Idle_spritesheet_26
+  - first:
+      213: 6302575220292296652
+    second: Sebaru_Idle_spritesheet_27
+  - first:
+      213: 4538802460270162469
+    second: Sebaru_Idle_spritesheet_28
+  - first:
+      213: -889057028556663242
+    second: Sebaru_Idle_spritesheet_29
+  - first:
+      213: 1727489708666167943
+    second: Sebaru_Idle_spritesheet_30
+  - first:
+      213: 8423887227835474144
+    second: Sebaru_Idle_spritesheet_31
+  - first:
+      213: -422199458175959060
+    second: Sebaru_Idle_spritesheet_32
+  - first:
+      213: -8990089913155256281
+    second: Sebaru_Idle_spritesheet_33
+  - first:
+      213: -6328775304595076413
+    second: Sebaru_Idle_spritesheet_34
+  - first:
+      213: -7361681170168780058
+    second: Sebaru_Idle_spritesheet_35
+  - first:
+      213: -3778544974155419827
+    second: Sebaru_Idle_spritesheet_36
+  - first:
+      213: -7638105396676507537
+    second: Sebaru_Idle_spritesheet_37
+  - first:
+      213: -1981149099568740433
+    second: Sebaru_Idle_spritesheet_38
+  - first:
+      213: -6458726331571463153
+    second: Sebaru_Idle_spritesheet_39
+  - first:
+      213: 4457187963799173712
+    second: Sebaru_Idle_spritesheet_40
+  - first:
+      213: 83582816100821299
+    second: Sebaru_Idle_spritesheet_41
+  - first:
+      213: -6104512661810779014
+    second: Sebaru_Idle_spritesheet_42
+  - first:
+      213: 6773029757267337873
+    second: Sebaru_Idle_spritesheet_43
+  - first:
+      213: -3004233210648309969
+    second: Sebaru_Idle_spritesheet_44
+  - first:
+      213: -5761558914540171537
+    second: Sebaru_Idle_spritesheet_45
+  - first:
+      213: 1567391832505022792
+    second: Sebaru_Idle_spritesheet_46
+  - first:
+      213: -2220742082126158238
+    second: Sebaru_Idle_spritesheet_47
+  - first:
+      213: 7265721996673148421
+    second: Sebaru_Idle_spritesheet_48
+  - first:
+      213: -1156485894637843414
+    second: Sebaru_Idle_spritesheet_49
+  - first:
+      213: 6163903314335205549
+    second: Sebaru_Idle_spritesheet_50
+  - first:
+      213: 6817048314617066038
+    second: Sebaru_Idle_spritesheet_51
+  - first:
+      213: -1157365551184103359
+    second: Sebaru_Idle_spritesheet_52
+  - first:
+      213: 5609950933507958340
+    second: Sebaru_Idle_spritesheet_53
+  - first:
+      213: -2534572352187208333
+    second: Sebaru_Idle_spritesheet_54
+  - first:
+      213: 9196173976444444598
+    second: Sebaru_Idle_spritesheet_55
+  - first:
+      213: 8011488738054145907
+    second: Sebaru_Idle_spritesheet_56
+  - first:
+      213: -8847039830339264231
+    second: Sebaru_Idle_spritesheet_57
+  - first:
+      213: 2897767122941506191
+    second: Sebaru_Idle_spritesheet_58
+  - first:
+      213: 5844035339399779907
+    second: Sebaru_Idle_spritesheet_59
+  - first:
+      213: -8820683969206269492
+    second: Sebaru_Idle_spritesheet_60
+  - first:
+      213: 6055269999636068272
+    second: Sebaru_Idle_spritesheet_61
+  - first:
+      213: -3149891976350339955
+    second: Sebaru_Idle_spritesheet_62
+  - first:
+      213: 5261922581595442718
+    second: Sebaru_Idle_spritesheet_63
+  - first:
+      213: -4774036708152220672
+    second: Sebaru_Idle_spritesheet_64
+  - first:
+      213: 3245234953734042531
+    second: Sebaru_Idle_spritesheet_65
+  - first:
+      213: 120349191512245004
+    second: Sebaru_Idle_spritesheet_66
+  - first:
+      213: -381110559919043160
+    second: Sebaru_Idle_spritesheet_67
+  - first:
+      213: -388863686086530648
+    second: Sebaru_Idle_spritesheet_68
+  - first:
+      213: 6107810446492260704
+    second: Sebaru_Idle_spritesheet_69
+  - first:
+      213: -4554081519021394633
+    second: Sebaru_Idle_spritesheet_70
+  - first:
+      213: -5137448151314526229
+    second: Sebaru_Idle_spritesheet_71
+  - first:
+      213: 6526346964681030440
+    second: Sebaru_Idle_spritesheet_72
+  - first:
+      213: 4317247297934111562
+    second: Sebaru_Idle_spritesheet_73
+  - first:
+      213: 1847004425922181777
+    second: Sebaru_Idle_spritesheet_74
+  - first:
+      213: -7304452947196952871
+    second: Sebaru_Idle_spritesheet_75
+  - first:
+      213: -2562211964876948896
+    second: Sebaru_Idle_spritesheet_76
+  - first:
+      213: 6313817192258633734
+    second: Sebaru_Idle_spritesheet_77
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WindowsStoreApps
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_0
+      rect:
+        serializedVersion: 2
+        x: 16
+        y: 23
+        width: 81
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 320cd1fc8b9a73d50800000000000000
+      internalID: 6717023980460294179
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_1
+      rect:
+        serializedVersion: 2
+        x: 144
+        y: 22
+        width: 85
+        height: 280
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1055fb0272ee8f2a0800000000000000
+      internalID: -6703346193520438015
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_2
+      rect:
+        serializedVersion: 2
+        x: 273
+        y: 23
+        width: 84
+        height: 281
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6303da3635b701c00800000000000000
+      internalID: 869330326167302198
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_3
+      rect:
+        serializedVersion: 2
+        x: 401
+        y: 23
+        width: 83
+        height: 281
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 40ecc1b430ab24850800000000000000
+      internalID: 6359850147108408836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_4
+      rect:
+        serializedVersion: 2
+        x: 529
+        y: 23
+        width: 84
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2c9e468ab869f9950800000000000000
+      internalID: 6458045917242386882
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_5
+      rect:
+        serializedVersion: 2
+        x: 674
+        y: 19
+        width: 71
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5072c30bc206f3780800000000000000
+      internalID: -8701130210004949243
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_6
+      rect:
+        serializedVersion: 2
+        x: 1058
+        y: 18
+        width: 71
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 90f55c5444d05d820800000000000000
+      internalID: 2942272518435987209
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_7
+      rect:
+        serializedVersion: 2
+        x: 1186
+        y: 19
+        width: 70
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3d9e8747c32969040800000000000000
+      internalID: 4654068053283760595
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_8
+      rect:
+        serializedVersion: 2
+        x: 1425
+        y: 23
+        width: 84
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 711210e8c6df21c10800000000000000
+      internalID: 2022957825323507991
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_9
+      rect:
+        serializedVersion: 2
+        x: 1569
+        y: 19
+        width: 80
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c74bf3ba95c217270800000000000000
+      internalID: 8246421156328879228
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_10
+      rect:
+        serializedVersion: 2
+        x: 1798
+        y: 0
+        width: 99
+        height: 308
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6d602a894aedbc1e0800000000000000
+      internalID: -2176401196386744618
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_11
+      rect:
+        serializedVersion: 2
+        x: 1953
+        y: 18
+        width: 72
+        height: 287
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7472ecc0fe0ef6c30800000000000000
+      internalID: 4354946682007201607
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_12
+      rect:
+        serializedVersion: 2
+        x: 2466
+        y: 18
+        width: 71
+        height: 284
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 437f99d0dc6173ff0800000000000000
+      internalID: -56551400366541004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_13
+      rect:
+        serializedVersion: 2
+        x: 2833
+        y: 22
+        width: 85
+        height: 286
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 291df0ae781434750800000000000000
+      internalID: 6287941556742640018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_14
+      rect:
+        serializedVersion: 2
+        x: 3106
+        y: 18
+        width: 75
+        height: 283
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 20c473c61679fe670800000000000000
+      internalID: 8570235060592528386
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_15
+      rect:
+        serializedVersion: 2
+        x: 3618
+        y: 19
+        width: 79
+        height: 281
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e483cdab205cf9b20800000000000000
+      internalID: 3143447680443496526
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_16
+      rect:
+        serializedVersion: 2
+        x: 4143
+        y: 298
+        width: 6
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc1c58ff2f4c99a10800000000000000
+      internalID: 1916779664370942415
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_17
+      rect:
+        serializedVersion: 2
+        x: 4241
+        y: 22
+        width: 84
+        height: 282
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb1c94379b087b980800000000000000
+      internalID: -8523202235783855685
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_18
+      rect:
+        serializedVersion: 2
+        x: 4514
+        y: 18
+        width: 70
+        height: 285
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a57850b075c23c6b0800000000000000
+      internalID: -5277325585989400742
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_19
+      rect:
+        serializedVersion: 2
+        x: 4642
+        y: 21
+        width: 70
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1c8eb3f6dce5bce20800000000000000
+      internalID: 3371892982444452033
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_20
+      rect:
+        serializedVersion: 2
+        x: 4770
+        y: 18
+        width: 71
+        height: 290
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: afaa100e3adf91a20800000000000000
+      internalID: 3033734704290441978
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_21
+      rect:
+        serializedVersion: 2
+        x: 4898
+        y: 19
+        width: 77
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1a17a3ed1b26b520800000000000000
+      internalID: 2717406832538098204
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_22
+      rect:
+        serializedVersion: 2
+        x: 5265
+        y: 28
+        width: 84
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 1f91ea7615c1de2b0800000000000000
+      internalID: -5553751629520561679
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_23
+      rect:
+        serializedVersion: 2
+        x: 5393
+        y: 24
+        width: 84
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 081202e5cba6f11b0800000000000000
+      internalID: -5683706847452716672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_24
+      rect:
+        serializedVersion: 2
+        x: 5521
+        y: 23
+        width: 84
+        height: 280
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7db5feac45c9e2dc0800000000000000
+      internalID: -3661817559009764393
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_25
+      rect:
+        serializedVersion: 2
+        x: 5649
+        y: 23
+        width: 84
+        height: 285
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c1efa2f6a80b1bd80800000000000000
+      internalID: -8236608134866862564
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_26
+      rect:
+        serializedVersion: 2
+        x: 5776
+        y: 22
+        width: 85
+        height: 281
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 13da1349d82329960800000000000000
+      internalID: 7607198304240250161
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_27
+      rect:
+        serializedVersion: 2
+        x: 5905
+        y: 23
+        width: 84
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ccf93b735ce377750800000000000000
+      internalID: 6302575220292296652
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_28
+      rect:
+        serializedVersion: 2
+        x: 739
+        y: 177
+        width: 21
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 522721e3ac01dfe30800000000000000
+      internalID: 4538802460270162469
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_29
+      rect:
+        serializedVersion: 2
+        x: 801
+        y: 19
+        width: 75
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 636d0dbc75f69a3f0800000000000000
+      internalID: -889057028556663242
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_30
+      rect:
+        serializedVersion: 2
+        x: 868
+        y: 182
+        width: 18
+        height: 68
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 782a036ccb649f710800000000000000
+      internalID: 1727489708666167943
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_31
+      rect:
+        serializedVersion: 2
+        x: 927
+        y: 18
+        width: 92
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0e065135dc8a7e470800000000000000
+      internalID: 8423887227835474144
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_32
+      rect:
+        serializedVersion: 2
+        x: 995
+        y: 178
+        width: 27
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cef3f0764db042af0800000000000000
+      internalID: -422199458175959060
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_33
+      rect:
+        serializedVersion: 2
+        x: 1126
+        y: 182
+        width: 16
+        height: 67
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7200f830bd8cc3380800000000000000
+      internalID: -8990089913155256281
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_34
+      rect:
+        serializedVersion: 2
+        x: 1251
+        y: 178
+        width: 22
+        height: 73
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3ca885a446cab28a0800000000000000
+      internalID: -6328775304595076413
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_35
+      rect:
+        serializedVersion: 2
+        x: 1314
+        y: 19
+        width: 79
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6ea6866cafd06d990800000000000000
+      internalID: -7361681170168780058
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_36
+      rect:
+        serializedVersion: 2
+        x: 1642
+        y: 233
+        width: 7
+        height: 12
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d4fe0a79d59ef8bc0800000000000000
+      internalID: -3778544974155419827
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_37
+      rect:
+        serializedVersion: 2
+        x: 1698
+        y: 19
+        width: 70
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f684a123c9ffff590800000000000000
+      internalID: -7638105396676507537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_38
+      rect:
+        serializedVersion: 2
+        x: 1765
+        y: 171
+        width: 24
+        height: 90
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa7ce19f36b8184e0800000000000000
+      internalID: -1981149099568740433
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_39
+      rect:
+        serializedVersion: 2
+        x: 1892
+        y: 176
+        width: 23
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f0c98390f9efd56a0800000000000000
+      internalID: -6458726331571463153
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_40
+      rect:
+        serializedVersion: 2
+        x: 2019
+        y: 178
+        width: 22
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 05a756f76dc1bdd30800000000000000
+      internalID: 4457187963799173712
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_41
+      rect:
+        serializedVersion: 2
+        x: 2082
+        y: 19
+        width: 71
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 339240fd022f82100800000000000000
+      internalID: 83582816100821299
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_42
+      rect:
+        serializedVersion: 2
+        x: 2148
+        y: 174
+        width: 20
+        height: 79
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a7ce4e1c31a684ba0800000000000000
+      internalID: -6104512661810779014
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_43
+      rect:
+        serializedVersion: 2
+        x: 2210
+        y: 18
+        width: 71
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 192e11fdda2aefd50800000000000000
+      internalID: 6773029757267337873
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_44
+      rect:
+        serializedVersion: 2
+        x: 2275
+        y: 172
+        width: 23
+        height: 93
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2f40e0efc1de46d0800000000000000
+      internalID: -3004233210648309969
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_45
+      rect:
+        serializedVersion: 2
+        x: 2338
+        y: 21
+        width: 85
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fee095a71b4da00b0800000000000000
+      internalID: -5761558914540171537
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_46
+      rect:
+        serializedVersion: 2
+        x: 2404
+        y: 175
+        width: 22
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8497f48319e70c510800000000000000
+      internalID: 1567391832505022792
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_47
+      rect:
+        serializedVersion: 2
+        x: 2534
+        y: 188
+        width: 15
+        height: 60
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 266eb11a7d65e21e0800000000000000
+      internalID: -2220742082126158238
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_48
+      rect:
+        serializedVersion: 2
+        x: 2594
+        y: 19
+        width: 82
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 506e17819a705d460800000000000000
+      internalID: 7265721996673148421
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_49
+      rect:
+        serializedVersion: 2
+        x: 2659
+        y: 173
+        width: 20
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a2c8c56c43653ffe0800000000000000
+      internalID: -1156485894637843414
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_50
+      rect:
+        serializedVersion: 2
+        x: 2721
+        y: 19
+        width: 86
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: da88dc818659a8550800000000000000
+      internalID: 6163903314335205549
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_51
+      rect:
+        serializedVersion: 2
+        x: 2787
+        y: 177
+        width: 23
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 632fc69e2550b9e50800000000000000
+      internalID: 6817048314617066038
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_52
+      rect:
+        serializedVersion: 2
+        x: 2977
+        y: 18
+        width: 79
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 148b566c92630ffe0800000000000000
+      internalID: -1157365551184103359
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_53
+      rect:
+        serializedVersion: 2
+        x: 3043
+        y: 180
+        width: 20
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 446ec17b6ac8add40800000000000000
+      internalID: 5609950933507958340
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_54
+      rect:
+        serializedVersion: 2
+        x: 3234
+        y: 18
+        width: 71
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37dea5adfd363dcd0800000000000000
+      internalID: -2534572352187208333
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_55
+      rect:
+        serializedVersion: 2
+        x: 3300
+        y: 181
+        width: 19
+        height: 70
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6bf99a6128f5f9f70800000000000000
+      internalID: 9196173976444444598
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_56
+      rect:
+        serializedVersion: 2
+        x: 3361
+        y: 19
+        width: 71
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 37782c18f868e2f60800000000000000
+      internalID: 8011488738054145907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_57
+      rect:
+        serializedVersion: 2
+        x: 3428
+        y: 173
+        width: 20
+        height: 81
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 91165eed520093580800000000000000
+      internalID: -8847039830339264231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_58
+      rect:
+        serializedVersion: 2
+        x: 3490
+        y: 18
+        width: 88
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f82fbb468dfe63820800000000000000
+      internalID: 2897767122941506191
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_59
+      rect:
+        serializedVersion: 2
+        x: 3553
+        y: 175
+        width: 28
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 346d0cb9d2f2a1150800000000000000
+      internalID: 5844035339399779907
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_60
+      rect:
+        serializedVersion: 2
+        x: 3746
+        y: 18
+        width: 71
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: cc94a7bf9a2a69580800000000000000
+      internalID: -8820683969206269492
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_61
+      rect:
+        serializedVersion: 2
+        x: 3811
+        y: 174
+        width: 24
+        height: 82
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0b733638bf3a80450800000000000000
+      internalID: 6055269999636068272
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_62
+      rect:
+        serializedVersion: 2
+        x: 3874
+        y: 19
+        width: 86
+        height: 278
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d8ce8c4bfe55944d0800000000000000
+      internalID: -3149891976350339955
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_63
+      rect:
+        serializedVersion: 2
+        x: 3936
+        y: 177
+        width: 27
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e1e4a9785ba160940800000000000000
+      internalID: 5261922581595442718
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_64
+      rect:
+        serializedVersion: 2
+        x: 4002
+        y: 19
+        width: 71
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 00469e968e63fbdb0800000000000000
+      internalID: -4774036708152220672
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_65
+      rect:
+        serializedVersion: 2
+        x: 4130
+        y: 21
+        width: 88
+        height: 275
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a3bff51ff3690d20800000000000000
+      internalID: 3245234953734042531
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_66
+      rect:
+        serializedVersion: 2
+        x: 4195
+        y: 177
+        width: 21
+        height: 74
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c03c719b3f09ba100800000000000000
+      internalID: 120349191512245004
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_67
+      rect:
+        serializedVersion: 2
+        x: 4386
+        y: 19
+        width: 70
+        height: 277
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8ad00e707f506baf0800000000000000
+      internalID: -381110559919043160
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_68
+      rect:
+        serializedVersion: 2
+        x: 4451
+        y: 171
+        width: 23
+        height: 86
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8a963cca98a7a9af0800000000000000
+      internalID: -388863686086530648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_69
+      rect:
+        serializedVersion: 2
+        x: 4582
+        y: 179
+        width: 17
+        height: 76
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06957929d3d43c450800000000000000
+      internalID: 6107810446492260704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_70
+      rect:
+        serializedVersion: 2
+        x: 4704
+        y: 178
+        width: 26
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 735fe8cacf6acc0c0800000000000000
+      internalID: -4554081519021394633
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_71
+      rect:
+        serializedVersion: 2
+        x: 4835
+        y: 177
+        width: 23
+        height: 75
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bef09e0302e14b8b0800000000000000
+      internalID: -5137448151314526229
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_72
+      rect:
+        serializedVersion: 2
+        x: 4966
+        y: 175
+        width: 20
+        height: 78
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 82bf2ce7cfd329a50800000000000000
+      internalID: 6526346964681030440
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_73
+      rect:
+        serializedVersion: 2
+        x: 5026
+        y: 18
+        width: 70
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a43b0e03b81f9eb30800000000000000
+      internalID: 4317247297934111562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_74
+      rect:
+        serializedVersion: 2
+        x: 5088
+        y: 174
+        width: 26
+        height: 80
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 19a7aa15db0e1a910800000000000000
+      internalID: 1847004425922181777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_75
+      rect:
+        serializedVersion: 2
+        x: 5154
+        y: 18
+        width: 74
+        height: 279
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 9de35c3cebe51aa90800000000000000
+      internalID: -7304452947196952871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_76
+      rect:
+        serializedVersion: 2
+        x: 5219
+        y: 174
+        width: 23
+        height: 83
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 06af04a0bc1317cd0800000000000000
+      internalID: -2562211964876948896
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Sebaru_Idle_spritesheet_77
+      rect:
+        serializedVersion: 2
+        x: 2537
+        y: 185
+        width: 8
+        height: 7
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6008459c84f2f9750800000000000000
+      internalID: 6313817192258633734
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Sebaru_Idle_spritesheet_0: 6717023980460294179
+      Sebaru_Idle_spritesheet_1: -6703346193520438015
+      Sebaru_Idle_spritesheet_10: -2176401196386744618
+      Sebaru_Idle_spritesheet_11: 4354946682007201607
+      Sebaru_Idle_spritesheet_12: -56551400366541004
+      Sebaru_Idle_spritesheet_13: 6287941556742640018
+      Sebaru_Idle_spritesheet_14: 8570235060592528386
+      Sebaru_Idle_spritesheet_15: 3143447680443496526
+      Sebaru_Idle_spritesheet_16: 1916779664370942415
+      Sebaru_Idle_spritesheet_17: -8523202235783855685
+      Sebaru_Idle_spritesheet_18: -5277325585989400742
+      Sebaru_Idle_spritesheet_19: 3371892982444452033
+      Sebaru_Idle_spritesheet_2: 869330326167302198
+      Sebaru_Idle_spritesheet_20: 3033734704290441978
+      Sebaru_Idle_spritesheet_21: 2717406832538098204
+      Sebaru_Idle_spritesheet_22: -5553751629520561679
+      Sebaru_Idle_spritesheet_23: -5683706847452716672
+      Sebaru_Idle_spritesheet_24: -3661817559009764393
+      Sebaru_Idle_spritesheet_25: -8236608134866862564
+      Sebaru_Idle_spritesheet_26: 7607198304240250161
+      Sebaru_Idle_spritesheet_27: 6302575220292296652
+      Sebaru_Idle_spritesheet_28: 4538802460270162469
+      Sebaru_Idle_spritesheet_29: -889057028556663242
+      Sebaru_Idle_spritesheet_3: 6359850147108408836
+      Sebaru_Idle_spritesheet_30: 1727489708666167943
+      Sebaru_Idle_spritesheet_31: 8423887227835474144
+      Sebaru_Idle_spritesheet_32: -422199458175959060
+      Sebaru_Idle_spritesheet_33: -8990089913155256281
+      Sebaru_Idle_spritesheet_34: -6328775304595076413
+      Sebaru_Idle_spritesheet_35: -7361681170168780058
+      Sebaru_Idle_spritesheet_36: -3778544974155419827
+      Sebaru_Idle_spritesheet_37: -7638105396676507537
+      Sebaru_Idle_spritesheet_38: -1981149099568740433
+      Sebaru_Idle_spritesheet_39: -6458726331571463153
+      Sebaru_Idle_spritesheet_4: 6458045917242386882
+      Sebaru_Idle_spritesheet_40: 4457187963799173712
+      Sebaru_Idle_spritesheet_41: 83582816100821299
+      Sebaru_Idle_spritesheet_42: -6104512661810779014
+      Sebaru_Idle_spritesheet_43: 6773029757267337873
+      Sebaru_Idle_spritesheet_44: -3004233210648309969
+      Sebaru_Idle_spritesheet_45: -5761558914540171537
+      Sebaru_Idle_spritesheet_46: 1567391832505022792
+      Sebaru_Idle_spritesheet_47: -2220742082126158238
+      Sebaru_Idle_spritesheet_48: 7265721996673148421
+      Sebaru_Idle_spritesheet_49: -1156485894637843414
+      Sebaru_Idle_spritesheet_5: -8701130210004949243
+      Sebaru_Idle_spritesheet_50: 6163903314335205549
+      Sebaru_Idle_spritesheet_51: 6817048314617066038
+      Sebaru_Idle_spritesheet_52: -1157365551184103359
+      Sebaru_Idle_spritesheet_53: 5609950933507958340
+      Sebaru_Idle_spritesheet_54: -2534572352187208333
+      Sebaru_Idle_spritesheet_55: 9196173976444444598
+      Sebaru_Idle_spritesheet_56: 8011488738054145907
+      Sebaru_Idle_spritesheet_57: -8847039830339264231
+      Sebaru_Idle_spritesheet_58: 2897767122941506191
+      Sebaru_Idle_spritesheet_59: 5844035339399779907
+      Sebaru_Idle_spritesheet_6: 2942272518435987209
+      Sebaru_Idle_spritesheet_60: -8820683969206269492
+      Sebaru_Idle_spritesheet_61: 6055269999636068272
+      Sebaru_Idle_spritesheet_62: -3149891976350339955
+      Sebaru_Idle_spritesheet_63: 5261922581595442718
+      Sebaru_Idle_spritesheet_64: -4774036708152220672
+      Sebaru_Idle_spritesheet_65: 3245234953734042531
+      Sebaru_Idle_spritesheet_66: 120349191512245004
+      Sebaru_Idle_spritesheet_67: -381110559919043160
+      Sebaru_Idle_spritesheet_68: -388863686086530648
+      Sebaru_Idle_spritesheet_69: 6107810446492260704
+      Sebaru_Idle_spritesheet_7: 4654068053283760595
+      Sebaru_Idle_spritesheet_70: -4554081519021394633
+      Sebaru_Idle_spritesheet_71: -5137448151314526229
+      Sebaru_Idle_spritesheet_72: 6526346964681030440
+      Sebaru_Idle_spritesheet_73: 4317247297934111562
+      Sebaru_Idle_spritesheet_74: 1847004425922181777
+      Sebaru_Idle_spritesheet_75: -7304452947196952871
+      Sebaru_Idle_spritesheet_76: -2562211964876948896
+      Sebaru_Idle_spritesheet_77: 6313817192258633734
+      Sebaru_Idle_spritesheet_8: 2022957825323507991
+      Sebaru_Idle_spritesheet_9: 8246421156328879228
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

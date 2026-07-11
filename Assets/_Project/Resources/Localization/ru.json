@@ -74,5 +74,14 @@
   "Stats.PerSecond": "ЗД/сек",
   "Stats.Items": "шт",
   "Common.Resume": "Продолжить",
-  "Common.Quit": "Выйти"
+  "Common.Quit": "Выйти",
+
+  "Menu.Title": "EirHold",
+  "Menu.Play": "Играть",
+  "Menu.Continue": "Продолжить",
+  "Menu.Load": "Загрузить",
+  "Menu.Settings": "Настройки",
+  "Menu.Credits": "Авторы",
+  "Menu.Exit": "Выход",
+  "Menu.CreditsText": "EirHold\n\nДипломный проект\nПлатформа: Android / Unity 6\n\nКоманда\n\nНиколай\nLead Developer / Game Programmer / Systems Architect / Unity Engineer / Bug Fixer / Build Master / Project Setup\n\nКирилл\nGameplay Programmer / Combat System Developer / Game Object Designer / QA and Testing\n\nКонстантин\nDialogue System Designer / Narrative Designer / NPC Writer / Story Writer / Technical Writer / Documentation Lead\n\nВалерий\nLevel Designer / World Builder / NPC Placement / Scene Designer / Playtester\n\nВладислав\nSound Designer / Music Supervisor / Ambient Composer / Audio Engineer / SFX Integrator\n\nПавел\nTeam Coordinator / Project Manager / Milestone Tracker / Final QA Lead\n\nТехнологии\nUnity 6 / C# / Unity 2D / TextMeshPro / JSON Save System / Localization\n\nСпасибо за игру!\nThank you for playing!\nДякуємо за гру!\n\n(c) 2025 EirHold Team. All rights reserved."
 }

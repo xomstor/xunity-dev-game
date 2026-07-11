@@ -143,12 +143,13 @@ public class SaveManager : MonoBehaviour
 
     void OnApplicationQuit()
     {
-        AutoSave();
+        if (SceneManager.GetActiveScene().name != "MainMenu")
+            AutoSave();
     }
 
     void OnApplicationPause(bool pause)
     {
-        if (pause)
+        if (pause && SceneManager.GetActiveScene().name != "MainMenu")
             AutoSave();
     }
 
@@ -389,7 +390,7 @@ public class SaveManager : MonoBehaviour
             ApplyGameData(pendingLoadData);
             pendingLoadData = null;
         }
-        else
+        else if (scene.name != "MainMenu")
         {
             AutoSave();
         }
