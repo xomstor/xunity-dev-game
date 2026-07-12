@@ -70,6 +70,9 @@ public class MainMenuController : MonoBehaviour
         CreateSettingsPanel();
         CreateCreditsPanel();
 
+        if (GetComponent<MainMenuSpriteSpawner>() == null)
+            gameObject.AddComponent<MainMenuSpriteSpawner>();
+
         HideAllPanels();
         if (mainPanel != null) mainPanel.SetActive(false);
 

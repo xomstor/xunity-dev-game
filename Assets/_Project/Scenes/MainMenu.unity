@@ -450,6 +450,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2059660328}
   - component: {fileID: 2059660327}
+  - component: {fileID: 2059660329}
   m_Layer: 0
   m_Name: MainMenu
   m_TagString: Untagged
@@ -479,6 +480,12 @@ MonoBehaviour:
   buttonBorderColor: {r: 0.6, g: 0.45, b: 0.12, a: 1}
   buttonHighlightColor: {r: 0.9, g: 0.15, b: 0.05, a: 1}
   titleColor: {r: 1, g: 1, b: 1, a: 1}
+  introTitleColor: {r: 0.05, g: 0.05, b: 0.05, a: 1}
+  introDelay: 1.5
+  introDuration: 0.8
+  introTitleStartSize: 360
+  introTitleEndSize: 72
+  introTitleEndY: 380
 --- !u!4 &2059660328
 Transform:
   m_ObjectHideFlags: 0
@@ -494,6 +501,48 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &2059660329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2059660326}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e54d915283d7b1f4f89c290cde9c41a2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::MainMenuSpriteSpawner
+  spritesPath: Custom/MainMenu/Sprites
+  particlesPath: Custom/MainMenu/Particles
+  maxCharacters: 3
+  maxParticles: 20
+  characterSpawnInterval: 0.22
+  particleSpawnInterval: 0.2
+  characterApproachDuration: 1.2
+  characterHoverDuration: 0.6
+  characterExitDuration: 1
+  characterSideOffset: 0.55
+  characterVerticalSpread: 0.35
+  characterExitExtra: 0.45
+  characterBottomSpawnOffset: 0.6
+  particleMinSpeed: 140
+  particleMaxSpeed: 300
+  particleMinLifetime: 5
+  particleMaxLifetime: 26
+  particleHorizontalSpread: 0.75
+  particleTopReach: 0.55
+  particleBottomSpawnOffset: 0.6
+  characterScale: 1
+  particleMinScale: 0.5
+  particleMaxScale: 3
+  characterColor: {r: 1, g: 1, b: 1, a: 0.95}
+  nearParticleColor: {r: 1, g: 1, b: 1, a: 0.85}
+  farParticleColor: {r: 0.6, g: 0.6, b: 0.6, a: 0.35}
+  particleRotationMin: -200
+  particleRotationMax: 960
+  characterExitRotationSpeed: 360
+  particleFadeStart: 0.75
 --- !u!1 &2076674683
 GameObject:
   m_ObjectHideFlags: 0
