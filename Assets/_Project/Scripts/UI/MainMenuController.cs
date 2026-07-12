@@ -35,7 +35,16 @@ public class MainMenuController : MonoBehaviour
     public float introTitleEndSize = 72f;
     public float introTitleEndY = 380f;
 
+    [Header("BGM")]
+    public string bgmPath = "Custom/MainMenu/BGM";
+    public float bgmVolume = 0.7f;
+    public float bgmFadeDuration = 1.5f;
+
     private Canvas canvas;
+    private AudioSource bgmSource;
+    private AudioClip[] bgmClips;
+    private int lastBgmIndex = -1;
+    private Coroutine bgmLoopCoroutine;
     private GameObject mainPanel;
     private GameObject loadPanel;
     private GameObject settingsPanel;
@@ -73,9 +82,13 @@ public class MainMenuController : MonoBehaviour
         if (GetComponent<MainMenuSpriteSpawner>() == null)
             gameObject.AddComponent<MainMenuSpriteSpawner>();
 
+        // Ensure BGM folder exists for user-provided tracks
+        System.IO.Directory.CreateDirectory(System.IO.Path.Combine(Application.dataPath, "_Project/Resources/Custom/MainMenu/BGM"));
+
         HideAllPanels();
         if (mainPanel != null) mainPanel.SetActive(false);
 
+        SetupBGM();
         StartCoroutine(IntroTitleAnimation());
     }
 
@@ -83,6 +96,73 @@ public class MainMenuController : MonoBehaviour
     {
         LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
     }
+
+    #region BGM
+
+    void SetupBGM()
+    {
+        bgmClips = Resources.LoadAll<AudioClip>(bgmPath);
+        if (bgmClips.Length == 0) return;
+
+        bgmSource = gameObject.AddComponent<AudioSource>();
+        bgmSource.playOnAwake = false;
+        bgmSource.loop = false;
+        bgmSource.volume = 0f;
+
+        bgmLoopCoroutine = StartCoroutine(BgmPlaylistLoop());
+    }
+
+    IEnumerator BgmPlaylistLoop()
+    {
+        while (true)
+        {
+            int nextIndex = 0;
+            if (bgmClips.Length > 1)
+            {
+                nextIndex = lastBgmIndex;
+                while (nextIndex == lastBgmIndex)
+                    nextIndex = Random.Range(0, bgmClips.Length);
+            }
+            lastBgmIndex = nextIndex;
+            bgmSource.clip = bgmClips[nextIndex];
+
+            bgmSource.Play();
+            yield return StartCoroutine(FadeBGMVolume(bgmVolume, bgmFadeDuration));
+
+            while (bgmSource.isPlaying && bgmSource.time < bgmSource.clip.length - bgmFadeDuration)
+                yield return null;
+
+            yield return StartCoroutine(FadeBGMVolume(0f, bgmFadeDuration));
+            bgmSource.Stop();
+        }
+    }
+
+    IEnumerator FadeBGMVolume(float target, float duration)
+    {
+        if (bgmSource == null) yield break;
+        float start = bgmSource.volume;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            bgmSource.volume = Mathf.Lerp(start, target, Mathf.Clamp01(elapsed / duration));
+            yield return null;
+        }
+        bgmSource.volume = target;
+    }
+
+    public void StopBGM()
+    {
+        if (bgmLoopCoroutine != null)
+        {
+            StopCoroutine(bgmLoopCoroutine);
+            bgmLoopCoroutine = null;
+        }
+        if (bgmSource != null)
+            StartCoroutine(FadeBGMVolume(0f, 0.5f));
+    }
+
+    #endregion
 
     void OnLanguageChanged()
     {
@@ -396,6 +476,7 @@ public class MainMenuController : MonoBehaviour
     {
         if (SaveManager.Instance == null) return;
         if (!SaveManager.Instance.HasSave(slot)) return;
+        TogglePanel(loadPanel, false);
         SaveManager.Instance.LoadGame(slot);
     }
 
@@ -713,6 +794,7 @@ public class MainMenuController : MonoBehaviour
         }
         if (panelGroup != null) panelGroup.alpha = 0f;
 
+        yield return StartCoroutine(FadeBGMVolume(0f, 0.5f));
         ExecutePlayLogic();
     }
 

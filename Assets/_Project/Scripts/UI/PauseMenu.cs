@@ -449,18 +449,13 @@ public class PauseMenu : MonoBehaviour
         Time.timeScale = 1f;
         if (pausePanel != null) pausePanel.SetActive(false);
         CloseAllSubPanels();
-
-        PlayerStats stats = playerStats ?? FindAnyObjectByType<PlayerStats>();
-        if (PlayerStateTransfer.Instance != null && stats != null)
-        {
-            PlayerStateTransfer.Instance.overrideHp = stats.maxHp;
-            PlayerStateTransfer.Instance.spawnAtHub = true;
-        }
+        IsPaused = false;
 
         TeleportEffect.Play(
             () =>
             {
-                SceneManager.LoadScene("GameScene");
+                Destroy(gameObject);
+                SceneManager.LoadScene("MainMenu");
             },
             null);
     }

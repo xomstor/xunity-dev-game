@@ -66,8 +66,8 @@ Material:
     - _CloudLayer2Density: 0.395
     - _CloudLayer2Scale: 17.7
     - _CloudLayer2Speed: 0.7
-    - _CloudOffset1: 453.59537
-    - _CloudOffset2: 302.40024
+    - _CloudOffset1: 13.989316
+    - _CloudOffset2: 9.326197
     - _CloudScale: 5
     - _CloudSpeed: 1
     - _ColorShift: 0.728
