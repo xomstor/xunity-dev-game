@@ -21,7 +21,6 @@ public class PlayerStateTransfer : MonoBehaviour
     }
 
     private Snapshot snapshot;
-    public bool spawnAtHub;
     [System.NonSerialized]
     public int? overrideHp;
 
@@ -61,7 +60,7 @@ public class PlayerStateTransfer : MonoBehaviour
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (snapshot == null && !spawnAtHub && !overrideHp.HasValue) return;
+        if (snapshot == null && !overrideHp.HasValue) return;
         StartCoroutine(ApplyNextFrame());
     }
 
@@ -186,38 +185,14 @@ public class PlayerStateTransfer : MonoBehaviour
         }
 
         overrideHp = null;
+        snapshot = null;
 
-        if (spawnAtHub)
-        {
-            spawnAtHub = false;
-            Transform hub = FindHubSpawnPoint();
-            if (hub != null)
-            {
-                stats.transform.position = hub.position;
-                Rigidbody2D rb = stats.GetComponent<Rigidbody2D>();
-                if (rb == null) rb = stats.GetComponentInChildren<Rigidbody2D>();
-                if (rb != null) rb.linearVelocity = Vector2.zero;
-                Debug.Log($"[PlayerStateTransfer] Spawned at hub: {hub.position}");
-            }
-        }
-    }
-
-    Transform FindHubSpawnPoint()
-    {
-        SpawnPoint[] spawnPoints = FindObjectsByType<SpawnPoint>(FindObjectsInactive.Include);
-        SpawnPoint hub = System.Array.Find(spawnPoints, s => s != null && s.isHub);
-        if (hub != null) return hub.transform;
-
-        GameObject byName = GameObject.Find("SpawnPoint_Hub") ?? GameObject.Find("Hub") ?? GameObject.Find("RespawnPoint");
-        if (byName != null) return byName.transform;
-
-        return null;
+        PauseMenu.Instance?.UpdateStatsDisplay();
     }
 
     public void ClearSnapshot()
     {
         snapshot = null;
-        spawnAtHub = false;
         overrideHp = null;
     }
 }

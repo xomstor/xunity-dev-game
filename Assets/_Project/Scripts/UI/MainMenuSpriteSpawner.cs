@@ -82,7 +82,7 @@ public class MainMenuSpriteSpawner : MonoBehaviour
     {
         canvas = GetComponentInParent<Canvas>();
         if (canvas == null)
-            canvas = FindObjectOfType<Canvas>();
+            canvas = FindAnyObjectByType<Canvas>();
 
         CreateContainer();
         LoadSprites();

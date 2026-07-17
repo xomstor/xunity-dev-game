@@ -10,6 +10,13 @@
   "Settings.FloatingJoystick": "Плавающий джойстик",
   "Settings.HeartStyle": "Сердечки вместо полосок",
   "Settings.Language": "Язык",
+  "Settings.ChangeLayout": "Изменить раскладку",
+  "Settings.ResetSkillLayout": "Сбросить раскладку навыков",
+
+  "Loadout.Title": "Сборка",
+  "Loadout.EmptySlot": "Пусто",
+  "Loadout.ClearSlot": "Очистить слот",
+  "Loadout.SelectSlot": "Выберите слот выше",
 
   "Language.Title": "Выбор языка",
   "Language.Russian": "Обычный",

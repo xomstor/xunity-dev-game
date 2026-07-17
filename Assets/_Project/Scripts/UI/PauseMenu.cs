@@ -4,6 +4,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using TMPro;
+using UnityEngine.EventSystems;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -42,6 +43,11 @@ public class PauseMenu : MonoBehaviour
     private GameObject settingsPanel;
     private Toggle floatingJoystickToggle;
     private Toggle heartStyleToggle;
+    private Slider skillHudSizeSlider;
+    private SkillHudLayoutController skillHudLayout;
+    private GameObject skillHudEditorOverlay;
+    private BlockButton cachedBlockButton;
+    private bool blockButtonWasActive;
 
     [Header("Save Panel (auto-created)")]
     private GameObject savePanel;
@@ -68,6 +74,14 @@ public class PauseMenu : MonoBehaviour
         public Image icon;
     }
     private readonly List<SkillTreeRow> skillTreeRows = new List<SkillTreeRow>();
+
+    [Header("Loadout Panel (auto-created)")]
+    private GameObject loadoutPanel;
+    private int selectedLoadoutSlot = -1;
+    private Transform loadoutSkillListContent;
+    private readonly List<GameObject> loadoutSkillButtons = new List<GameObject>();
+    private readonly Image[] loadoutSlotIcons = new Image[4];
+    private readonly Button[] loadoutSlotButtons = new Button[4];
 
     [Header("Pause Menu Audio")]
     public AudioClip pauseMenuMusic;
@@ -97,6 +111,7 @@ public class PauseMenu : MonoBehaviour
     private GameObject languagePanel;
 
     private static PauseMenu instance;
+    public static PauseMenu Instance => instance;
 
     private bool isPaused;
     public static bool IsPaused { get; private set; }
@@ -109,9 +124,11 @@ public class PauseMenu : MonoBehaviour
 
     void Awake()
     {
+        Debug.Log($"[PauseMenu] Awake: instance==null={instance == null}, instance==this={instance == this}, pausePanel==null={pausePanel == null}");
         // Синглтон: при повторной загрузке GameScene уничтожаем дубли (вместе с дублем Canvas)
         if (instance != null && instance != this)
         {
+            Debug.Log("[PauseMenu] Duplicate detected, destroying this gameObject and its Canvas");
             if (pausePanel != null)
             {
                 Canvas dupCanvas = pausePanel.GetComponentInParent<Canvas>(true);
@@ -134,6 +151,7 @@ public class PauseMenu : MonoBehaviour
         }
 
         SceneManager.sceneLoaded += OnSceneLoadedRebind;
+        PlayerSpawner.OnPlayerReady += OnPlayerReady;
 
         if (playerStats == null)
             playerStats = FindAnyObjectByType<PlayerStats>();
@@ -143,27 +161,11 @@ public class PauseMenu : MonoBehaviour
             playerInventory = FindAnyObjectByType<Inventory>();
         if (skillsManager == null)
             skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        skillHudLayout = FindAnyObjectByType<SkillHudLayoutController>();
         if (skillsManager != null)
             skillsManager.OnChanged += OnSkillTreeChanged;
 
-        // Если инвентаря нет, создаём его на Player GameObject
-        if (playerInventory == null)
-        {
-            GameObject playerObj = playerStats != null ? playerStats.gameObject : (playerCombat != null ? playerCombat.gameObject : gameObject);
-            playerInventory = playerObj.GetComponent<Inventory>();
-            if (playerInventory == null)
-                playerInventory = playerObj.AddComponent<Inventory>();
-        }
-        
-        if (equipmentManager == null)
-            equipmentManager = FindAnyObjectByType<EquipmentManager>();
-        if (equipmentManager == null)
-        {
-            GameObject playerObj = playerStats != null ? playerStats.gameObject : (playerCombat != null ? playerCombat.gameObject : gameObject);
-            equipmentManager = playerObj.GetComponent<EquipmentManager>();
-            if (equipmentManager == null)
-                equipmentManager = playerObj.AddComponent<EquipmentManager>();
-        }
+        RebindPlayerReferences();
 
         if (buttonsParent == null)
             CreateStatButtons();
@@ -178,13 +180,12 @@ public class PauseMenu : MonoBehaviour
         CreateSaveButton();
 
         CreateSkillTreeButton();
+        CreateLoadoutButton();
 
         CreateBestiaryPanel();
         CreateBestiaryButton();
 
         FindAndStyleResumeQuitButtons();
-
-        AddStartingItems();
 
         Inventory.OnInventoryChanged += OnInventoryChangedHandler;
     }
@@ -193,6 +194,11 @@ public class PauseMenu : MonoBehaviour
     {
         if (skillTreePanel == null)
             CreateSkillTreePanel();
+        if (loadoutPanel == null)
+            CreateLoadoutPanel();
+
+        AddStartingItems();
+        UpdateStatsDisplay();
     }
 
     void OnDestroy()
@@ -201,6 +207,7 @@ public class PauseMenu : MonoBehaviour
         if (skillsManager != null)
             skillsManager.OnChanged -= OnSkillTreeChanged;
         LocalizationManager.OnLanguageChanged -= OnLanguageChanged;
+        PlayerSpawner.OnPlayerReady -= OnPlayerReady;
         if (instance == this)
         {
             instance = null;
@@ -208,19 +215,18 @@ public class PauseMenu : MonoBehaviour
         }
     }
 
-    void OnSceneLoadedRebind(Scene scene, LoadSceneMode mode)
+    void RebindPlayerReferences()
     {
-        if (instance != this) return;
-
-        // Перепривязываем ссылки на объекты новой сцены
-        if (playerStats == null)
-            playerStats = FindAnyObjectByType<PlayerStats>();
-        if (playerCombat == null && playerStats != null)
-            playerCombat = playerStats.GetComponent<AutoCombat>();
+        playerStats = FindAnyObjectByType<PlayerStats>();
+        playerCombat = playerStats != null ? playerStats.GetComponent<AutoCombat>() : null;
         if (playerCombat == null)
             playerCombat = FindAnyObjectByType<AutoCombat>();
+
+        playerInventory = playerStats != null ? playerStats.GetComponent<Inventory>() : null;
         if (playerInventory == null)
             playerInventory = FindAnyObjectByType<Inventory>();
+
+        equipmentManager = playerStats != null ? playerStats.GetComponent<EquipmentManager>() : null;
         if (equipmentManager == null)
             equipmentManager = FindAnyObjectByType<EquipmentManager>();
 
@@ -229,6 +235,74 @@ public class PauseMenu : MonoBehaviour
         skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
         if (skillsManager != null)
             skillsManager.OnChanged += OnSkillTreeChanged;
+
+        skillHudLayout = FindAnyObjectByType<SkillHudLayoutController>();
+        if (skillHudLayout == null)
+            EnsureSkillHudExists();
+    }
+
+    void EnsureSkillHudExists()
+    {
+        if (skillHudLayout != null) return;
+
+        // Используем уже размещённые в сцене слоты (SkillSlots), если они есть.
+        SkillSlotButton[] existingSlots = FindObjectsByType<SkillSlotButton>(FindObjectsInactive.Include);
+        if (existingSlots != null && existingSlots.Length > 0)
+        {
+            Transform hudParent = existingSlots[0].transform.parent;
+            if (hudParent != null)
+            {
+                skillHudLayout = hudParent.GetComponent<SkillHudLayoutController>();
+                if (skillHudLayout == null)
+                    skillHudLayout = hudParent.gameObject.AddComponent<SkillHudLayoutController>();
+                Debug.Log($"[PauseMenu] EnsureSkillHudExists: using scene skill HUD container {hudParent.name}");
+                return;
+            }
+        }
+
+        // Если в сцене нет готовых слотов — HUD не создаём.
+        Debug.Log("[PauseMenu] EnsureSkillHudExists: no skill slot buttons found, skipping HUD creation");
+    }
+
+    public void OnPlayerReady()
+    {
+        RebindPlayerReferences();
+        ShowHUD();
+        UpdateStatsDisplay();
+        RefreshSkillHud();
+    }
+
+    void EnsureEventSystem()
+    {
+        if (FindAnyObjectByType<EventSystem>() != null) return;
+
+        GameObject esGO = new GameObject("EventSystem");
+        esGO.AddComponent<EventSystem>();
+        esGO.AddComponent<StandaloneInputModule>();
+        Debug.Log("[PauseMenu] Created missing EventSystem");
+    }
+
+    void OnSceneLoadedRebind(Scene scene, LoadSceneMode mode)
+    {
+        if (instance != this) return;
+
+        EnsureEventSystem();
+
+        if (scene.name == "MainMenu")
+        {
+            HideHUD();
+            HideSkillButtons();
+            StopPauseMusic();
+            if (pausePanel != null) pausePanel.SetActive(false);
+            // Hide pause button in MainMenu
+            PauseButton[] pauseButtons = FindObjectsByType<PauseButton>(FindObjectsInactive.Include);
+            foreach (PauseButton pb in pauseButtons)
+                if (pb != null) pb.gameObject.SetActive(false);
+            return;
+        }
+
+        // Перепривязываем ссылки на объекты новой сцены
+        RebindPlayerReferences();
 
         RebuildSkillTreeRows();
 
@@ -239,12 +313,79 @@ public class PauseMenu : MonoBehaviour
         IsPaused = false;
         if (pausePanel != null)
             pausePanel.SetActive(false);
+        else
+            Debug.LogWarning("[PauseMenu] pausePanel is null in OnSceneLoadedRebind!");
         Time.timeScale = 1f;
         CloseAllSubPanels();
-        
+
         // Обновляем инвентарь после смены сцены
         RefreshInventory();
-        UpdateStatsDisplay();
+        RefreshSkillHud();
+    }
+
+    void RefreshSkillHud()
+    {
+        SkillHudLayoutController[] layouts = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include);
+        Debug.Log($"[PauseMenu.RefreshSkillHud] found {layouts.Length} SkillHudLayoutController instance(s)");
+        SkillHudLayoutController chosen = null;
+
+        // Prefer the scene "SkillSlots" container if present
+        foreach (SkillHudLayoutController l in layouts)
+        {
+            if (l == null) continue;
+            if (l.gameObject.name == "SkillSlots")
+            {
+                chosen = l;
+                break;
+            }
+        }
+
+        // Fallback: choose the controller with the most skill slot children
+        if (chosen == null && layouts.Length > 0)
+        {
+            int bestCount = -1;
+            foreach (SkillHudLayoutController l in layouts)
+            {
+                if (l == null) continue;
+                int count = l.GetComponentsInChildren<SkillSlotButton>(true).Length;
+                if (count > bestCount)
+                {
+                    bestCount = count;
+                    chosen = l;
+                }
+            }
+        }
+        if (chosen == null) return;
+
+        // Clean up duplicate HUDs (especially old runtime SkillHudLayout objects)
+        foreach (SkillHudLayoutController l in layouts)
+        {
+            if (l == chosen || l == null) continue;
+            Debug.LogWarning($"[PauseMenu.RefreshSkillHud] Destroying duplicate SkillHudLayout: {l.gameObject.name}");
+            l.gameObject.SetActive(false);
+            Destroy(l.gameObject);
+        }
+
+        skillHudLayout = chosen;
+        skillHudLayout.gameObject.SetActive(true);
+        skillHudLayout.ForceRefresh();
+
+        // Log block button and skill slot positions
+        SkillSlotButton[] slots = skillHudLayout.GetComponentsInChildren<SkillSlotButton>(true);
+        BlockButton[] blocks = FindObjectsByType<BlockButton>(FindObjectsInactive.Include);
+        System.Text.StringBuilder sb = new System.Text.StringBuilder("[PauseMenu.RefreshSkillHud] positions:");
+        for (int i = 0; i < slots.Length; i++)
+        {
+            RectTransform r = slots[i].transform as RectTransform;
+            if (r != null) sb.Append($" {slots[i].name}={r.anchoredPosition}");
+        }
+        for (int i = 0; i < blocks.Length; i++)
+        {
+            if (blocks[i] == null) continue;
+            RectTransform r = blocks[i].transform as RectTransform;
+            if (r != null) sb.Append($" Block_{i}={r.anchoredPosition}");
+        }
+        Debug.Log(sb.ToString());
     }
 
     void OnInventoryChangedHandler()
@@ -304,6 +445,8 @@ public class PauseMenu : MonoBehaviour
 
     public void TogglePause()
     {
+        Debug.Log($"[PauseMenu] TogglePause: this==null={this == null}, pausePanel==null={pausePanel == null}, gameObject.activeInHierarchy={gameObject.activeInHierarchy}");
+        if (this == null || pausePanel == null) return;
         isPaused = !isPaused;
         IsPaused = isPaused;
         pausePanel.SetActive(isPaused);
@@ -318,6 +461,7 @@ public class PauseMenu : MonoBehaviour
         }
         else
         {
+            CloseSkillHudEditor();
             ShowHUD();
             CloseAllSubPanels();
             StopPauseMusic();
@@ -326,6 +470,7 @@ public class PauseMenu : MonoBehaviour
 
     public void Resume()
     {
+        CloseSkillHudEditor();
         isPaused = false;
         IsPaused = false;
         pausePanel.SetActive(false);
@@ -392,10 +537,13 @@ public class PauseMenu : MonoBehaviour
 
     void CloseAllSubPanels()
     {
+        if (skillHudLayout != null && skillHudLayout.IsEditing)
+            skillHudLayout.FinishEdit();
         if (settingsPanel != null) settingsPanel.SetActive(false);
         if (languagePanel != null) languagePanel.SetActive(false);
         if (savePanel != null) savePanel.SetActive(false);
         if (skillTreePanel != null) skillTreePanel.SetActive(false);
+        if (loadoutPanel != null) loadoutPanel.SetActive(false);
         CloseSkillDescription();
         if (bestiaryPanel != null) bestiaryPanel.SetActive(false);
         selectedSlot = -1;
@@ -426,6 +574,14 @@ public class PauseMenu : MonoBehaviour
             }
         }
 
+        SkillHudLayoutController skillHud = FindAnyObjectByType<SkillHudLayoutController>();
+        if (skillHud != null && skillHud.gameObject.activeSelf)
+        {
+            skillHudLayout = skillHud;
+            hiddenHUD.Add(skillHud.gameObject);
+            skillHud.gameObject.SetActive(false);
+        }
+
         BlockButton blockBtn = FindAnyObjectByType<BlockButton>();
         if (blockBtn != null && blockBtn.gameObject.activeSelf)
         {
@@ -442,6 +598,54 @@ public class PauseMenu : MonoBehaviour
                 go.SetActive(true);
         }
         hiddenHUD.Clear();
+
+        // Re-enable pause button
+        PauseButton[] pauseButtons = FindObjectsByType<PauseButton>(FindObjectsInactive.Include);
+        foreach (PauseButton pb in pauseButtons)
+            if (pb != null) pb.gameObject.SetActive(true);
+
+        foreach (HealthBarUI hb in FindObjectsByType<HealthBarUI>(FindObjectsInactive.Include))
+            if (hb != null) hb.gameObject.SetActive(true);
+
+        foreach (ThrowSkillButton btn in FindObjectsByType<ThrowSkillButton>(FindObjectsInactive.Include))
+            if (btn != null) btn.gameObject.SetActive(true);
+
+        foreach (SkillHudLayoutController hud in FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include))
+        {
+            if (hud == null) continue;
+            if (hud.gameObject.scene.IsValid() && !hud.gameObject.scene.isLoaded) continue;
+            hud.gameObject.SetActive(true);
+        }
+
+        foreach (BlockButton block in FindObjectsByType<BlockButton>(FindObjectsInactive.Include))
+            if (block != null) block.gameObject.SetActive(true);
+    }
+
+    void HideSkillButtons()
+    {
+        if (skillHudLayout == null)
+        {
+            SkillHudLayoutController[] layouts = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include);
+            skillHudLayout = layouts.Length > 0 ? layouts[0] : null;
+        }
+        if (skillHudLayout != null && skillHudLayout.gameObject.activeSelf)
+        {
+            skillHudLayout.gameObject.SetActive(false);
+        }
+    }
+
+    void ShowSkillButtons()
+    {
+        RefreshSkillHud();
+        if (skillHudLayout == null)
+        {
+            SkillHudLayoutController[] layouts = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include);
+            skillHudLayout = layouts.Length > 0 ? layouts[0] : null;
+        }
+        if (skillHudLayout != null)
+        {
+            skillHudLayout.gameObject.SetActive(true);
+        }
     }
 
     public void QuitGame()
@@ -450,11 +654,17 @@ public class PauseMenu : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         CloseAllSubPanels();
         IsPaused = false;
+        isPaused = false;
+        StopPauseMusic();
+
+        // Hide the pause button so it's not clickable in MainMenu
+        PauseButton[] pauseButtons = FindObjectsByType<PauseButton>(FindObjectsInactive.Include);
+        foreach (PauseButton pb in pauseButtons)
+            if (pb != null) pb.gameObject.SetActive(false);
 
         TeleportEffect.Play(
             () =>
             {
-                Destroy(gameObject);
                 SceneManager.LoadScene("MainMenu");
             },
             null);
@@ -463,9 +673,17 @@ public class PauseMenu : MonoBehaviour
     public void OpenSettings()
     {
         HideInventory();
+        HideSkillButtons();
+        if (skillHudLayout == null)
+        {
+            SkillHudLayoutController[] layouts = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include);
+            skillHudLayout = layouts.Length > 0 ? layouts[0] : null;
+        }
         if (settingsPanel != null)
         {
             settingsPanel.SetActive(true);
+            if (skillHudSizeSlider != null && skillHudLayout != null)
+                skillHudSizeSlider.SetValueWithoutNotify(skillHudLayout.ButtonSize);
             if (floatingJoystickToggle != null)
                 floatingJoystickToggle.isOn = PlayerPrefs.GetInt("FloatingJoystick", 0) == 1;
             if (heartStyleToggle != null)
@@ -475,6 +693,7 @@ public class PauseMenu : MonoBehaviour
 
     public void CloseSettings()
     {
+        CloseSkillHudEditor();
         if (settingsPanel != null)
             settingsPanel.SetActive(false);
         ShowInventory();
@@ -597,6 +816,8 @@ public class PauseMenu : MonoBehaviour
             RefreshSlotButtons();
         if (skillTreePanel != null && skillTreePanel.activeSelf)
             RefreshSkillTree();
+        if (loadoutPanel != null && loadoutPanel.activeSelf)
+            RefreshLoadoutSlots();
         if (bestiaryPanel != null && bestiaryPanel.activeSelf)
             RefreshBestiary();
         if (statisticsPanel != null && statisticsPanel.activeSelf)
@@ -609,6 +830,7 @@ public class PauseMenu : MonoBehaviour
     public void OpenSavePanel()
     {
         HideInventory();
+        HideSkillButtons();
         if (savePanel != null)
         {
             savePanel.SetActive(true);
@@ -657,6 +879,7 @@ public class PauseMenu : MonoBehaviour
     public void OpenSkillTree()
     {
         HideInventory();
+        HideSkillButtons();
         if (skillTreePanel != null)
         {
             skillTreePanel.SetActive(true);
@@ -840,6 +1063,10 @@ public class PauseMenu : MonoBehaviour
 
         heartToggle.onValueChanged.AddListener(OnHeartStyleToggle);
 
+        skillHudSizeSlider = CreateSkillHudSizeSlider(settingsPanel.transform);
+        CreateSmallButton(settingsPanel.transform, "Settings.ChangeLayout", new Vector2(300, 60), ToggleSkillHudEditor, true);
+        CreateSmallButton(settingsPanel.transform, "Settings.ResetSkillLayout", new Vector2(300, 60), ResetSkillHudLayout, true);
+
         // Ползунки смещения камеры отключены, но скрипты остаются работающими
         /*
         GameObject camOffsetXGO = new GameObject("CameraOffsetXSlider");
@@ -909,6 +1136,161 @@ public class PauseMenu : MonoBehaviour
         CreateSmallButton(settingsPanel.transform, "Common.Close", new Vector2(300, 60), CloseSettings, true);
 
         settingsPanel.SetActive(false);
+    }
+
+    Slider CreateSkillHudSizeSlider(Transform parent)
+    {
+        GameObject sliderGO = new GameObject("SkillHudSizeSlider");
+        sliderGO.transform.SetParent(parent, false);
+        sliderGO.AddComponent<CanvasRenderer>();
+        Image background = sliderGO.AddComponent<Image>();
+        background.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+        Slider slider = sliderGO.AddComponent<Slider>();
+        slider.minValue = 72f;
+        slider.maxValue = 180f;
+        slider.wholeNumbers = true;
+        slider.value = skillHudLayout != null ? skillHudLayout.ButtonSize : 110f;
+        slider.onValueChanged.AddListener(OnSkillHudSizeChanged);
+        RectTransform rect = sliderGO.GetComponent<RectTransform>();
+        rect.sizeDelta = new Vector2(0f, 70f);
+        AddSliderVisuals(slider);
+
+        GameObject labelGO = new GameObject("Label");
+        labelGO.transform.SetParent(sliderGO.transform, false);
+        labelGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI label = labelGO.AddComponent<TextMeshProUGUI>();
+        label.text = "Размер кнопок навыков";
+        label.fontSize = 28f;
+        label.alignment = TextAlignmentOptions.Left;
+        label.color = Color.white;
+        RectTransform labelRect = labelGO.GetComponent<RectTransform>();
+        labelRect.anchorMin = new Vector2(0f, 0.5f);
+        labelRect.anchorMax = new Vector2(1f, 0.5f);
+        labelRect.offsetMin = new Vector2(10f, -28f);
+        labelRect.offsetMax = new Vector2(-10f, 28f);
+        return slider;
+    }
+
+    void OnSkillHudSizeChanged(float value)
+    {
+        skillHudLayout?.ApplySize(value);
+    }
+
+    public void OpenSkillHudEditor()
+    {
+        RefreshSkillHud();
+
+        if (skillHudLayout == null)
+        {
+            SkillHudLayoutController[] layouts = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Include);
+            skillHudLayout = layouts.Length > 0 ? layouts[0] : null;
+        }
+        Debug.Log($"[PauseMenu] OpenSkillHudEditor: skillHudLayout={skillHudLayout != null}");
+        if (skillHudLayout == null)
+        {
+            EnsureSkillHudExists();
+            if (skillHudLayout != null)
+                skillHudLayout.gameObject.SetActive(true);
+        }
+        if (skillHudLayout == null) return;
+        if (pausePanel != null) pausePanel.SetActive(false);
+        skillHudLayout.gameObject.SetActive(true);
+        skillHudLayout.transform.SetAsLastSibling();
+        BlockButton[] blockButtons = FindObjectsByType<BlockButton>(FindObjectsInactive.Include);
+        cachedBlockButton = blockButtons.Length > 0 ? blockButtons[0] : null;
+        if (cachedBlockButton != null)
+        {
+            blockButtonWasActive = cachedBlockButton.gameObject.activeSelf;
+            cachedBlockButton.gameObject.SetActive(true);
+            cachedBlockButton.transform.SetAsLastSibling();
+        }
+        skillHudLayout.BeginEdit();
+        Debug.Log($"[PauseMenu] OpenSkillHudEditor: edit mode active={skillHudLayout.IsEditing}");
+        CreateSkillHudEditorOverlay();
+    }
+
+    public void ToggleSkillHudEditor()
+    {
+        if (skillHudLayout != null && skillHudLayout.IsEditing)
+        {
+            CloseSkillHudEditor();
+            return;
+        }
+        OpenSkillHudEditor();
+    }
+
+    void CreateSkillHudEditorOverlay()
+    {
+        if (skillHudEditorOverlay != null || pausePanel == null) return;
+        Canvas canvas = pausePanel.GetComponentInParent<Canvas>(true);
+        if (canvas == null) return;
+        skillHudEditorOverlay = new GameObject("SkillHudEditorOverlay");
+        skillHudEditorOverlay.transform.SetParent(canvas.transform, false);
+        RectTransform overlayRect = skillHudEditorOverlay.AddComponent<RectTransform>();
+        overlayRect.anchorMin = Vector2.zero;
+        overlayRect.anchorMax = Vector2.one;
+        overlayRect.offsetMin = Vector2.zero;
+        overlayRect.offsetMax = Vector2.zero;
+
+        GameObject closeGO = new GameObject("CloseButton");
+        closeGO.transform.SetParent(skillHudEditorOverlay.transform, false);
+        closeGO.AddComponent<CanvasRenderer>();
+        Image closeImage = closeGO.AddComponent<Image>();
+        closeImage.color = new Color(0.75f, 0.12f, 0.12f, 0.95f);
+        Button closeButton = closeGO.AddComponent<Button>();
+        closeButton.targetGraphic = closeImage;
+        closeButton.onClick.AddListener(CloseSkillHudEditor);
+        RectTransform closeRect = closeGO.GetComponent<RectTransform>();
+        closeRect.anchorMin = new Vector2(1f, 1f);
+        closeRect.anchorMax = new Vector2(1f, 1f);
+        closeRect.pivot = new Vector2(1f, 1f);
+        closeRect.anchoredPosition = new Vector2(-24f, -24f);
+        closeRect.sizeDelta = new Vector2(84f, 84f);
+
+        GameObject textGO = new GameObject("Text");
+        textGO.transform.SetParent(closeGO.transform, false);
+        TextMeshProUGUI text = textGO.AddComponent<TextMeshProUGUI>();
+        text.text = "×";
+        text.fontSize = 64f;
+        text.fontStyle = FontStyles.Bold;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        RectTransform textRect = textGO.GetComponent<RectTransform>();
+        textRect.anchorMin = Vector2.zero;
+        textRect.anchorMax = Vector2.one;
+        textRect.offsetMin = Vector2.zero;
+        textRect.offsetMax = Vector2.zero;
+        skillHudEditorOverlay.transform.SetAsLastSibling();
+    }
+
+    public void CloseSkillHudEditor()
+    {
+        bool wasEditing = skillHudLayout != null && skillHudLayout.IsEditing;
+        if (wasEditing) skillHudLayout.FinishEdit();
+        if (skillHudLayout != null)
+            skillHudLayout.gameObject.SetActive(false);
+        if (cachedBlockButton != null)
+        {
+            cachedBlockButton.gameObject.SetActive(blockButtonWasActive);
+            cachedBlockButton = null;
+        }
+        if (skillHudEditorOverlay != null)
+        {
+            Destroy(skillHudEditorOverlay);
+            skillHudEditorOverlay = null;
+        }
+        if (wasEditing && isPaused && pausePanel != null)
+        {
+            pausePanel.SetActive(true);
+            if (settingsPanel != null) settingsPanel.SetActive(true);
+        }
+    }
+
+    public void ResetSkillHudLayout()
+    {
+        skillHudLayout?.ResetLayout();
+        if (skillHudSizeSlider != null)
+            skillHudSizeSlider.value = skillHudLayout != null ? skillHudLayout.ButtonSize : 110f;
     }
 
     void AddSliderVisuals(Slider slider)
@@ -1550,7 +1932,458 @@ public class PauseMenu : MonoBehaviour
     {
         if (skillTreePanel != null && skillTreePanel.activeSelf)
             RefreshSkillTree();
+        if (loadoutPanel != null && loadoutPanel.activeSelf)
+            RefreshLoadoutSlots();
     }
+
+    #region Loadout Panel
+
+    void CreateLoadoutButton()
+    {
+        if (pausePanel == null) return;
+
+        GameObject btnGO = new GameObject("LoadoutButton");
+        btnGO.transform.SetParent(pausePanel.transform, false);
+        btnGO.AddComponent<CanvasRenderer>();
+        Image img = btnGO.AddComponent<Image>();
+        img.sprite = skillTreeButtonIcon;
+        img.color = skillTreeButtonIcon != null ? Color.white : new Color(0.3f, 0.55f, 0.8f, 0.76f);
+
+        Button btn = btnGO.AddComponent<Button>();
+        btn.targetGraphic = img;
+        btn.onClick.AddListener(OpenLoadout);
+        RectTransform rt = btnGO.GetComponent<RectTransform>();
+        rt.anchorMin = new Vector2(1, 1);
+        rt.anchorMax = new Vector2(1, 1);
+        rt.pivot = new Vector2(1, 1);
+        rt.anchoredPosition = new Vector2(-380, -20);
+        rt.sizeDelta = new Vector2(80, 80);
+    }
+
+    void CreateLoadoutPanel()
+    {
+        if (pausePanel == null) return;
+        if (skillsManager == null)
+            skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+
+        loadoutPanel = new GameObject("LoadoutPanel");
+        loadoutPanel.transform.SetParent(pausePanel.transform, false);
+        RectTransform srt = loadoutPanel.AddComponent<RectTransform>();
+        srt.anchorMin = Vector2.zero;
+        srt.anchorMax = Vector2.one;
+        srt.offsetMin = new Vector2(120, 120);
+        srt.offsetMax = new Vector2(-120, -120);
+
+        Image bg = loadoutPanel.AddComponent<Image>();
+        bg.color = new Color(0.08f, 0.08f, 0.12f, 0.95f);
+
+        VerticalLayoutGroup vlg = loadoutPanel.AddComponent<VerticalLayoutGroup>();
+        vlg.spacing = 15;
+        vlg.padding = new RectOffset(25, 25, 25, 25);
+        vlg.childAlignment = TextAnchor.UpperCenter;
+        vlg.childControlWidth = true;
+        vlg.childControlHeight = false;
+        vlg.childForceExpandWidth = true;
+        vlg.childForceExpandHeight = false;
+
+        // Header
+        GameObject header = new GameObject("Header");
+        header.transform.SetParent(loadoutPanel.transform, false);
+        RectTransform headerRt = header.AddComponent<RectTransform>();
+        headerRt.anchorMin = new Vector2(0, 1);
+        headerRt.anchorMax = new Vector2(1, 1);
+        headerRt.pivot = new Vector2(0.5f, 1);
+        headerRt.sizeDelta = new Vector2(0, 60);
+
+        GameObject titleGO = new GameObject("Title");
+        titleGO.transform.SetParent(header.transform, false);
+        RectTransform titleRt = titleGO.AddComponent<RectTransform>();
+        titleRt.anchorMin = new Vector2(0, 0);
+        titleRt.anchorMax = new Vector2(1, 1);
+        titleRt.offsetMax = new Vector2(-70, 0);
+        titleGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI title = titleGO.AddComponent<TextMeshProUGUI>();
+        title.text = Loc("Loadout.Title");
+        titleGO.AddComponent<LocalizedText>().key = "Loadout.Title";
+        title.fontSize = 32;
+        title.alignment = TextAlignmentOptions.Left;
+        title.color = Color.white;
+
+        GameObject closeBtnGO = new GameObject("CloseButton");
+        closeBtnGO.transform.SetParent(header.transform, false);
+        RectTransform closeRt = closeBtnGO.AddComponent<RectTransform>();
+        closeRt.anchorMin = new Vector2(1, 0);
+        closeRt.anchorMax = new Vector2(1, 1);
+        closeRt.pivot = new Vector2(1, 0.5f);
+        closeRt.sizeDelta = new Vector2(60, 60);
+        closeBtnGO.AddComponent<CanvasRenderer>();
+        Image closeImg = closeBtnGO.AddComponent<Image>();
+        closeImg.color = new Color(0.5f, 0.15f, 0.1f, 1f);
+        Button closeBtn = closeBtnGO.AddComponent<Button>();
+        closeBtn.targetGraphic = closeImg;
+        closeBtn.onClick.AddListener(CloseLoadout);
+
+        GameObject closeTextGO = new GameObject("Text");
+        closeTextGO.transform.SetParent(closeBtnGO.transform, false);
+        RectTransform closeTextRt = closeTextGO.AddComponent<RectTransform>();
+        closeTextRt.anchorMin = Vector2.zero;
+        closeTextRt.anchorMax = Vector2.one;
+        closeTextRt.offsetMin = Vector2.zero;
+        closeTextRt.offsetMax = Vector2.zero;
+        closeTextGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI closeText = closeTextGO.AddComponent<TextMeshProUGUI>();
+        closeText.text = "×";
+        closeText.fontSize = 48;
+        closeText.alignment = TextAlignmentOptions.Center;
+        closeText.color = Color.white;
+
+        // Slot row
+        GameObject slotRowGO = new GameObject("SlotRow");
+        slotRowGO.transform.SetParent(loadoutPanel.transform, false);
+        RectTransform slotRowRt = slotRowGO.AddComponent<RectTransform>();
+        slotRowRt.sizeDelta = new Vector2(0, 120);
+        HorizontalLayoutGroup slotHlg = slotRowGO.AddComponent<HorizontalLayoutGroup>();
+        slotHlg.spacing = 20;
+        slotHlg.childAlignment = TextAnchor.MiddleCenter;
+        slotHlg.childControlWidth = false;
+        slotHlg.childControlHeight = false;
+        slotHlg.childForceExpandWidth = false;
+        slotHlg.childForceExpandHeight = false;
+
+        LayoutElement slotRowLe = slotRowGO.AddComponent<LayoutElement>();
+        slotRowLe.minHeight = 120f;
+        slotRowLe.preferredHeight = 120f;
+
+        for (int i = 0; i < 4; i++)
+        {
+            int slotIndex = i;
+            GameObject slotGO = new GameObject($"Slot{i + 1}");
+            slotGO.transform.SetParent(slotRowGO.transform, false);
+            RectTransform slotRect = slotGO.AddComponent<RectTransform>();
+            slotRect.sizeDelta = new Vector2(100, 100);
+            LayoutElement slotLe = slotGO.AddComponent<LayoutElement>();
+            slotLe.minWidth = 100f;
+            slotLe.minHeight = 100f;
+            slotLe.preferredWidth = 100f;
+            slotLe.preferredHeight = 100f;
+
+            Image slotBg = slotGO.AddComponent<Image>();
+            slotBg.color = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+
+            Button slotBtn = slotGO.AddComponent<Button>();
+            slotBtn.targetGraphic = slotBg;
+            loadoutSlotButtons[i] = slotBtn;
+
+            GameObject iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(slotGO.transform, false);
+            RectTransform iconRt = iconGO.AddComponent<RectTransform>();
+            iconRt.anchorMin = Vector2.zero;
+            iconRt.anchorMax = Vector2.one;
+            iconRt.offsetMin = new Vector2(10, 10);
+            iconRt.offsetMax = new Vector2(-10, -10);
+            Image iconImg = iconGO.AddComponent<Image>();
+            iconImg.raycastTarget = false;
+            iconImg.preserveAspect = true;
+            iconImg.enabled = false;
+            loadoutSlotIcons[i] = iconImg;
+
+            GameObject labelGO = new GameObject("SlotLabel");
+            labelGO.transform.SetParent(slotGO.transform, false);
+            RectTransform labelRt = labelGO.AddComponent<RectTransform>();
+            labelRt.anchorMin = new Vector2(0, 0);
+            labelRt.anchorMax = new Vector2(1, 0);
+            labelRt.pivot = new Vector2(0.5f, 0);
+            labelRt.sizeDelta = new Vector2(0, 24);
+            labelGO.AddComponent<CanvasRenderer>();
+            TextMeshProUGUI label = labelGO.AddComponent<TextMeshProUGUI>();
+            label.text = (i + 1).ToString();
+            label.fontSize = 20;
+            label.alignment = TextAlignmentOptions.Center;
+            label.color = new Color(0.7f, 0.7f, 0.7f, 1f);
+
+            slotBtn.onClick.AddListener(() => ShowLoadoutSkillList(slotIndex));
+        }
+
+        // Skill list (scrollable)
+        GameObject scrollGO = new GameObject("SkillListScroll");
+        scrollGO.transform.SetParent(loadoutPanel.transform, false);
+        RectTransform scrollRt = scrollGO.AddComponent<RectTransform>();
+        scrollRt.sizeDelta = new Vector2(0, 300);
+        Image scrollBg = scrollGO.AddComponent<Image>();
+        scrollBg.color = new Color(0.05f, 0.05f, 0.08f, 0.9f);
+
+        LayoutElement scrollLe = scrollGO.AddComponent<LayoutElement>();
+        scrollLe.minHeight = 300f;
+        scrollLe.preferredHeight = 300f;
+        scrollLe.flexibleHeight = 1f;
+
+        GameObject viewportGO = new GameObject("Viewport");
+        viewportGO.transform.SetParent(scrollGO.transform, false);
+        RectTransform viewportRt = viewportGO.AddComponent<RectTransform>();
+        viewportRt.anchorMin = Vector2.zero;
+        viewportRt.anchorMax = Vector2.one;
+        viewportRt.offsetMin = Vector2.zero;
+        viewportRt.offsetMax = Vector2.zero;
+        Image viewportBg = viewportGO.AddComponent<Image>();
+        viewportBg.color = Color.clear;
+        viewportGO.AddComponent<RectMask2D>();
+
+        GameObject contentGO = new GameObject("Content");
+        contentGO.transform.SetParent(viewportGO.transform, false);
+        RectTransform contentRt = contentGO.AddComponent<RectTransform>();
+        contentRt.anchorMin = new Vector2(0, 1);
+        contentRt.anchorMax = new Vector2(1, 1);
+        contentRt.pivot = new Vector2(0.5f, 1);
+        contentRt.sizeDelta = new Vector2(-10, 0);
+
+        VerticalLayoutGroup contentVlg = contentGO.AddComponent<VerticalLayoutGroup>();
+        contentVlg.spacing = 8;
+        contentVlg.padding = new RectOffset(10, 10, 10, 10);
+        contentVlg.childAlignment = TextAnchor.UpperCenter;
+        contentVlg.childControlWidth = true;
+        contentVlg.childControlHeight = false;
+        contentVlg.childForceExpandWidth = true;
+        contentVlg.childForceExpandHeight = false;
+
+        ContentSizeFitter csf = contentGO.AddComponent<ContentSizeFitter>();
+        csf.verticalFit = ContentSizeFitter.FitMode.PreferredSize;
+
+        ScrollRect scrollRect = scrollGO.AddComponent<ScrollRect>();
+        scrollRect.viewport = viewportRt;
+        scrollRect.content = contentRt;
+        scrollRect.horizontal = false;
+        scrollRect.vertical = true;
+        scrollRect.movementType = ScrollRect.MovementType.Elastic;
+
+        loadoutSkillListContent = contentGO.transform;
+
+        // Hint text (shown when no slot selected)
+        GameObject hintGO = new GameObject("HintText");
+        hintGO.transform.SetParent(loadoutPanel.transform, false);
+        RectTransform hintRt = hintGO.AddComponent<RectTransform>();
+        hintRt.sizeDelta = new Vector2(0, 40);
+        hintGO.AddComponent<CanvasRenderer>();
+        LayoutElement hintLe = hintGO.AddComponent<LayoutElement>();
+        hintLe.minHeight = 40f;
+        hintLe.preferredHeight = 40f;
+        TextMeshProUGUI hint = hintGO.AddComponent<TextMeshProUGUI>();
+        hint.text = Loc("Loadout.SelectSlot");
+        hintGO.AddComponent<LocalizedText>().key = "Loadout.SelectSlot";
+        hint.fontSize = 24;
+        hint.alignment = TextAlignmentOptions.Center;
+        hint.color = new Color(0.6f, 0.6f, 0.6f, 1f);
+
+        loadoutPanel.SetActive(false);
+    }
+
+    public void OpenLoadout()
+    {
+        if (loadoutPanel == null) return;
+        HideInventory();
+        ShowSkillButtons();
+        loadoutPanel.SetActive(true);
+        loadoutPanel.transform.SetAsLastSibling();
+        Transform canvasTransform = pausePanel != null ? pausePanel.GetComponentInParent<Canvas>()?.transform : null;
+        if (canvasTransform != null && transform.parent == canvasTransform)
+            transform.SetAsLastSibling();
+
+        selectedLoadoutSlot = 0;
+        RefreshLoadoutSlots();
+        ShowLoadoutSkillList(0);
+    }
+
+    public void CloseLoadout()
+    {
+        if (loadoutPanel != null)
+            loadoutPanel.SetActive(false);
+        HideSkillButtons();
+        ShowInventory();
+    }
+
+    void RefreshLoadoutSlots()
+    {
+        if (skillsManager == null) skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager == null) return;
+
+        for (int i = 0; i < 4; i++)
+        {
+            PlayerSkillInstance skill = skillsManager.GetSlot(i);
+            bool enabled = skillsManager.IsSlotEnabled(i) && skill != null;
+
+            if (loadoutSlotIcons[i] != null)
+            {
+                if (skill != null && skill.Data != null && skill.Data.icon != null)
+                {
+                    loadoutSlotIcons[i].sprite = skill.Data.icon;
+                    loadoutSlotIcons[i].enabled = true;
+                }
+                else
+                {
+                    loadoutSlotIcons[i].enabled = false;
+                }
+            }
+
+            if (loadoutSlotButtons[i] != null)
+            {
+                ColorBlock colors = loadoutSlotButtons[i].colors;
+                colors.normalColor = (i == selectedLoadoutSlot)
+                    ? new Color(0.3f, 0.6f, 0.9f, 1f)
+                    : new Color(0.15f, 0.15f, 0.2f, 0.9f);
+                loadoutSlotButtons[i].colors = colors;
+            }
+        }
+    }
+
+    void ShowLoadoutSkillList(int slotIndex)
+    {
+        selectedLoadoutSlot = slotIndex;
+        RefreshLoadoutSlots();
+        ClearLoadoutSkillButtons();
+
+        if (skillsManager == null) skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager == null) return;
+
+        PlayerSkillInstance currentSkill = skillsManager.GetSlot(slotIndex);
+        Color selectedRowColor = new Color(0.2f, 0.55f, 0.85f, 0.95f);
+        Color normalRowColor = new Color(0.15f, 0.15f, 0.2f, 0.9f);
+
+        foreach (PlayerSkillInstance skill in skillsManager.Skills)
+        {
+            if (skill == null || skill.Data == null) continue;
+
+            PlayerSkillInstance captured = skill;
+            GameObject rowGO = new GameObject($"Skill_{skill.Data.skillName}");
+            rowGO.transform.SetParent(loadoutSkillListContent, false);
+            RectTransform rowRt = rowGO.AddComponent<RectTransform>();
+            rowRt.sizeDelta = new Vector2(0, 80);
+            HorizontalLayoutGroup rowHlg = rowGO.AddComponent<HorizontalLayoutGroup>();
+            rowHlg.spacing = 12;
+            rowHlg.padding = new RectOffset(10, 10, 8, 8);
+            rowHlg.childAlignment = TextAnchor.MiddleLeft;
+            rowHlg.childControlWidth = false;
+            rowHlg.childControlHeight = false;
+            rowHlg.childForceExpandWidth = false;
+            rowHlg.childForceExpandHeight = false;
+
+            LayoutElement rowLe = rowGO.AddComponent<LayoutElement>();
+            rowLe.minHeight = 80f;
+            rowLe.preferredHeight = 80f;
+
+            Image rowBg = rowGO.AddComponent<Image>();
+            bool isSelected = currentSkill != null && currentSkill == skill;
+            rowBg.color = isSelected ? selectedRowColor : normalRowColor;
+            Button rowBtn = rowGO.AddComponent<Button>();
+            rowBtn.transition = Selectable.Transition.None;
+            rowBtn.targetGraphic = rowBg;
+            ColorBlock rowColors = rowBtn.colors;
+            rowColors.normalColor = rowBg.color;
+            rowColors.highlightedColor = rowBg.color;
+            rowColors.pressedColor = new Color(rowBg.color.r * 0.85f, rowBg.color.g * 0.85f, rowBg.color.b * 0.85f, rowBg.color.a);
+            rowColors.selectedColor = rowBg.color;
+            rowBtn.colors = rowColors;
+
+            GameObject iconGO = new GameObject("Icon");
+            iconGO.transform.SetParent(rowGO.transform, false);
+            RectTransform iconRt = iconGO.AddComponent<RectTransform>();
+            iconRt.sizeDelta = new Vector2(60, 60);
+            LayoutElement iconLe = iconGO.AddComponent<LayoutElement>();
+            iconLe.minWidth = 60f;
+            iconLe.minHeight = 60f;
+            Image iconImg = iconGO.AddComponent<Image>();
+            iconImg.raycastTarget = false;
+            iconImg.preserveAspect = true;
+            if (skill.Data.icon != null)
+            {
+                iconImg.sprite = skill.Data.icon;
+                iconImg.enabled = true;
+            }
+            else
+            {
+                iconImg.color = new Color(1f, 0.45f, 0f, 1f);
+                iconImg.enabled = true;
+            }
+
+            GameObject nameGO = new GameObject("Name");
+            nameGO.transform.SetParent(rowGO.transform, false);
+            RectTransform nameRt = nameGO.AddComponent<RectTransform>();
+            nameRt.sizeDelta = new Vector2(0, 60);
+            nameGO.AddComponent<CanvasRenderer>();
+            LayoutElement nameLe = nameGO.AddComponent<LayoutElement>();
+            nameLe.flexibleWidth = 1f;
+            nameLe.minWidth = 120f;
+            nameLe.minHeight = 60f;
+            TextMeshProUGUI nameText = nameGO.AddComponent<TextMeshProUGUI>();
+            nameText.text = skill.Data.skillName;
+            nameText.fontSize = 26;
+            nameText.alignment = TextAlignmentOptions.Left;
+            nameText.color = Color.white;
+            nameText.overflowMode = TextOverflowModes.Overflow;
+
+            rowBtn.onClick.AddListener(() => AssignSkillToSlot(captured, slotIndex));
+            loadoutSkillButtons.Add(rowGO);
+        }
+
+        // Clear slot button
+        GameObject clearGO = new GameObject("ClearSlotButton");
+        clearGO.transform.SetParent(loadoutSkillListContent, false);
+        RectTransform clearRt = clearGO.AddComponent<RectTransform>();
+        clearRt.sizeDelta = new Vector2(0, 60);
+        clearGO.AddComponent<CanvasRenderer>();
+
+        LayoutElement clearLe = clearGO.AddComponent<LayoutElement>();
+        clearLe.minHeight = 60f;
+        clearLe.preferredHeight = 60f;
+
+        Image clearImg = clearGO.AddComponent<Image>();
+        bool slotEmpty = currentSkill == null;
+        clearImg.color = slotEmpty ? new Color(0.9f, 0.3f, 0.25f, 0.95f) : new Color(0.6f, 0.15f, 0.1f, 0.9f);
+        Button clearBtn = clearGO.AddComponent<Button>();
+        clearBtn.transition = Selectable.Transition.None;
+        clearBtn.targetGraphic = clearImg;
+        clearBtn.onClick.AddListener(() => AssignSkillToSlot(null, slotIndex));
+
+        GameObject clearTextGO = new GameObject("Text");
+        clearTextGO.transform.SetParent(clearGO.transform, false);
+        RectTransform clearTextRt = clearTextGO.AddComponent<RectTransform>();
+        clearTextRt.anchorMin = Vector2.zero;
+        clearTextRt.anchorMax = Vector2.one;
+        clearTextRt.offsetMin = Vector2.zero;
+        clearTextRt.offsetMax = Vector2.zero;
+        clearTextGO.AddComponent<CanvasRenderer>();
+        TextMeshProUGUI clearText = clearTextGO.AddComponent<TextMeshProUGUI>();
+        clearText.text = Loc("Loadout.ClearSlot");
+        clearTextGO.AddComponent<LocalizedText>().key = "Loadout.ClearSlot";
+        clearText.fontSize = 28;
+        clearText.alignment = TextAlignmentOptions.Center;
+        clearText.color = Color.white;
+
+        loadoutSkillButtons.Add(clearGO);
+
+        if (loadoutSkillListContent is RectTransform contentRect)
+        {
+            LayoutRebuilder.ForceRebuildLayoutImmediate(contentRect);
+            Canvas.ForceUpdateCanvases();
+        }
+    }
+
+    void AssignSkillToSlot(PlayerSkillInstance skill, int slotIndex)
+    {
+        if (skillsManager == null) skillsManager = FindAnyObjectByType<PlayerSkillsManager>();
+        if (skillsManager == null) return;
+        skillsManager.SetSlot(slotIndex, skill);
+        RefreshLoadoutSlots();
+        ShowLoadoutSkillList(slotIndex);
+        UpdateStatsDisplay();
+    }
+
+    void ClearLoadoutSkillButtons()
+    {
+        foreach (GameObject go in loadoutSkillButtons)
+            if (go != null) Destroy(go);
+        loadoutSkillButtons.Clear();
+    }
+
+    #endregion
 
     Sprite CreateCircleGradientSprite(int size, Color center, Color edge)
     {
@@ -1710,6 +2543,7 @@ public class PauseMenu : MonoBehaviour
     public void OpenBestiary()
     {
         HideInventory();
+        HideSkillButtons();
         if (bestiaryPanel != null)
         {
             bestiaryPanel.SetActive(true);
@@ -2109,7 +2943,7 @@ public class PauseMenu : MonoBehaviour
         UpdateStatsDisplay();
     }
 
-    void UpdateStatsDisplay()
+    public void UpdateStatsDisplay()
     {
         if (playerStats == null) return;
 

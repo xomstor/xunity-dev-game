@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.InputSystem;
 
 public class DialogueSystem : MonoBehaviour
@@ -28,6 +29,8 @@ public class DialogueSystem : MonoBehaviour
     private bool continuePressed;
     private int choiceIndex = -1;
     private System.Action<int, DialogueChoice> onChoiceMade;
+
+    private readonly List<GameObject> hiddenHUD = new List<GameObject>();
 
     // Face animation state
     private Sprite[] activeFaceFrames;
@@ -156,6 +159,7 @@ public class DialogueSystem : MonoBehaviour
     IEnumerator DisplayDialogue(string[] lines)
     {
         IsDialogueActive = true;
+        HideHUDForDialogue();
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -174,6 +178,7 @@ public class DialogueSystem : MonoBehaviour
     IEnumerator DisplayDialogueWithChoices(string[] lines, string[] choiceTexts, string[][] choiceResponses)
     {
         IsDialogueActive = true;
+        HideHUDForDialogue();
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -192,6 +197,7 @@ public class DialogueSystem : MonoBehaviour
     IEnumerator DisplayDialogueWithChoiceTree(string[] lines, DialogueChoice[] choices)
     {
         IsDialogueActive = true;
+        HideHUDForDialogue();
         if (dialoguePanel != null)
             dialoguePanel.SetActive(true);
         if (closeButton != null)
@@ -299,6 +305,7 @@ public class DialogueSystem : MonoBehaviour
         currentDialogue = null;
         activeFaceFrames = null;
         IsDialogueActive = false;
+        RestoreHUDAfterDialogue();
         SaveManager.Instance?.AutoSave();
     }
 
@@ -412,5 +419,40 @@ public class DialogueSystem : MonoBehaviour
             currentDialogue = null;
         }
         HideDialogue();
+    }
+
+    void HideHUDForDialogue()
+    {
+        hiddenHUD.Clear();
+
+        SkillHudLayoutController[] skillHuds = FindObjectsByType<SkillHudLayoutController>(FindObjectsInactive.Exclude);
+        foreach (SkillHudLayoutController hud in skillHuds)
+        {
+            if (hud != null && hud.gameObject.activeSelf)
+            {
+                hiddenHUD.Add(hud.gameObject);
+                hud.gameObject.SetActive(false);
+            }
+        }
+
+        BlockButton[] blockButtons = FindObjectsByType<BlockButton>(FindObjectsInactive.Exclude);
+        foreach (BlockButton btn in blockButtons)
+        {
+            if (btn != null && btn.gameObject.activeSelf)
+            {
+                hiddenHUD.Add(btn.gameObject);
+                btn.gameObject.SetActive(false);
+            }
+        }
+    }
+
+    void RestoreHUDAfterDialogue()
+    {
+        foreach (GameObject go in hiddenHUD)
+        {
+            if (go != null)
+                go.SetActive(true);
+        }
+        hiddenHUD.Clear();
     }
 }

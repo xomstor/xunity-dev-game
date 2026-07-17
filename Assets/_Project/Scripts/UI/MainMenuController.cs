@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using System.Collections;
 using TMPro;
+using UnityEngine.InputSystem;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -62,6 +63,7 @@ public class MainMenuController : MonoBehaviour
     private bool introPlaying;
     private bool introSkipRequested;
     private bool isTransitioning;
+    private Coroutine panelAnimationCoroutine;
 
     private static readonly Vector2 MainButtonSize = new Vector2(520, 100);
     private static readonly Vector2 PanelSize = new Vector2(560, 640);
@@ -190,9 +192,6 @@ public class MainMenuController : MonoBehaviour
             canvas = existingCanvas;
             return;
         }
-
-        canvas = FindAnyObjectByType<Canvas>();
-        if (canvas != null) return;
 
         GameObject canvasGO = new GameObject("MainMenuCanvas");
         canvas = canvasGO.AddComponent<Canvas>();
@@ -729,7 +728,15 @@ public class MainMenuController : MonoBehaviour
 
         if (introPlaying && !introSkipRequested)
         {
-            if (Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.touchCount > 0)
+            var keyboard = Keyboard.current;
+            var mouse = Mouse.current;
+            var touchscreen = Touchscreen.current;
+
+            bool anyKey = keyboard != null && keyboard.anyKey.wasPressedThisFrame;
+            bool mouseDown = mouse != null && mouse.leftButton.wasPressedThisFrame;
+            bool touch = touchscreen != null && touchscreen.press.wasPressedThisFrame;
+
+            if (anyKey || mouseDown || touch)
                 introSkipRequested = true;
         }
     }
@@ -800,6 +807,11 @@ public class MainMenuController : MonoBehaviour
 
     void ExecutePlayLogic()
     {
+        StopBGM();
+
+        if (canvas != null)
+            Destroy(canvas.gameObject);
+
         bool autoSaveIsMainMenu = false;
         if (SaveManager.Instance != null && SaveManager.Instance.HasSave(SaveManager.AutoSaveSlot))
         {
@@ -951,7 +963,52 @@ public class MainMenuController : MonoBehaviour
         {
             if (mainPanel != null) mainPanel.SetActive(true);
         }
-        panel.SetActive(show);
+        if (show)
+        {
+            if (panelAnimationCoroutine != null)
+                StopCoroutine(panelAnimationCoroutine);
+            panelAnimationCoroutine = StartCoroutine(AnimatePanelIn(panel));
+        }
+        else
+        {
+            panel.SetActive(false);
+        }
+    }
+
+    IEnumerator AnimatePanelIn(GameObject panel)
+    {
+        panel.SetActive(true);
+        RectTransform rect = panel.GetComponent<RectTransform>();
+        CanvasGroup group = panel.GetComponent<CanvasGroup>();
+        if (group == null) group = panel.AddComponent<CanvasGroup>();
+        Vector3 targetScale = rect != null ? rect.localScale : Vector3.one;
+        Vector2 targetPosition = rect != null ? rect.anchoredPosition : Vector2.zero;
+        if (rect != null)
+        {
+            rect.localScale = targetScale * 0.96f;
+            rect.anchoredPosition = targetPosition + new Vector2(0f, -18f);
+        }
+        group.alpha = 0f;
+        float elapsed = 0f;
+        while (elapsed < 0.18f)
+        {
+            elapsed += Time.unscaledDeltaTime;
+            float t = Mathf.SmoothStep(0f, 1f, elapsed / 0.18f);
+            group.alpha = t;
+            if (rect != null)
+            {
+                rect.localScale = Vector3.Lerp(targetScale * 0.96f, targetScale, t);
+                rect.anchoredPosition = Vector2.Lerp(targetPosition + new Vector2(0f, -18f), targetPosition, t);
+            }
+            yield return null;
+        }
+        group.alpha = 1f;
+        if (rect != null)
+        {
+            rect.localScale = targetScale;
+            rect.anchoredPosition = targetPosition;
+        }
+        panelAnimationCoroutine = null;
     }
 
     void HideAllPanels()

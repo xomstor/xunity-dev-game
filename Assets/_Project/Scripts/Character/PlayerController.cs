@@ -74,12 +74,14 @@ public class PlayerController : MonoBehaviour
     private Collider2D ignoredPlatform;
     private bool isWallSliding;
     private int wallDirection;
+    private float wallJumpLockTimer;
 
     void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         col = GetComponent<BoxCollider2D>();
         anim = GetComponent<Animator>();
+        fixedStartTime = Time.fixedTime;
 
         if (playerStats == null)
             playerStats = GetComponent<PlayerStats>();
@@ -173,8 +175,13 @@ public class PlayerController : MonoBehaviour
 
         moveInput = keyboardMoveInput != 0f ? keyboardMoveInput : externalMoveInput;
         rawMoveInput = moveInput;
+        if (Mathf.Abs(moveInput) > 0.1f)
+            TutorialHintManager.ShowHint("movement", "Use A/D or the virtual joystick to move.");
         if (isCrouching)
             moveInput = 0f;
+
+        if (wallJumpLockTimer > 0f)
+            wallJumpLockTimer -= Time.deltaTime;
 
         UpdateRoll();
         UpdateMoveSpeed();
@@ -351,6 +358,10 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+    private Vector2 lastDebugPos;
+    private bool debugPosInitialized;
+    private float fixedStartTime;
+
     void FixedUpdate()
     {
         CheckGround();
@@ -378,6 +389,24 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(moveInput * currentMoveSpeed, rb.linearVelocity.y);
         }
+
+        if (rb != null)
+        {
+            Vector2 pos = rb.position;
+            if (!debugPosInitialized)
+            {
+                lastDebugPos = pos;
+                debugPosInitialized = true;
+            }
+            float dist = Vector2.Distance(pos, lastDebugPos);
+            float elapsedFixed = Time.fixedTime - fixedStartTime;
+            bool logThisFrame = elapsedFixed < 5f && elapsedFixed % 0.25f < Time.fixedDeltaTime;
+            if (logThisFrame || dist > 0.5f)
+            {
+                Debug.Log($"[PlayerController] pos={pos} vel={rb.linearVelocity} grounded={isGrounded} distSinceLast={dist:F2}");
+                lastDebugPos = pos;
+            }
+        }
     }
 
     void UpdateAnimator()
@@ -388,7 +417,7 @@ public class PlayerController : MonoBehaviour
         anim.SetInteger("AnimState", animState);
         anim.SetBool("Grounded", isGrounded);
         anim.SetFloat("AirSpeedY", rb.linearVelocity.y);
-        anim.SetBool("WallSlide", isWallSliding);
+        anim.SetBool("WallSlide", isWallSliding && wallJumpLockTimer <= 0f);
 
         playerAudio?.SetMovement(isMoving, currentMoveSpeed);
     }
@@ -405,7 +434,12 @@ public class PlayerController : MonoBehaviour
 
     void CheckWall()
     {
-        if (!enableWallSlide || isGrounded) { isWallSliding = false; return; }
+        if (!enableWallSlide || isGrounded || wallJumpLockTimer > 0f)
+        {
+            isWallSliding = false;
+            wallDirection = 0;
+            return;
+        }
 
         Bounds bounds = col.bounds;
         float skin = 0.05f;
@@ -461,9 +495,14 @@ public class PlayerController : MonoBehaviour
 
     void WallJump()
     {
+        int jumpWallDirection = wallDirection;
         isWallSliding = false;
+        wallDirection = 0;
+        wallJumpLockTimer = 0.18f;
         jumpCount = Mathf.Max(jumpCount, 1);
-        rb.linearVelocity = new Vector2(-wallDirection * wallJumpForceX, wallJumpForceY);
+        rb.linearVelocity = new Vector2(-jumpWallDirection * wallJumpForceX, wallJumpForceY);
+        if (anim != null)
+            anim.SetBool("WallSlide", false);
         playerAudio?.PlayJump();
     }
 
@@ -521,6 +560,7 @@ public class PlayerController : MonoBehaviour
         {
             rb.linearVelocity = new Vector2(rb.linearVelocity.x, jumpForce);
             jumpCount--;
+            TutorialHintManager.ShowHint("jump", "Press Space, W or the jump button to leap.");
             
             // Отслеживаем прыжок в статистике
             GameStatistics.Instance?.RecordJump();

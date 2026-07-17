@@ -15,6 +15,10 @@ public class AutoCombat : MonoBehaviour
     public bool faceRightByDefault = true;
     public string[] ignoreTags = new string[] { "World" };
 
+    [Header("Level Binding")]
+    [Tooltip("Уровень, к которому привязан этот враг. 0 = активен на любом уровне.")]
+    public int enemyLevelIndex = 0;
+
     [Header("Stats")]
     public int maxHealth = 100;
     public int damage = 10;
@@ -213,6 +217,13 @@ public class AutoCombat : MonoBehaviour
     void Update()
     {
         if (isDead) return;
+
+        if (team == CombatTeam.Enemy && !IsOnActiveLevel())
+        {
+            if (rb != null) rb.linearVelocity = Vector2.zero;
+            SetAnimState(0);
+            return;
+        }
 
         if (attackTimer > 0)
             attackTimer -= Time.deltaTime;
@@ -430,7 +441,8 @@ public class AutoCombat : MonoBehaviour
 
     bool IsValidAttackTarget(AutoCombat other)
     {
-        return other != null && other != this && !other.isDead && other.canBeTargeted && IsValidTarget(other.team) && !HasIgnoreTag(other.transform);
+        return other != null && other != this && !other.isDead && other.canBeTargeted && IsValidTarget(other.team) && !HasIgnoreTag(other.transform)
+            && (other.team != CombatTeam.Enemy || other.IsOnActiveLevel());
     }
 
     bool CanReachCombatColliders(AutoCombat other)
@@ -1052,5 +1064,12 @@ public class AutoCombat : MonoBehaviour
         // Радиус обнаружения (жёлтый)
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, detectionRadius);
+    }
+
+    public bool IsOnActiveLevel()
+    {
+        if (enemyLevelIndex <= 0) return true;
+        if (WorldLevelManager.Instance == null) return true;
+        return enemyLevelIndex == WorldLevelManager.Instance.currentLevelIndex;
     }
 }

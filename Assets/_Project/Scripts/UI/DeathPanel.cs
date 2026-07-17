@@ -148,7 +148,6 @@ public static class DeathPanel
         if (PlayerStateTransfer.Instance != null)
         {
             PlayerStateTransfer.Instance.overrideHp = stats.maxHp;
-            PlayerStateTransfer.Instance.spawnAtHub = true;
         }
 
         Debug.Log("[DeathPanel] Returning to GameScene (hub)...");

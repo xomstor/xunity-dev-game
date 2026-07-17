@@ -112,6 +112,9 @@ public abstract class PlayerSkillInstance : MonoBehaviour
         return Data.GetCooldown(level);
     }
 
+    public float CooldownRemaining => Mathf.Max(0f, cooldownTimer);
+    public float CooldownProgress => GetCurrentCooldown() <= 0f ? 0f : Mathf.Clamp01(cooldownTimer / GetCurrentCooldown());
+
     protected PlayerSkillsManager EnsureManager()
     {
         var manager = GetComponent<PlayerSkillsManager>();

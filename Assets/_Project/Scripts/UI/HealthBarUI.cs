@@ -77,6 +77,8 @@ public class HealthBarUI : MonoBehaviour
         }
     }
 
+    private int lastAppliedStyle = -1;
+
     void LateUpdate()
     {
         if (target == null)
@@ -90,7 +92,12 @@ public class HealthBarUI : MonoBehaviour
 
         gameObject.SetActive(true);
 
-        ApplyStyle();
+        int currentStyle = PlayerPrefs.GetInt(HealthBarStyleKey, 0);
+        if (currentStyle != lastAppliedStyle)
+        {
+            ApplyStyle();
+            lastAppliedStyle = currentStyle;
+        }
 
         if (followTarget && target != null)
         {

@@ -40,6 +40,12 @@ public class ThrowSkillButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
             iconImage.type = Image.Type.Simple;
             iconImage.preserveAspect = true;
         }
+        else if (iconImage != null)
+        {
+            iconImage.sprite = CreateCircleSprite();
+            iconImage.type = Image.Type.Simple;
+            iconImage.preserveAspect = true;
+        }
 
         if (button != null)
             button.onClick.RemoveAllListeners();
@@ -80,5 +86,23 @@ public class ThrowSkillButton : MonoBehaviour, IPointerDownHandler, IPointerUpHa
     public void OnPointerExit(PointerEventData eventData)
     {
         throwAbility?.SetInputHeld(false);
+    }
+
+    static Sprite CreateCircleSprite(int resolution = 128)
+    {
+        Texture2D texture = new Texture2D(resolution, resolution, TextureFormat.RGBA32, false);
+        Color[] pixels = new Color[resolution * resolution];
+        Vector2 center = new Vector2((resolution - 1) * 0.5f, (resolution - 1) * 0.5f);
+        float radius = resolution * 0.5f - 1f;
+        for (int y = 0; y < resolution; y++)
+        for (int x = 0; x < resolution; x++)
+        {
+            float distance = Vector2.Distance(new Vector2(x, y), center);
+            float alpha = Mathf.Clamp01(radius + 1f - distance);
+            pixels[y * resolution + x] = new Color(1f, 1f, 1f, alpha);
+        }
+        texture.SetPixels(pixels);
+        texture.Apply();
+        return Sprite.Create(texture, new Rect(0f, 0f, resolution, resolution), new Vector2(0.5f, 0.5f), 100f);
     }
 }

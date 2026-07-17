@@ -22,4 +22,10 @@ public class PersistentUI : MonoBehaviour
         DontDestroyOnLoad(rootGO);
         Debug.Log("[PersistentUI] Made persistent: " + rootGO.name);
     }
+
+    void OnDestroy()
+    {
+        if (Instance == this)
+            Instance = null;
+    }
 }

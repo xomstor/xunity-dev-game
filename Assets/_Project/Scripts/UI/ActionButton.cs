@@ -22,7 +22,8 @@ public class ActionButton : MonoBehaviour
     [Tooltip("Diameter of the visible circle in pixels. It will be smaller than the tap zone.")]
     public float circleVisualSize = 150f;
     [Tooltip("Vertical offset of the visual circle relative to the tap zone center.")]
-    public float circleVisualOffsetY = 60f;
+    public float circleVisualOffsetY = 0f;
+    public float topScreenOffsetY = 460f;
     [Tooltip("Speed of the visual pulse fade in/out.")]
     public float pulseSpeed = 2f;
     [Tooltip("Alpha range of the pulse effect.")]
@@ -105,7 +106,7 @@ public class ActionButton : MonoBehaviour
             tapRt.anchorMin = new Vector2(0.5f, 0.5f);
             tapRt.anchorMax = new Vector2(0.5f, 0.5f);
             tapRt.pivot = new Vector2(0.5f, 0.5f);
-            tapRt.anchoredPosition = centeredCircleMode ? Vector2.zero : anchoredPosition;
+            tapRt.anchoredPosition = centeredCircleMode ? new Vector2(0f, topScreenOffsetY) : anchoredPosition;
             tapRt.sizeDelta = centeredCircleMode ? new Vector2(tapZoneSize, tapZoneSize) : size;
 
             tapZone.AddComponent<CanvasRenderer>();
@@ -200,6 +201,8 @@ public class ActionButton : MonoBehaviour
         bool paused = PauseMenu.IsPaused;
         bool inDialogue = DialogueSystem.IsDialogueActive;
         bool nearInteractable = !showOnlyNearDialogue || PlayerAction.HasInteractableNearby();
+        if (!paused && !inDialogue && nearInteractable)
+            TutorialHintManager.ShowHint("interact", "Press E or tap the interaction button to talk.");
         bool shouldShow = !paused && !inDialogue && nearInteractable;
         if (tapZone.activeSelf != shouldShow)
             tapZone.SetActive(shouldShow);

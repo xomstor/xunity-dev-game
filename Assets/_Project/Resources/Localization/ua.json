@@ -10,6 +10,13 @@
   "Settings.FloatingJoystick": "Плаваючий джойстік",
   "Settings.HeartStyle": "Сердечка замість смужок",
   "Settings.Language": "Мова",
+  "Settings.ChangeLayout": "Змінити розкладку",
+  "Settings.ResetSkillLayout": "Скинути розкладку навичок",
+
+  "Loadout.Title": "Збірка",
+  "Loadout.EmptySlot": "Порожньо",
+  "Loadout.ClearSlot": "Очистити слот",
+  "Loadout.SelectSlot": "Оберіть слот вище",
 
   "Language.Title": "Вибір мови",
   "Language.Russian": "Обычный",

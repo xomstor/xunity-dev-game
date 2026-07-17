@@ -10,6 +10,13 @@
   "Settings.FloatingJoystick": "Floating Joystick",
   "Settings.HeartStyle": "Hearts instead of bars",
   "Settings.Language": "Tongue",
+  "Settings.ChangeLayout": "Change layout",
+  "Settings.ResetSkillLayout": "Reset skill layout",
+
+  "Loadout.Title": "Loadout",
+  "Loadout.EmptySlot": "Empty",
+  "Loadout.ClearSlot": "Clear slot",
+  "Loadout.SelectSlot": "Select a slot above",
 
   "Language.Title": "Choose tongue",
   "Language.Russian": "Обычный",

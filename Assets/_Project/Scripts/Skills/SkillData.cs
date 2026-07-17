@@ -1,6 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+public enum SkillBehavior
+{
+    Projectile,
+    SpawnObject,
+    AreaEffect,
+    Decoy
+}
+
 [CreateAssetMenu(fileName = "NewSkill", menuName = "Skills/Skill Data", order = 0)]
 public class SkillData : ScriptableObject
 {
@@ -17,6 +25,14 @@ public class SkillData : ScriptableObject
     public float projectileSpeed = 12f;
     public float projectileLifetime = 3f;
     public ElementalType projectileElement = ElementalType.Fire;
+
+    [Header("Behavior")]
+    public SkillBehavior behavior = SkillBehavior.Projectile;
+    public GameObject specialPrefab;
+    public float effectRadius = 1.5f;
+    public float effectDuration = 3f;
+    public float effectTickRate = 0.5f;
+    public float slowMultiplier = 0.5f;
 
     [Header("Stats")]
     public int baseDamage = 20;

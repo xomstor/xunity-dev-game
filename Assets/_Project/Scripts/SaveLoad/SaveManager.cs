@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -201,11 +202,12 @@ public class SaveManager : MonoBehaviour
             if (!string.IsNullOrEmpty(data.sceneName) && data.sceneName != SceneManager.GetActiveScene().name)
             {
                 pendingLoadData = data;
+                pendingLoadFromOtherScene = true;
                 SceneManager.LoadScene(data.sceneName);
             }
             else
             {
-                ApplyGameData(data);
+                ApplyGameData(data, false);
             }
             lastUsedSlot = slot;
             Debug.Log($"[SaveManager] Loaded slot {slot}: {data.sceneName}");
@@ -382,26 +384,41 @@ public class SaveManager : MonoBehaviour
     }
 
     GameData pendingLoadData;
+    bool pendingLoadFromOtherScene;
 
     void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        PlayerSpawner.ResetReady();
+
         if (pendingLoadData != null)
         {
-            ApplyGameData(pendingLoadData);
+            ApplyGameData(pendingLoadData, pendingLoadFromOtherScene);
             pendingLoadData = null;
+            pendingLoadFromOtherScene = false;
+            return;
         }
-        else if (scene.name != "MainMenu")
+
+        if (scene.name != "MainMenu")
         {
+            GameObject player = PlayerSpawner.GetOrCreateInstance()?.EnsurePlayerExists();
+            if (player != null)
+            {
+                PlayerSpawner spawner = PlayerSpawner.GetOrCreateInstance();
+                if (spawner != null) spawner.SnapToSpawnPoint(player);
+                PlayerSpawner.NotifyPlayerReady();
+            }
             AutoSave();
         }
     }
 
-    void ApplyGameData(GameData data)
+    void ApplyGameData(GameData data, bool fromOtherScene = false)
     {
-        if (FindAnyObjectByType<PlayerStats>() == null)
-            PlayerSpawner.Instance?.EnsurePlayerExists();
+        GameObject player = PlayerSpawner.GetOrCreateInstance()?.EnsurePlayerExists();
 
-        PlayerStats stats = FindAnyObjectByType<PlayerStats>();
+        PlayerStats stats = player != null ? player.GetComponent<PlayerStats>() : null;
+        if (stats == null) stats = player != null ? player.GetComponentInChildren<PlayerStats>() : null;
+        if (stats == null) stats = FindAnyObjectByType<PlayerStats>();
+
         if (stats != null && data.playerStats != null)
         {
             stats.hp = data.playerStats.hp;
@@ -424,7 +441,10 @@ public class SaveManager : MonoBehaviour
             stats.baseCritChance = data.playerStats.baseCritChance;
             stats.critDamageMultiplier = data.playerStats.critDamageMultiplier;
 
-            stats.transform.position = new Vector3(data.playerPosX, data.playerPosY, data.playerPosZ);
+            Vector3 savedPos = new Vector3(data.playerPosX, data.playerPosY, data.playerPosZ);
+            if (savedPos == Vector3.zero) fromOtherScene = true;
+            Vector3? targetPos = fromOtherScene ? (Vector3?)null : savedPos;
+            PlayerSpawner.GetOrCreateInstance()?.SnapToSpawnPoint(stats.gameObject, targetPos);
         }
 
         Inventory inv = FindAnyObjectByType<Inventory>();
@@ -479,8 +499,7 @@ public class SaveManager : MonoBehaviour
             playerCombat.ResetHealth();
         }
 
-        PauseMenu pauseMenu = FindAnyObjectByType<PauseMenu>();
-        pauseMenu?.RefreshStats();
+        PlayerSpawner.NotifyPlayerReady();
 
         PlayerStateTransfer.Instance?.ClearSnapshot();
     }
@@ -560,4 +579,5 @@ public class SaveManager : MonoBehaviour
         }
         return null;
     }
+
 }
